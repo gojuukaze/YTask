@@ -1,8 +1,8 @@
 package redisBroker
 
 import (
-	"YTask/v1/yerrors"
-	"YTask/v1/ymsg"
+	"github.com/gojuukaze/YTask/v1/yerrors"
+	"github.com/gojuukaze/YTask/v1/ymsg"
 	"encoding/json"
 	"github.com/gomodule/redigo/redis"
 	"time"

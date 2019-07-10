@@ -1,7 +1,7 @@
 package workers
 
 import (
-	"YTask/v1/ymsg"
+	"github.com/gojuukaze/YTask/v1/ymsg"
 	"encoding/json"
 	"fmt"
 )

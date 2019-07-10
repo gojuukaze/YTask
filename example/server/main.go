@@ -2,9 +2,9 @@ package main
 
 import (
 	"YTask/example/server/workers"
-	"YTask/v1/brokers/redisBroker"
-	"YTask/v1/config"
-	"YTask/v1/ytask"
+	"github.com/gojuukaze/YTask/v1/brokers/redisBroker"
+	"github.com/gojuukaze/YTask/v1/config"
+	"github.com/gojuukaze/YTask/v1/ytask"
 	"context"
 	"flag"
 	"os"

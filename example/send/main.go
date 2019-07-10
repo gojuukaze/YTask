@@ -1,10 +1,10 @@
 package main
 
 import (
-	"YTask/v1/brokers/redisBroker"
-	"YTask/v1/config"
-	"YTask/v1/ymsg"
-	"YTask/v1/ytask"
+	"github.com/gojuukaze/YTask/v1/brokers/redisBroker"
+	"github.com/gojuukaze/YTask/v1/config"
+	"github.com/gojuukaze/YTask/v1/ymsg"
+	"github.com/gojuukaze/YTask/v1/ytask"
 	"flag"
 	"time"
 )

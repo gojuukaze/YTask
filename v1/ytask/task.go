@@ -1,12 +1,12 @@
 package ytask
 
 import (
-	"YTask/v1/brokers"
-	"YTask/v1/config"
-	"YTask/v1/yerrors"
-	"YTask/v1/ylog"
-	"YTask/v1/ymsg"
-	"YTask/v1/yworker"
+	"github.com/gojuukaze/YTask/v1/brokers"
+	"github.com/gojuukaze/YTask/v1/config"
+	"github.com/gojuukaze/YTask/v1/yerrors"
+	"github.com/gojuukaze/YTask/v1/ylog"
+	"github.com/gojuukaze/YTask/v1/ymsg"
+	"github.com/gojuukaze/YTask/v1/yworker"
 	"context"
 	"encoding/json"
 	"errors"
