@@ -1,16 +1,15 @@
 package ytask
 
 import (
+	"context"
+	"encoding/json"
+	"errors"
 	"github.com/gojuukaze/YTask/v1/brokers"
 	"github.com/gojuukaze/YTask/v1/config"
 	"github.com/gojuukaze/YTask/v1/yerrors"
 	"github.com/gojuukaze/YTask/v1/ylog"
 	"github.com/gojuukaze/YTask/v1/ymsg"
 	"github.com/gojuukaze/YTask/v1/yworker"
-	"context"
-	"encoding/json"
-	"errors"
-	"fmt"
 	"github.com/sirupsen/logrus"
 	"reflect"
 	"sync"
@@ -100,7 +99,6 @@ func (t *YTask) waitTask() {
 	t.wg.Wait()
 
 	close(t.waitFlag)
-	fmt.Println(111)
 
 }
 
