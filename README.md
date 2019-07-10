@@ -7,9 +7,9 @@ go get github.com/gojuukaze/YTask
 ```
 
 # todo
--[ ] save result  
--[ ] task retry  
--[ ] support amqp
+- [ ] save result  
+- [ ] task retry  
+- [ ] support amqp
 
 # example
 
