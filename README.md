@@ -125,3 +125,71 @@ go run example/server/main.go -g ytask2
 
 go run example/send/main.go -g ytask2
 ```
+
+# usage
+
+## broker
+
+* redis
+
+```go
+import "github.com/gojuukaze/YTask/v1/brokers/redisBroker"
+
+// 127.0.0.1 : host
+// 6379 : port
+// "" : password
+// 0 : db
+// 10 : number of connections in the pool
+redisBroker.NewRedisBroker("127.0.0.1", "6379", "", 0, 10)
+```
+
+## worker
+
+```go
+type WorkerInterface interface {
+	Run(msg ymsg.Message) error
+	Name() string
+}
+```
+
+## task group
+
+```go
+t:=ytask.NewYTask(config.Config{...})
+
+
+// group1 : group name
+// worker{} : worker struct
+t.Add("group1",woker{})
+
+t.Add("group2",woker{})
+```
+
+* run
+```go
+// group1 : group name
+// 10 : number of concurrency
+t.Run("group1", 10)
+```
+
+* shutdown
+```go
+ctx := context.Background()
+
+t.Shutdown(ctx)
+
+```
+
+## log
+
+use logrus
+
+```go
+import "github.com/gojuukaze/YTask/v1/ylog"
+
+file, _ := os.OpenFile(filePath,  os.O_RDWR | os.O_APPEND | os. O_CREATE,066)
+ylog.YTaskLog.SetOutput(file)
+
+ylog.YTaskLog.SetOutput(logrus.InfoLevel)
+```
+
