@@ -1,7 +1,7 @@
 package worker
 
 import (
-	"github.com/gojuukaze/YTask/v1.1/message"
+	"github.com/gojuukaze/YTask/v2/message"
 	"reflect"
 )
 

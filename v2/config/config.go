@@ -1,6 +1,6 @@
 package config
 
-import "github.com/gojuukaze/YTask/v1.1/brokers"
+import "github.com/gojuukaze/YTask/v2/brokers"
 
 type Config struct {
 	Broker brokers.BrokerInterface

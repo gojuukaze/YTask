@@ -3,7 +3,7 @@ package workers
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/gojuukaze/YTask/v1.1/message"
+	"github.com/gojuukaze/YTask/v2/message"
 )
 
 func AddFunc(msg message.Message) error {
