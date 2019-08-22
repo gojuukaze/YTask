@@ -2,8 +2,8 @@ package main
 
 import (
 	"context"
-	"github.com/gojuukaze/YTask/example/v1.1/server/workers"
-	"github.com/gojuukaze/YTask/v1.1"
+	"github.com/gojuukaze/YTask/example/v2/server/workers"
+	"github.com/gojuukaze/YTask/v2"
 	"time"
 )
 

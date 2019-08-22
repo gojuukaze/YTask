@@ -1,9 +1,9 @@
 package main
 
 import (
-	"github.com/gojuukaze/YTask/v1.1"
-	"github.com/gojuukaze/YTask/v1.1/message"
-	"github.com/gojuukaze/YTask/v1.1/server"
+	"github.com/gojuukaze/YTask/v2"
+	"github.com/gojuukaze/YTask/v2/message"
+	"github.com/gojuukaze/YTask/v2/server"
 
 	"flag"
 	"time"
