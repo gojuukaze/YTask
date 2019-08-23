@@ -24,10 +24,13 @@ type Server struct {
 
 	broker brokers.BrokerInterface
 
-	wg           sync.WaitGroup
-	shutdownFlag bool
-	waitFlag     chan struct{}
-	lock         sync.RWMutex
+	workerReadyChan chan struct{}
+	msgChan         chan message.Message
+
+	getMessageGoroutineStopChan chan struct{}
+	workerGoroutineStopChan     chan struct{}
+
+	safeStopChan chan struct{}
 }
 
 func NewServer(c config.Config) Server {
@@ -37,10 +40,82 @@ func NewServer(c config.Config) Server {
 		log.YTaskLog.SetLevel(logrus.DebugLevel)
 	}
 	return Server{
-		workerGroup: g,
-		broker:      c.Broker,
-		waitFlag:    make(chan struct{}),
+		workerGroup:  g,
+		broker:       c.Broker,
+		safeStopChan: make(chan struct{}),
 	}
+}
+
+// get next message if worker is ready
+func (t *Server) GetMessageGoroutine(groupName string) {
+	log.YTaskLog.Debug("getMessage goroutine start")
+	var msg message.Message
+	var err error
+	for range t.workerReadyChan {
+
+		msg, err = t.Get(groupName)
+
+		if err != nil {
+			go t.MakeWorkerReady()
+			if err != yerrors.ErrEmptyQuery {
+				log.YTaskLog.Error("get msg error: ", err)
+			}
+			continue
+		}
+		log.YTaskLog.Infof("New msg %+v", msg)
+		t.msgChan <- msg
+	}
+
+	t.getMessageGoroutineStopChan <- struct{}{}
+	log.YTaskLog.Debug("getMessage goroutine stop")
+
+}
+
+func (t *Server) MakeWorkerReady() {
+	defer func() {
+		recover()
+	}()
+	t.workerReadyChan <- struct{}{}
+}
+
+func (t *Server) WorkerGoroutine(groupName string) {
+	log.YTaskLog.Debug("worker goroutine start")
+
+	workerMap, _ := t.workerGroup[groupName]
+	waitWorkerWG := sync.WaitGroup{}
+
+	for msg := range t.msgChan {
+		go func(msg message.Message) {
+			defer func() {
+				e := recover()
+				if e != nil {
+					log.YTaskLog.Errorf("Run worker[%s] panic %v", msg.WorkerName, e)
+				}
+			}()
+
+			defer func() {
+				go t.MakeWorkerReady()
+			}()
+
+			waitWorkerWG.Add(1)
+			defer waitWorkerWG.Done()
+
+			w, ok := workerMap[msg.WorkerName]
+			if ok {
+				err := w.Run(msg)
+				if err != nil {
+					log.YTaskLog.Errorf("Run worker[%s] error %s", msg.WorkerName, err)
+				}
+			} else {
+				log.YTaskLog.Error("not found worker", msg.WorkerName)
+			}
+		}(msg)
+	}
+
+	waitWorkerWG.Wait()
+	t.workerGoroutineStopChan <- struct{}{}
+	log.YTaskLog.Debug("worker goroutine stop")
+
 }
 
 func (t *Server) Run(groupName string, numWorkers int) {
@@ -49,79 +124,57 @@ func (t *Server) Run(groupName string, numWorkers int) {
 	if !ok {
 		panic("not find group '" + groupName + "'")
 	}
-	log.YTaskLog.Infof("Start group[%s]", groupName)
+	log.YTaskLog.Infof("Start group[%s] numWorkers=%d", groupName, numWorkers)
 
 	log.YTaskLog.Info("group workers:")
 	for name := range workerMap {
 		log.YTaskLog.Info("  - " + name)
 	}
 
-	t.wg.Add(numWorkers)
+	t.workerReadyChan = make(chan struct{}, numWorkers)
+	t.msgChan = make(chan message.Message, numWorkers)
+
+	t.getMessageGoroutineStopChan = make(chan struct{}, 1)
+	go t.GetMessageGoroutine(groupName)
+	t.workerGoroutineStopChan = make(chan struct{}, 1)
+
+	go t.WorkerGoroutine(groupName)
 
 	for i := 0; i < numWorkers; i++ {
-		go func(workerId int) {
-			defer t.wg.Done()
-
-			for {
-				t.lock.RLock()
-				if t.shutdownFlag {
-					t.lock.RUnlock()
-					log.YTaskLog.Debugf("worker[%d] stop", workerId)
-					return
-				}
-				t.lock.RUnlock()
-				msg, err := t.Get(groupName)
-
-				if err != nil {
-					if err == yerrors.ErrEmptyQuery {
-						continue
-					}
-					log.YTaskLog.Error("get msg error: ", err)
-				}
-				log.YTaskLog.Infof("New msg %+v", msg)
-				worker, ok := workerMap[msg.WorkerName]
-				if ok {
-					err = worker.Run(msg)
-					if err != nil {
-						log.YTaskLog.Errorf("Run worker[%s] error %s", msg.WorkerName, err)
-					}
-				} else {
-					log.YTaskLog.Error("not found worker", msg.WorkerName)
-				}
-
-			}
-		}(i)
+		t.workerReadyChan <- struct{}{}
 	}
+
 }
 
-func (t *Server) waitTask() {
+func (t *Server) safeStop() {
 	log.YTaskLog.Info("waiting for incomplete tasks ")
-	t.wg.Wait()
 
-	close(t.waitFlag)
+	// stop get message goroutine
+	close(t.workerReadyChan)
+	<-t.getMessageGoroutineStopChan
+
+	// stop worker goroutine
+	close(t.msgChan)
+	<-t.workerGoroutineStopChan
+
+	close(t.safeStopChan)
 
 }
 
 func (t *Server) Shutdown(ctx context.Context) error {
 
-	t.lock.Lock()
-	t.shutdownFlag = true
-	t.lock.Unlock()
-
 	go func() {
-		t.waitTask()
+		t.safeStop()
 	}()
 
 	select {
-	case <-t.waitFlag:
+	case <-t.safeStopChan:
 	case <-ctx.Done():
 		return ctx.Err()
-
 	}
 
 	log.YTaskLog.Info("Shutdown!")
 	return nil
-
 }
 
 // add worker to group

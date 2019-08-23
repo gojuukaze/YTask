@@ -6,7 +6,6 @@ import (
 	"github.com/gojuukaze/YTask/v2/server"
 
 	"flag"
-	"time"
 )
 
 type NumArgs struct {
@@ -59,15 +58,34 @@ func main() {
 		ytask.Config.Debug(true),
 	)
 
-	ser.Send("g1", "func-add", NumArgs{
-		A: 123,
-		B: 111,
-	})
+	//ser.Send("g1", "func-add", NumArgs{
+	//	A: 123,
+	//	B: 111,
+	//})
+
+
 	ser.Send("g1", "struct-add", NumArgs{
-		A: 0,
-		B: 111,
+		A: 1,
+		B: 1,
 	})
 
-	time.Sleep(2 * time.Second)
+	ser.Send("g1", "struct-add", NumArgs{
+		A: 2,
+		B: 2,
+	})
+
+	ser.Send("g1", "struct-add", NumArgs{
+		A: 3,
+		B: 3,
+	})
+	ser.Send("g1", "struct-add", NumArgs{
+		A: 4,
+		B: 4,
+	})
+	ser.Send("g1", "struct-add", NumArgs{
+		A: 5,
+		B: 5,
+	})
+
 
 }

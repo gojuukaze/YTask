@@ -2,15 +2,11 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"github.com/gojuukaze/YTask/example/v2/server/workers"
 	"github.com/gojuukaze/YTask/v2"
-	"time"
 )
 
-type addArgs struct {
-	A int `json:"a"`
-	B int `json:"b"`
-}
 
 func main() {
 	b := ytask.Broker.NewRedisBroker("127.0.0.1", "6379", "", 0, 3)
@@ -23,7 +19,7 @@ func main() {
 	ser.Add("g1", "struct-add", workers.AddStruct{})
 
 	ser.Run("g1",2)
-	time.Sleep(5*time.Second)
+	fmt.Scanln()
 	ser.Shutdown(context.Background())
 
 }

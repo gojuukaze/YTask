@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/gojuukaze/YTask/v2/message"
+	"time"
 )
 
 type NumArgs struct {
@@ -18,7 +19,8 @@ type AddStruct struct {
 func (a AddStruct) Run(msg message.Message) error {
 	var args NumArgs
 	_ = json.Unmarshal([]byte(msg.JsonArgs), &args)
-
+	fmt.Println("run ",args.A)
+	time.Sleep(2*time.Second)
 	fmt.Println(args.A + args.B)
 	return nil
 }
