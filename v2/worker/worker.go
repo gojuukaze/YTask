@@ -5,11 +5,8 @@ import (
 	"reflect"
 )
 
-type RunnerInterface interface {
-	Run(msg message.Message) error
-}
 type WorkerInterface interface {
-	RunnerInterface
+	Run(msg message.Message) error
 	WorkerName() string
 }
 
@@ -19,27 +16,23 @@ type FuncWorker struct {
 }
 
 func (f FuncWorker) Run(msg message.Message) error {
-	funcValue := reflect.ValueOf(f.F)
-	r := funcValue.Call([]reflect.Value{reflect.ValueOf(msg)})
-	if r[0].Interface() == nil {
-		return nil
-	} else {
-		return r[0].Interface().(error)
-	}
+	return runFunc(f.F, msg)
 }
 func (f FuncWorker) WorkerName() string {
 	return f.Name
 }
 
-type StructWorker struct {
-	S    interface{}
-	Name string
-}
+func runFunc(f interface{}, msg message.Message) error {
+	funcValue := reflect.ValueOf(f)
+	inValue, err := GetCallInArgs(funcValue, msg.JsonArgs)
+	if err != nil {
+		return err
+	}
 
-func (s StructWorker) Run(msg message.Message) error {
-	return s.S.(RunnerInterface).Run(msg)
-}
+	r := funcValue.Call(inValue)
+	if r[0].IsNil() {
+		return nil
+	}
+	return r[0].Interface().(error)
 
-func (s StructWorker) WorkerName() string {
-	return s.Name
 }

@@ -15,8 +15,7 @@ func main() {
 		ytask.Config.Debug(true),
 	)
 
-	ser.Add("g1", "func-add", workers.AddFunc)
-	ser.Add("g1", "struct-add", workers.AddStruct{})
+	ser.Add("g1", "add", workers.Add)
 
 	ser.Run("g1",2)
 	fmt.Scanln()

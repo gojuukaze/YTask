@@ -2,8 +2,6 @@ package server
 
 import (
 	"context"
-	"encoding/json"
-	"errors"
 	"fmt"
 	"github.com/gojuukaze/YTask/v2/brokers"
 	"github.com/gojuukaze/YTask/v2/config"
@@ -16,7 +14,7 @@ import (
 	"sync"
 )
 
-// [workerName]woker
+// [workerName]worker
 type workerMap map[string]worker.WorkerInterface
 
 type Server struct {
@@ -48,7 +46,7 @@ func NewServer(c config.Config) Server {
 
 // get next message if worker is ready
 func (t *Server) GetMessageGoroutine(groupName string) {
-	log.YTaskLog.Debug("getMessage goroutine start")
+	log.YTaskLog.Debug("goroutine[GetMessage]: start")
 	var msg message.Message
 	var err error
 	for range t.workerReadyChan {
@@ -57,17 +55,18 @@ func (t *Server) GetMessageGoroutine(groupName string) {
 
 		if err != nil {
 			go t.MakeWorkerReady()
-			if err != yerrors.ErrEmptyQuery {
-				log.YTaskLog.Error("get msg error: ", err)
+			ytaskErr, ok := err.(yerrors.YtaskError)
+			if ok && ytaskErr.Type() != yerrors.ErrTypeEmptyQuery {
+				log.YTaskLog.Error("goroutine[GetMessage]: get msg error, ", err)
 			}
 			continue
 		}
-		log.YTaskLog.Infof("New msg %+v", msg)
+		log.YTaskLog.Infof("goroutine[GetMessage]: New msg %+v", msg)
 		t.msgChan <- msg
 	}
 
 	t.getMessageGoroutineStopChan <- struct{}{}
-	log.YTaskLog.Debug("getMessage goroutine stop")
+	log.YTaskLog.Debug("goroutine[GetMessage]: stop")
 
 }
 
@@ -78,8 +77,9 @@ func (t *Server) MakeWorkerReady() {
 	t.workerReadyChan <- struct{}{}
 }
 
+// start worker to run
 func (t *Server) WorkerGoroutine(groupName string) {
-	log.YTaskLog.Debug("worker goroutine start")
+	log.YTaskLog.Debug("goroutine[worker]: start")
 
 	workerMap, _ := t.workerGroup[groupName]
 	waitWorkerWG := sync.WaitGroup{}
@@ -104,17 +104,17 @@ func (t *Server) WorkerGoroutine(groupName string) {
 			if ok {
 				err := w.Run(msg)
 				if err != nil {
-					log.YTaskLog.Errorf("Run worker[%s] error %s", msg.WorkerName, err)
+					log.YTaskLog.Errorf("goroutine[worker]: Run worker[%s] error %s", msg.WorkerName, err)
 				}
 			} else {
-				log.YTaskLog.Error("not found worker", msg.WorkerName)
+				log.YTaskLog.Error("goroutine[worker]: not found worker", msg.WorkerName)
 			}
 		}(msg)
 	}
 
 	waitWorkerWG.Wait()
 	t.workerGoroutineStopChan <- struct{}{}
-	log.YTaskLog.Debug("worker goroutine stop")
+	log.YTaskLog.Debug("goroutine[worker]: stop")
 
 }
 
@@ -178,7 +178,7 @@ func (t *Server) Shutdown(ctx context.Context) error {
 }
 
 // add worker to group
-// worker : func or struct
+// w : worker func
 func (t *Server) Add(groupName string, workerName string, w interface{}) {
 	_, ok := t.workerGroup[groupName]
 	if !ok {
@@ -192,17 +192,7 @@ func (t *Server) Add(groupName string, workerName string, w interface{}) {
 		}
 		t.workerGroup[groupName][workerName] = funcWorker
 	} else {
-		if wType == "struct" || wType == "ptr" {
-			structWorker := worker.StructWorker{
-				S:    w,
-				Name: workerName,
-			}
-			t.workerGroup[groupName][workerName] = structWorker
-
-		} else {
-			s := fmt.Sprintf("worker must be func, struct, *struct")
-			panic(s)
-		}
+		panic(fmt.Sprintf("worker must be func"))
 	}
 
 }
@@ -212,42 +202,17 @@ func (t *Server) Get(groupName string) (message.Message, error) {
 }
 
 // send msg to queue
+// t.Send("groupName", "workerName" , 1,"hi",1.2)
 //
-// t.Send("xx", message.Message{} )
-//
-// t.Send("xx", "workerName1" , User{1,"name"} )
-//
-// t.Send("xx", "workerName1" , `{"id":1,"name":"xx"}` )
-//
-func (t *Server) Send(groupName string, values ...interface{}) error {
-	if len(values) == 1 {
-		msg, ok := values[0].(message.Message)
-		if ok {
-			return t.broker.Send(groupName, msg)
-		}
-		return errors.New("values must be msg.Message")
+func (t *Server) Send(groupName string, workerName string, args ...interface{}) error {
+	var msg = message.Message{
+		WorkerName: workerName,
 	}
-	if len(values) == 2 {
-		wName, ok := values[0].(string)
-		if !ok {
-			return errors.New("values[0] must be string")
-		}
-
-		var jsonArgs string
-		switch reflect.TypeOf(values[1]).Kind().String() {
-		case "string":
-			jsonArgs = values[1].(string)
-		case "struct":
-			b, err := json.Marshal(values[1])
-			if err != nil {
-				return nil
-			}
-			jsonArgs = string(b)
-		}
-
-		return t.broker.Send(groupName, message.Message{wName, jsonArgs})
+	err := msg.SetArgs(args...)
+	if err != nil {
+		return err
 	}
 
-	return errors.New("too many values")
+	return t.broker.Send(groupName, msg)
 
 }

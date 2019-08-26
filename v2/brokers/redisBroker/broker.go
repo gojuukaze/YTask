@@ -22,7 +22,7 @@ func (r RedisBroker) Get(queryName string) (message.Message, error) {
 	values, err := redis.Values(r.client.BLPop(queryName, 2*time.Second))
 	if err != nil {
 		if err == redis.ErrNil {
-			return msg, errors.ErrEmptyQuery
+			return msg, errors.ErrEmptyQuery{}
 		}
 		return msg, err
 	}
