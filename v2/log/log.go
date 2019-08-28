@@ -1,11 +1,29 @@
 package log
 
 import (
+	"fmt"
 	"github.com/sirupsen/logrus"
 )
 
 var YTaskLog *logrus.Logger
 
+// 记录行号的hook
+type YTaskHook struct {
+}
+
+func (hook YTaskHook) Levels() []logrus.Level {
+	return logrus.AllLevels
+}
+
+func (hook YTaskHook) Fire(entry *logrus.Entry) error {
+	goroutineName,ok := entry.Data["goroutine"]
+	delete(entry.Data, "goroutine")
+	if ok {
+		entry.Message = fmt.Sprintf("goroutine[%v]: %s", goroutineName, entry.Message)
+
+	}
+	return nil
+}
 
 func init() {
 
@@ -16,5 +34,6 @@ func init() {
 	})
 
 	YTaskLog.SetLevel(logrus.InfoLevel)
+	YTaskLog.AddHook(&YTaskHook{})
 
 }

@@ -4,6 +4,7 @@ import (
 	"crypto/md5"
 	"crypto/sha1"
 	"encoding/hex"
+
 )
 
 func GetStrMd5(s string) string {
@@ -19,3 +20,4 @@ func GetStrSha1(data string) string {
 	sha1.Write([]byte(data))
 	return hex.EncodeToString(sha1.Sum([]byte("")))
 }
+

@@ -3,15 +3,14 @@ package server
 import (
 	"context"
 	"fmt"
+	"github.com/gojuukaze/YTask/v2/backends"
 	"github.com/gojuukaze/YTask/v2/brokers"
 	"github.com/gojuukaze/YTask/v2/config"
-	yerrors "github.com/gojuukaze/YTask/v2/errors"
 	"github.com/gojuukaze/YTask/v2/log"
 	"github.com/gojuukaze/YTask/v2/message"
 	"github.com/gojuukaze/YTask/v2/worker"
 	"github.com/sirupsen/logrus"
 	"reflect"
-	"sync"
 )
 
 // [workerName]worker
@@ -20,15 +19,22 @@ type workerMap map[string]worker.WorkerInterface
 type Server struct {
 	workerGroup map[string]workerMap // [groupName]workerMap
 
-	broker brokers.BrokerInterface
+	broker  brokers.BrokerInterface
+	backend backends.BackendInterface
 
 	workerReadyChan chan struct{}
 	msgChan         chan message.Message
+	resultChan      chan message.Result
 
 	getMessageGoroutineStopChan chan struct{}
 	workerGoroutineStopChan     chan struct{}
+	saveResultGoRoutineStopChan chan struct{}
 
 	safeStopChan chan struct{}
+
+	// config
+	StatusExpires int // second, -1:forever
+	ResultExpires int // second, -1:forever
 }
 
 func NewServer(c config.Config) Server {
@@ -38,36 +44,17 @@ func NewServer(c config.Config) Server {
 		log.YTaskLog.SetLevel(logrus.DebugLevel)
 	}
 	return Server{
-		workerGroup:  g,
-		broker:       c.Broker,
-		safeStopChan: make(chan struct{}),
+		workerGroup:   g,
+		broker:        c.Broker,
+		backend:       c.Backend,
+		safeStopChan:  make(chan struct{}),
+		StatusExpires: c.StatusExpires,
+		ResultExpires: c.ResultExpires,
 	}
 }
 
-// get next message if worker is ready
-func (t *Server) GetMessageGoroutine(groupName string) {
-	log.YTaskLog.Debug("goroutine[GetMessage]: start")
-	var msg message.Message
-	var err error
-	for range t.workerReadyChan {
-
-		msg, err = t.Get(groupName)
-
-		if err != nil {
-			go t.MakeWorkerReady()
-			ytaskErr, ok := err.(yerrors.YtaskError)
-			if ok && ytaskErr.Type() != yerrors.ErrTypeEmptyQuery {
-				log.YTaskLog.Error("goroutine[GetMessage]: get msg error, ", err)
-			}
-			continue
-		}
-		log.YTaskLog.Infof("goroutine[GetMessage]: New msg %+v", msg)
-		t.msgChan <- msg
-	}
-
-	t.getMessageGoroutineStopChan <- struct{}{}
-	log.YTaskLog.Debug("goroutine[GetMessage]: stop")
-
+func (t *Server) GetQueryName(groupName string) string {
+	return "YTask:Query:" + groupName
 }
 
 func (t *Server) MakeWorkerReady() {
@@ -77,53 +64,26 @@ func (t *Server) MakeWorkerReady() {
 	t.workerReadyChan <- struct{}{}
 }
 
-// start worker to run
-func (t *Server) WorkerGoroutine(groupName string) {
-	log.YTaskLog.Debug("goroutine[worker]: start")
-
-	workerMap, _ := t.workerGroup[groupName]
-	waitWorkerWG := sync.WaitGroup{}
-
-	for msg := range t.msgChan {
-		go func(msg message.Message) {
-			defer func() {
-				e := recover()
-				if e != nil {
-					log.YTaskLog.Errorf("Run worker[%s] panic %v", msg.WorkerName, e)
-				}
-			}()
-
-			defer func() {
-				go t.MakeWorkerReady()
-			}()
-
-			waitWorkerWG.Add(1)
-			defer waitWorkerWG.Done()
-
-			w, ok := workerMap[msg.WorkerName]
-			if ok {
-				err := w.Run(msg)
-				if err != nil {
-					log.YTaskLog.Errorf("goroutine[worker]: Run worker[%s] error %s", msg.WorkerName, err)
-				}
-			} else {
-				log.YTaskLog.Error("goroutine[worker]: not found worker", msg.WorkerName)
-			}
-		}(msg)
-	}
-
-	waitWorkerWG.Wait()
-	t.workerGoroutineStopChan <- struct{}{}
-	log.YTaskLog.Debug("goroutine[worker]: stop")
-
-}
-
 func (t *Server) Run(groupName string, numWorkers int) {
 
 	workerMap, ok := t.workerGroup[groupName]
 	if !ok {
 		panic("not find group '" + groupName + "'")
 	}
+
+	if t.broker != nil {
+		if t.broker.GetPoolSize() <= 0 {
+			t.broker.SetPoolSize(1)
+		}
+		t.broker.Activate()
+	}
+	if t.backend != nil {
+		if t.backend.GetPoolSize() <= 0 {
+			t.backend.SetPoolSize(numWorkers * 2)
+		}
+		t.backend.Activate()
+	}
+
 	log.YTaskLog.Infof("Start group[%s] numWorkers=%d", groupName, numWorkers)
 
 	log.YTaskLog.Info("group workers:")
@@ -133,15 +93,19 @@ func (t *Server) Run(groupName string, numWorkers int) {
 
 	t.workerReadyChan = make(chan struct{}, numWorkers)
 	t.msgChan = make(chan message.Message, numWorkers)
+	t.resultChan = make(chan message.Result, numWorkers*2)
 
 	t.getMessageGoroutineStopChan = make(chan struct{}, 1)
-	go t.GetMessageGoroutine(groupName)
-	t.workerGoroutineStopChan = make(chan struct{}, 1)
+	go t.GetNextMessageGoroutine(groupName)
 
+	t.workerGoroutineStopChan = make(chan struct{}, 1)
 	go t.WorkerGoroutine(groupName)
 
+	t.saveResultGoRoutineStopChan = make(chan struct{}, 1)
+	go t.SaveResultGoroutine()
+
 	for i := 0; i < numWorkers; i++ {
-		t.workerReadyChan <- struct{}{}
+		t.MakeWorkerReady()
 	}
 
 }
@@ -156,6 +120,10 @@ func (t *Server) safeStop() {
 	// stop worker goroutine
 	close(t.msgChan)
 	<-t.workerGoroutineStopChan
+
+	// stop save result goroutine
+	close(t.resultChan)
+	<-t.saveResultGoRoutineStopChan
 
 	close(t.safeStopChan)
 
@@ -197,22 +165,55 @@ func (t *Server) Add(groupName string, workerName string, w interface{}) {
 
 }
 
-func (t *Server) Get(groupName string) (message.Message, error) {
-	return t.broker.Get(groupName)
+func (t *Server) Next(groupName string) (message.Message, error) {
+	return t.broker.Next(t.GetQueryName(groupName))
+}
+
+func (t *Server) SetResult(result message.Result) error {
+	var exTime int
+	if result.IsFinish() {
+		exTime = t.ResultExpires
+	} else {
+		exTime = t.StatusExpires
+	}
+	if exTime == 0 {
+		return nil
+	}
+	return t.backend.SetResult(result, exTime)
 }
 
 // send msg to queue
 // t.Send("groupName", "workerName" , 1,"hi",1.2)
 //
-func (t *Server) Send(groupName string, workerName string, args ...interface{}) error {
-	var msg = message.Message{
-		WorkerName: workerName,
-	}
+func (t *Server) Send(groupName string, workerName string, args ...interface{}) (string, error) {
+	var msg = message.NewMessage()
+	msg.WorkerName = workerName
 	err := msg.SetArgs(args...)
 	if err != nil {
-		return err
+		return "", err
 	}
 
-	return t.broker.Send(groupName, msg)
+	return msg.Id, t.broker.Send(t.GetQueryName(groupName), msg)
 
+}
+
+func (t *Server) GetResult(id string) (message.Result, error) {
+	result := message.NewResult(id)
+	return t.backend.GetResult(result.GetBackendKey())
+}
+
+func (t *Server) GetClient() Client {
+	if t.broker != nil {
+		if t.broker.GetPoolSize() <= 0 {
+			t.broker.SetPoolSize(10)
+		}
+		t.broker.Activate()
+	}
+	if t.backend != nil {
+		if t.backend.GetPoolSize() <= 0 {
+			t.backend.SetPoolSize(10)
+		}
+		t.backend.Activate()
+	}
+	return Client{server: t}
 }

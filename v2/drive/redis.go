@@ -1,4 +1,4 @@
-package redisBroker
+package drive
 
 import (
 	"github.com/gomodule/redigo/redis"
@@ -7,6 +7,10 @@ import (
 
 type RedisClient struct {
 	redisPool redis.Pool
+	host string
+	port string
+	password string
+	db int
 }
 
 func NewRedisClient(host string, port string, password string, db int, numConns int) RedisClient {
@@ -22,9 +26,9 @@ func NewRedisClient(host string, port string, password string, db int, numConns 
 					host+":"+port,
 					redis.DialPassword(password),
 					redis.DialDatabase(db),
-					//redisBroker.DialConnectTimeout(timeout*time.Second),
-					//redisBroker.DialReadTimeout(timeout*time.Second),
-					//redisBroker.DialWriteTimeout(timeout*time.Second)
+					redis.DialConnectTimeout(5*time.Second),
+					redis.DialReadTimeout(5*time.Second),
+					redis.DialWriteTimeout(5*time.Second),
 				)
 				if err != nil {
 					return nil, err
@@ -36,7 +40,7 @@ func NewRedisClient(host string, port string, password string, db int, numConns 
 
 	err := client.Ping()
 	if err != nil {
-		panic("connect redisBroker error : " + err.Error())
+		panic("YTask: connect redisBroker error : " + err.Error())
 	}
 	return client
 
@@ -49,6 +53,11 @@ func HideKey(key string) string {
 	//	key = fmt.Sprintf("%s:%s", key[:i], util.GetStrMd5(key[i+2:]))
 	//}
 	return key
+}
+
+func (c *RedisClient) Active(key string) (bool, error) {
+	key = HideKey(key)
+	return redis.Bool(c.Do("EXISTS", key))
 }
 
 // =======================

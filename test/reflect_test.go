@@ -59,7 +59,7 @@ func TestGetCallInArgs(t *testing.T) {
 		h string  = "TestJsonArgs"
 	)
 	jsonStr, _ := util.GoArgsToJson(a, b, c, d, e, f, g, h)
-	inValues, _ := worker.GetCallInArgs(reflect.ValueOf(testFunc), jsonStr)
+	inValues, _ := util.GetCallInArgs(reflect.ValueOf(testFunc), jsonStr)
 	var base = []reflect.Value{
 		reflect.ValueOf(a),
 		reflect.ValueOf(b),
@@ -81,7 +81,7 @@ func TestGetCallInArgs(t *testing.T) {
 func TestGetCallInArgs2(t *testing.T) {
 	testFunc := func() {}
 
-	inValues, err := worker.GetCallInArgs(reflect.ValueOf(testFunc), "")
+	inValues, err := util.GetCallInArgs(reflect.ValueOf(testFunc), "")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -92,24 +92,47 @@ func TestGetCallInArgs2(t *testing.T) {
 }
 
 func TestRunFunc(t *testing.T) {
-	var result int
-	f := func(a, b int) error {
-		result = a + b
-		return nil
+	var (
+		ra int     = 1
+		rb int64   = 259933429192721385
+		rc uint    = 3
+		rd uint64  = 4
+		re float32 = 5.5
+		rf float64 = 133.7976931348623
+		rg bool    = true
+		rh string  = "TestJsonArgs"
+	)
+	f := func(a, b int) (int, int, int64, uint, uint64, float32, float64, bool, string) {
+		return a + b, ra, rb, rc, rd, re, rf, rg, rh
 	}
 
 	w := worker.FuncWorker{
 		F: f,
 	}
 	s, _ := util.GoArgsToJson(12, 33)
-	err := w.Run(message.Message{
-		JsonArgs: s,
-	})
+	msg := message.NewMessage()
+	msg.JsonArgs = s
+	result := message.Result{}
+	err := w.Run(msg, &result)
 	if err != nil {
 		t.Fatal(err)
 	}
-	if result != 45 {
-		t.Fatal("result!=45")
 
+	var base = []reflect.Value{
+		reflect.ValueOf(int(45)),
+		reflect.ValueOf(ra),
+		reflect.ValueOf(rb),
+		reflect.ValueOf(rc),
+		reflect.ValueOf(rd),
+		reflect.ValueOf(re),
+		reflect.ValueOf(rf),
+		reflect.ValueOf(rg),
+		reflect.ValueOf(rh),
+	}
+	for i, v := range base {
+		inter, _ := result.GetInterface(i)
+		if inter != v.Interface() {
+			t.Fatalf("%v != %v", inter, v)
+		}
 	}
 }
