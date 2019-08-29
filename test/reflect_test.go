@@ -1,9 +1,14 @@
 package test
 
 import (
+	"fmt"
+	"github.com/gojuukaze/YTask/v2/config"
+	"github.com/gojuukaze/YTask/v2/controller"
 	"github.com/gojuukaze/YTask/v2/message"
+	"github.com/gojuukaze/YTask/v2/server"
 	"github.com/gojuukaze/YTask/v2/util"
 	"github.com/gojuukaze/YTask/v2/worker"
+
 	"github.com/tidwall/gjson"
 	"reflect"
 	"testing"
@@ -59,7 +64,7 @@ func TestGetCallInArgs(t *testing.T) {
 		h string  = "TestJsonArgs"
 	)
 	jsonStr, _ := util.GoArgsToJson(a, b, c, d, e, f, g, h)
-	inValues, _ := util.GetCallInArgs(reflect.ValueOf(testFunc), jsonStr)
+	inValues, _ := util.GetCallInArgs(reflect.ValueOf(testFunc), jsonStr, 0)
 	var base = []reflect.Value{
 		reflect.ValueOf(a),
 		reflect.ValueOf(b),
@@ -81,7 +86,7 @@ func TestGetCallInArgs(t *testing.T) {
 func TestGetCallInArgs2(t *testing.T) {
 	testFunc := func() {}
 
-	inValues, err := util.GetCallInArgs(reflect.ValueOf(testFunc), "")
+	inValues, err := util.GetCallInArgs(reflect.ValueOf(testFunc), "", 0)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -110,10 +115,10 @@ func TestRunFunc(t *testing.T) {
 		F: f,
 	}
 	s, _ := util.GoArgsToJson(12, 33)
-	msg := message.NewMessage()
+	msg := message.NewMessage(controller.NewTaskCtl())
 	msg.JsonArgs = s
 	result := message.Result{}
-	err := w.Run(msg, &result)
+	err := w.Run(&msg.TaskCtl, msg.JsonArgs, &result)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -135,4 +140,22 @@ func TestRunFunc(t *testing.T) {
 			t.Fatalf("%v != %v", inter, v)
 		}
 	}
+}
+
+func cc1(ctl controller.TaskCtl) {
+	ctl.RetryCount = 777
+}
+
+func cc2(ctl *controller.TaskCtl) {
+	ctl.RetryCount = 777
+}
+func TestX(t *testing.T) {
+	s:=server.NewServer(config.Config{})
+	client := server.NewClient(&s)
+	fmt.Printf("%+v\n", client)
+	c2 := client.SetCtl(client.RetryCount, 123)
+	fmt.Printf("%+v\n", c2)
+
+	fmt.Printf("%+v\n", client)
+
 }

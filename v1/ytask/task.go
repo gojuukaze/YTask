@@ -78,7 +78,7 @@ func (t *YTask) Run(groupName string, numWorkers int) {
 					}
 					ylog.YTaskLog.Error("get ymsg error: ", err)
 				}
-				ylog.YTaskLog.Infof("New ymsg %+v", msg)
+				ylog.YTaskLog.Infof("Clone ymsg %+v", msg)
 				worker, ok := workerMap[msg.WorkerName]
 				if ok {
 					err = worker.Run(msg)

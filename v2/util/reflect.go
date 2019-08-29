@@ -77,18 +77,19 @@ func GetValue(inType reflect.Type, jsonType string, jsonValue gjson.Result) (ref
 	return v.Elem(), nil
 }
 
-func GetCallInArgs(funcValue reflect.Value, jsonArgs string) ([]reflect.Value, error) {
-	var inArgs = make([]reflect.Value, funcValue.Type().NumIn())
+func GetCallInArgs(funcValue reflect.Value, jsonArgs string, inStart int) ([]reflect.Value, error) {
+
+	var inArgs = make([]reflect.Value, funcValue.Type().NumIn()-inStart)
 	j := gjson.Parse(jsonArgs)
-	for i := 0; i < funcValue.Type().NumIn(); i++ {
+	for i := inStart; i < funcValue.Type().NumIn(); i++ {
 		inType := funcValue.Type().In(i)
-		jsonValue := j.Get(fmt.Sprintf("%d.value", i))
-		jsonType := j.Get(fmt.Sprintf("%d.type", i)).String()
+		jsonValue := j.Get(fmt.Sprintf("%d.value", i-inStart))
+		jsonType := j.Get(fmt.Sprintf("%d.type", i-inStart)).String()
 		inValue, err := GetValue(inType, jsonType, jsonValue)
 		if err != nil {
 			return inArgs, err
 		}
-		inArgs[i] = inValue
+		inArgs[i-inStart] = inValue
 	}
 	return inArgs, nil
 }

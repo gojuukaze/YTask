@@ -55,10 +55,6 @@ func HideKey(key string) string {
 	return key
 }
 
-func (c *RedisClient) Active(key string) (bool, error) {
-	key = HideKey(key)
-	return redis.Bool(c.Do("EXISTS", key))
-}
 
 // =======================
 // high api

@@ -29,6 +29,7 @@ type Result struct {
 	Id         string `json:"id"`
 	Status     int    `json:"status"` // 0:sent , 1:first running , 2: waiting to retry , 3: running , 4: success , 5: Failure
 	JsonResult string `json:"json_result"`
+	RetryCount int    `json:"retry_count"`
 }
 
 func NewResult(id string) Result {
@@ -45,6 +46,7 @@ func (r *Result) SetStatusRunning() {
 		r.Status = ResultStatus.FirstRunning
 	} else {
 		r.Status = ResultStatus.Running
+		r.RetryCount += 1
 	}
 }
 

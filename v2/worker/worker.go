@@ -3,6 +3,7 @@ package worker
 import (
 	"errors"
 	"fmt"
+	"github.com/gojuukaze/YTask/v2/controller"
 	"github.com/gojuukaze/YTask/v2/log"
 	"github.com/gojuukaze/YTask/v2/message"
 	"github.com/gojuukaze/YTask/v2/util"
@@ -10,7 +11,7 @@ import (
 )
 
 type WorkerInterface interface {
-	Run(msg message.Message, result *message.Result) error
+	Run(ctl *controller.TaskCtl, jsonArgs string, result *message.Result) error
 	WorkerName() string
 }
 
@@ -19,14 +20,14 @@ type FuncWorker struct {
 	Name string
 }
 
-func (f FuncWorker) Run(msg message.Message, result *message.Result) error {
-	return runFunc(f.F, msg, result)
+func (f FuncWorker) Run(ctl *controller.TaskCtl, jsonArgs string, result *message.Result) error {
+	return runFunc(f.F, ctl, jsonArgs, result)
 }
 func (f FuncWorker) WorkerName() string {
 	return f.Name
 }
 
-func runFunc(f interface{}, msg message.Message, result *message.Result) (err error) {
+func runFunc(f interface{}, ctl *controller.TaskCtl, jsonArgs string, result *message.Result) (err error) {
 	defer func() {
 		e := recover()
 		if e != nil {
@@ -40,20 +41,38 @@ func runFunc(f interface{}, msg message.Message, result *message.Result) (err er
 		}
 	}()
 	funcValue := reflect.ValueOf(f)
-	inValue, err := util.GetCallInArgs(funcValue, msg.JsonArgs)
+	funcType := reflect.TypeOf(f)
+	var inStart = 0
+	if funcType.In(0) == reflect.TypeOf(&controller.TaskCtl{}) {
+		inStart = 1
+	}
+
+	inValue, err := util.GetCallInArgs(funcValue, jsonArgs, inStart)
 	if err != nil {
 		return err
 	}
+	if inStart == 1 {
+		inValue = append(inValue, reflect.Value{})
+		copy(inValue[1:], inValue)
+		inValue[0] = reflect.ValueOf(ctl)
 
-	r := funcValue.Call(inValue)
-	if len(r) > 0 {
+	}
+
+	funcOut := funcValue.Call(inValue)
+
+	if ctl.GetError() != nil {
+		err = ctl.GetError()
+	} else {
 		result.Status = message.ResultStatus.Success
-		s, err2 := util.GoValuesToJson(r)
-		if err2 != nil {
-			log.YTaskLog.Error(err2)
-		} else {
-			result.JsonResult = s
+		if len(funcOut) > 0 {
+			s, err2 := util.GoValuesToJson(funcOut)
+			if err2 != nil {
+				log.YTaskLog.Error(err2)
+			} else {
+				result.JsonResult = s
+			}
 		}
 	}
+
 	return
 }

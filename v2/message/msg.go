@@ -1,20 +1,23 @@
 package message
 
 import (
+	"github.com/gojuukaze/YTask/v2/controller"
 	"github.com/gojuukaze/YTask/v2/util"
 	"github.com/google/uuid"
 )
 
 type Message struct {
-	Id         string `json:"uuid"`
-	WorkerName string `json:"worker_name"`
-	JsonArgs   string `json:"json_args"` // [ {"type":"int", "value":123 } , ...]
+	Id         string             `json:"uuid"`
+	WorkerName string             `json:"worker_name"`
+	JsonArgs   string             `json:"json_args"` // [ {"type":"int", "value":123 } , ...]
+	TaskCtl    controller.TaskCtl `json:"task_ctl"`
 }
 
-func NewMessage() Message {
+func NewMessage(ctl controller.TaskCtl) Message {
 	id := uuid.New().String()
 	return Message{
-		Id: id,
+		Id:      id,
+		TaskCtl: ctl,
 	}
 }
 

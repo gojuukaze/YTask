@@ -3,6 +3,7 @@ package server
 import (
 	"github.com/gojuukaze/YTask/v2/log"
 	"github.com/gojuukaze/YTask/v2/message"
+	"github.com/gojuukaze/YTask/v2/worker"
 	"github.com/gojuukaze/YTask/v2/yerrors"
 	"sync"
 )
@@ -42,25 +43,6 @@ func (t *Server) WorkerGoroutine(groupName string) {
 
 	for msg := range t.msgChan {
 		go func(msg message.Message) {
-			var result = message.NewResult(msg.Id)
-			result.SetStatusRunning()
-			//t.resultChan <- result
-
-			log.YTaskLog.WithField("goroutine", "worker").
-				Debugf("save result %+v", result)
-			err := t.SetResult(result)
-			if err != nil {
-				log.YTaskLog.WithField("goroutine", "worker").Errorf("save result error ", err)
-			}
-
-			defer func() {
-				log.YTaskLog.WithField("goroutine", "worker").
-					Debugf("save result %+v", result)
-				err := t.SetResult(result)
-				if err != nil {
-					log.YTaskLog.WithField("goroutine", "worker").Errorf("save result error ", err)
-				}
-			}()
 			defer func() {
 				e := recover()
 				if e != nil {
@@ -68,22 +50,30 @@ func (t *Server) WorkerGoroutine(groupName string) {
 				}
 			}()
 
-			defer func() {
-				go t.MakeWorkerReady()
-			}()
+			defer func() { go t.MakeWorkerReady() }()
+
+			w, ok := workerMap[msg.WorkerName]
+			if !ok {
+				log.YTaskLog.WithField("goroutine", "worker").Error("not found worker", msg.WorkerName)
+				return
+			}
 
 			waitWorkerWG.Add(1)
 			defer waitWorkerWG.Done()
 
-			w, ok := workerMap[msg.WorkerName]
-			if ok {
-				err := w.Run(msg, &result)
-				if err != nil {
-					log.YTaskLog.WithField("goroutine", "worker").Errorf("run worker[%s] error %s", msg.WorkerName, err)
+			result, err := t.GetResult(msg.Id)
+			if err != nil {
+				if yerrors.Compare(err, yerrors.ErrTypeNilResult) {
+					result = message.NewResult(msg.Id)
+				} else {
+					log.YTaskLog.WithField("goroutine", "worker").
+						Error("get result error ", err)
+					result = message.NewResult(msg.Id)
 				}
-			} else {
-				log.YTaskLog.WithField("goroutine", "worker").Error("not found worker", msg.WorkerName)
 			}
+
+			t.workerGoroutine_RunWorker(w, &msg, &result)
+
 		}(msg)
 	}
 
@@ -93,33 +83,44 @@ func (t *Server) WorkerGoroutine(groupName string) {
 
 }
 
-// save result
-func (t *Server) SaveResultGoroutine() {
+func (t *Server) workerGoroutine_RunWorker(w worker.WorkerInterface, msg *message.Message, result *message.Result) {
+	defer func() {
+		t.workerGoroutine_SaveResult(*result)
+	}()
 
-	log.YTaskLog.WithField("goroutine", "SaveResult").Debug("start")
+	ctl := msg.TaskCtl
 
-	wg := sync.WaitGroup{}
-	if t.backend != nil {
-		for r := range t.resultChan {
-			wg.Add(1)
-			go func(result message.Result) {
-				defer wg.Done()
-				log.YTaskLog.WithField("goroutine", "SaveResult").
-					Debugf("save result %+v", result)
-				err := t.SetResult(result)
-				if err != nil {
-					log.YTaskLog.WithField("goroutine", "SaveResult").Errorf("save result error ", err)
-				}
+RUN:
 
-			}(r)
-		}
+	result.SetStatusRunning()
+	t.workerGoroutine_SaveResult(*result)
+
+	err := w.Run(&ctl, msg.JsonArgs, result)
+	if err == nil {
+		result.Status = message.ResultStatus.Success
+		return
+	}
+	log.YTaskLog.WithField("goroutine", "worker").Errorf("run worker[%s] error %s", msg.WorkerName, err)
+
+	if ctl.CanRetry() {
+		result.Status = message.ResultStatus.WaitingRetry
+		ctl.RetryCount -= 1
+		msg.TaskCtl = ctl
+		log.YTaskLog.WithField("goroutine", "worker").Errorf("retry task %s", msg)
+		ctl.SetError(nil)
+
+		goto RUN
 	} else {
-		log.YTaskLog.WithField("goroutine", "SaveResult").Debug("backend is nil")
-		for range t.resultChan {
-		}
+		result.Status = message.ResultStatus.Failure
 	}
 
-	wg.Wait()
-	t.saveResultGoRoutineStopChan <- struct{}{}
-	log.YTaskLog.WithField("goroutine", "SaveResult").Debug("stop")
+}
+
+func (t *Server) workerGoroutine_SaveResult(result message.Result) {
+	log.YTaskLog.WithField("goroutine", "worker").
+		Debugf("save result %+v", result)
+	err := t.SetResult(result)
+	if err != nil {
+		log.YTaskLog.WithField("goroutine", "worker").Errorf("save result error ", err)
+	}
 }

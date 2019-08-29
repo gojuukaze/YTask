@@ -6,6 +6,7 @@ import (
 	"github.com/gojuukaze/YTask/v2/backends"
 	"github.com/gojuukaze/YTask/v2/brokers"
 	"github.com/gojuukaze/YTask/v2/config"
+	"github.com/gojuukaze/YTask/v2/controller"
 	"github.com/gojuukaze/YTask/v2/log"
 	"github.com/gojuukaze/YTask/v2/message"
 	"github.com/gojuukaze/YTask/v2/worker"
@@ -24,11 +25,9 @@ type Server struct {
 
 	workerReadyChan chan struct{}
 	msgChan         chan message.Message
-	resultChan      chan message.Result
 
 	getMessageGoroutineStopChan chan struct{}
 	workerGoroutineStopChan     chan struct{}
-	saveResultGoRoutineStopChan chan struct{}
 
 	safeStopChan chan struct{}
 
@@ -93,16 +92,12 @@ func (t *Server) Run(groupName string, numWorkers int) {
 
 	t.workerReadyChan = make(chan struct{}, numWorkers)
 	t.msgChan = make(chan message.Message, numWorkers)
-	t.resultChan = make(chan message.Result, numWorkers*2)
 
 	t.getMessageGoroutineStopChan = make(chan struct{}, 1)
 	go t.GetNextMessageGoroutine(groupName)
 
 	t.workerGoroutineStopChan = make(chan struct{}, 1)
 	go t.WorkerGoroutine(groupName)
-
-	t.saveResultGoRoutineStopChan = make(chan struct{}, 1)
-	go t.SaveResultGoroutine()
 
 	for i := 0; i < numWorkers; i++ {
 		t.MakeWorkerReady()
@@ -120,10 +115,6 @@ func (t *Server) safeStop() {
 	// stop worker goroutine
 	close(t.msgChan)
 	<-t.workerGoroutineStopChan
-
-	// stop save result goroutine
-	close(t.resultChan)
-	<-t.saveResultGoRoutineStopChan
 
 	close(t.safeStopChan)
 
@@ -185,8 +176,8 @@ func (t *Server) SetResult(result message.Result) error {
 // send msg to queue
 // t.Send("groupName", "workerName" , 1,"hi",1.2)
 //
-func (t *Server) Send(groupName string, workerName string, args ...interface{}) (string, error) {
-	var msg = message.NewMessage()
+func (t *Server) Send(groupName string, workerName string, ctl controller.TaskCtl, args ...interface{}) (string, error) {
+	var msg = message.NewMessage(ctl)
 	msg.WorkerName = workerName
 	err := msg.SetArgs(args...)
 	if err != nil {
@@ -215,5 +206,8 @@ func (t *Server) GetClient() Client {
 		}
 		t.backend.Activate()
 	}
-	return Client{server: t}
+	return Client{
+		server: t,
+		ctl:    controller.NewTaskCtl(),
+	}
 }
