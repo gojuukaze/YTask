@@ -78,7 +78,7 @@ func (t *Server) Run(groupName string, numWorkers int) {
 	}
 	if t.backend != nil {
 		if t.backend.GetPoolSize() <= 0 {
-			t.backend.SetPoolSize(numWorkers * 2)
+			t.backend.SetPoolSize(numWorkers)
 		}
 		t.backend.Activate()
 	}

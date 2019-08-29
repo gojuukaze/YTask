@@ -1,6 +1,7 @@
 package server
 
 import (
+	"fmt"
 	"github.com/gojuukaze/YTask/v2/controller"
 	"github.com/gojuukaze/YTask/v2/message"
 	"github.com/gojuukaze/YTask/v2/yerrors"
@@ -62,6 +63,7 @@ func (c *Client) GetResult(taskId string, timeout time.Duration, sleepTime time.
 			return message.Result{}, yerrors.ErrTimeOut{}
 		}
 		r, err := c.server.GetResult(taskId)
+		fmt.Println(r)
 		if err == nil && r.IsFinish() {
 			return r, nil
 		}

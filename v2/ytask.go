@@ -25,7 +25,7 @@ func (is iServer) NewServer(setConfigFunc ...config.SetConfigFunc) server.Server
 type iBroker struct {
 }
 
-// poolSize: (default: 1) Maximum number of idle connections in the pool. if poolSize<=0 use default
+// poolSize: ( default: 1(for server) 10(for client) ) Maximum number of idle connections in the pool. if poolSize<=0 use default
 func (i iBroker) NewRedisBroker(host string, port string, password string, db int, poolSize int) brokers.RedisBroker {
 	return brokers.NewRedisBroker(host, port, password, db, poolSize)
 }
@@ -55,7 +55,7 @@ func (i iConfig) ResultExpires(ex int) config.SetConfigFunc {
 type iBackend struct {
 }
 
-// poolSize: (default: numWorkers*2) Maximum number of idle connections in the pool. if poolSize<=0 use default
+// poolSize: ( default: numWorkers(for server) 10(for client) ) Maximum number of idle connections in the pool. if poolSize<=0 use default
 func (i iBackend) NewRedisBackend(host string, port string, password string, db int, poolSize int) backends.RedisBackend {
 	return backends.NewRedisBackend(host, port, password, db, poolSize)
 }
