@@ -234,6 +234,11 @@ result, _ := client.GetResult(taskId, 3*time.Second, 300*time.Millisecond)
 a,err:=result.GetInt64(0)
 b,err:=result.GetBool(1)
 ```
+> **Warning!!!**  
+> Although YTask provides the ability to get results, don't rely on transitions.  
+> If the backend error causes the result to not be saved, YTask will not retry again. 
+> Keep retrying will cause the task to fail to start or end.  
+> If you need task results in particular, it is recommended that you save them yourself in the task function.
 
 ## retry
 **default retry count is 3**  
