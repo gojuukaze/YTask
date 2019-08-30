@@ -12,12 +12,15 @@ import (
 	"github.com/gojuukaze/YTask/v2/worker"
 	"github.com/sirupsen/logrus"
 	"reflect"
+	"sync"
 )
 
 // [workerName]worker
 type workerMap map[string]worker.WorkerInterface
 
 type Server struct {
+	sync.Map
+
 	workerGroup map[string]workerMap // [groupName]workerMap
 
 	broker  brokers.BrokerInterface
@@ -110,6 +113,7 @@ func (t *Server) safeStop() {
 
 	// stop get message goroutine
 	close(t.workerReadyChan)
+	t.Store("isStop", struct{}{})
 	<-t.getMessageGoroutineStopChan
 
 	// stop worker goroutine

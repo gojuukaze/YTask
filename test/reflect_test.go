@@ -1,11 +1,8 @@
 package test
 
 import (
-	"fmt"
-	"github.com/gojuukaze/YTask/v2/config"
 	"github.com/gojuukaze/YTask/v2/controller"
 	"github.com/gojuukaze/YTask/v2/message"
-	"github.com/gojuukaze/YTask/v2/server"
 	"github.com/gojuukaze/YTask/v2/util"
 	"github.com/gojuukaze/YTask/v2/worker"
 
@@ -142,20 +139,4 @@ func TestRunFunc(t *testing.T) {
 	}
 }
 
-func cc1(ctl controller.TaskCtl) {
-	ctl.RetryCount = 777
-}
 
-func cc2(ctl *controller.TaskCtl) {
-	ctl.RetryCount = 777
-}
-func TestX(t *testing.T) {
-	s:=server.NewServer(config.Config{})
-	client := server.NewClient(&s)
-	fmt.Printf("%+v\n", client)
-	c2 := client.SetCtl(client.RetryCount, 123)
-	fmt.Printf("%+v\n", c2)
-
-	fmt.Printf("%+v\n", client)
-
-}

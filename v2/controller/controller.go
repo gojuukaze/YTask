@@ -1,7 +1,5 @@
 package controller
 
-import "fmt"
-
 type TaskCtl struct {
 	RetryCount int
 	err        error
@@ -22,8 +20,6 @@ func (t *TaskCtl) SetRetryCount(c int) {
 }
 
 func (t TaskCtl) CanRetry() bool {
-	fmt.Println("CanRetry   ", t.RetryCount)
-
 	return t.RetryCount > 0
 }
 

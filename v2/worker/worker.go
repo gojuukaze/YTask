@@ -43,13 +43,14 @@ func runFunc(f interface{}, ctl *controller.TaskCtl, jsonArgs string, result *me
 	funcValue := reflect.ValueOf(f)
 	funcType := reflect.TypeOf(f)
 	var inStart = 0
-	if funcType.In(0) == reflect.TypeOf(&controller.TaskCtl{}) {
+	var inValue []reflect.Value
+	if funcType.NumIn() > 0 && funcType.In(0) == reflect.TypeOf(&controller.TaskCtl{}) {
 		inStart = 1
 	}
 
-	inValue, err := util.GetCallInArgs(funcValue, jsonArgs, inStart)
+	inValue, err = util.GetCallInArgs(funcValue, jsonArgs, inStart)
 	if err != nil {
-		return err
+		return
 	}
 	if inStart == 1 {
 		inValue = append(inValue, reflect.Value{})

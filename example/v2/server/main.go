@@ -19,7 +19,7 @@ func main() {
 
 	ser.Add("g1", "add", workers.Add)
 
-	ser.Run("g1", 2)
+	ser.Run("g1", 5)
 	fmt.Scanln()
 	ser.Shutdown(context.Background())
 

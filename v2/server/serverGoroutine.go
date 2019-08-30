@@ -14,7 +14,10 @@ func (t *Server) GetNextMessageGoroutine(groupName string) {
 	var msg message.Message
 	var err error
 	for range t.workerReadyChan {
-
+		_, ok := t.Load("isStop")
+		if ok {
+			break
+		}
 		msg, err = t.Next(groupName)
 
 		if err != nil {
@@ -84,9 +87,6 @@ func (t *Server) WorkerGoroutine(groupName string) {
 }
 
 func (t *Server) workerGoroutine_RunWorker(w worker.WorkerInterface, msg *message.Message, result *message.Result) {
-	defer func() {
-		t.workerGoroutine_SaveResult(*result)
-	}()
 
 	ctl := msg.TaskCtl
 
@@ -98,6 +98,8 @@ RUN:
 	err := w.Run(&ctl, msg.JsonArgs, result)
 	if err == nil {
 		result.Status = message.ResultStatus.Success
+		t.workerGoroutine_SaveResult(*result)
+
 		return
 	}
 	log.YTaskLog.WithField("goroutine", "worker").Errorf("run worker[%s] error %s", msg.WorkerName, err)
@@ -112,6 +114,8 @@ RUN:
 		goto RUN
 	} else {
 		result.Status = message.ResultStatus.Failure
+		t.workerGoroutine_SaveResult(*result)
+
 	}
 
 }
