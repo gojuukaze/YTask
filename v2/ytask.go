@@ -44,10 +44,14 @@ func (i iConfig) Debug(debug bool) config.SetConfigFunc {
 	return config.Debug(debug)
 }
 
+// default: 1day
+// task status expires in ex seconds, -1:forever,
 func (i iConfig) StatusExpires(ex int) config.SetConfigFunc {
 	return config.StatusExpires(ex)
 }
 
+// default: 1day
+// task result expires in ex seconds, -1:forever,
 func (i iConfig) ResultExpires(ex int) config.SetConfigFunc {
 	return config.ResultExpires(ex)
 }

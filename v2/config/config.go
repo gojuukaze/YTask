@@ -6,11 +6,25 @@ import (
 )
 
 type Config struct {
-	Broker        brokers.BrokerInterface
-	Backend       backends.BackendInterface
-	Debug         bool
-	StatusExpires int // second, -1:forever , default: 1 day
-	ResultExpires int // second, -1:forever , default: 1 day
+	// require: true
+	Broker  brokers.BrokerInterface
+
+	// require: false
+	Backend backends.BackendInterface
+
+	// require: false
+	// default:false
+	Debug bool
+
+	// require: false
+	// default: 1 day
+	// task status expires in ex seconds, -1:forever
+	StatusExpires int
+
+	// require: false
+	// default: 1 day
+	// task result expires in ex seconds, -1:forever
+	ResultExpires int
 }
 
 type Opt struct {
