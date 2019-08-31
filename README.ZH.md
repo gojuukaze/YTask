@@ -3,7 +3,7 @@ YTask is an asynchronous task queue for handling distributed jobs in golang
 golang异步任务/队列 框架  
 
 * [中文文档](README.ZH.md) (中文文档更加全面，优先阅读中文文档)
-* [英文文档](README.md)
+* [En Doc](README.md)
 * [Github](https://github.com/gojuukaze/YTask)
 
 # install
