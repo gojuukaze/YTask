@@ -1,6 +1,7 @@
 package test
 
 import (
+	"fmt"
 	"github.com/gojuukaze/YTask/v2/backends"
 	"github.com/gojuukaze/YTask/v2/message"
 	"github.com/gojuukaze/YTask/v2/yerrors"
@@ -11,7 +12,7 @@ import (
 func TestRedisBackend(t *testing.T) {
 	b := backends.NewRedisBackend("127.0.0.1", "6379", "", 0, 1)
 	result := message.NewResult("xx123")
-	result.JsonResult = "[]"
+	result.FuncReturn = nil
 	b.Activate()
 	err := b.SetResult(result, 2)
 	if err != nil {
@@ -22,7 +23,7 @@ func TestRedisBackend(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if r2 != result {
+	if fmt.Sprintf("%v",r2) != fmt.Sprintf("%v",result)  {
 		t.Fatalf("%v != %v", r2, result)
 	}
 

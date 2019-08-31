@@ -1,67 +1,84 @@
 package test
 
 import (
+	"fmt"
 	"github.com/gojuukaze/YTask/v2/controller"
 	"github.com/gojuukaze/YTask/v2/message"
 	"github.com/gojuukaze/YTask/v2/util"
 	"github.com/gojuukaze/YTask/v2/worker"
-
-	"github.com/tidwall/gjson"
 	"reflect"
 	"testing"
 )
 
-func TestGoArgsToJson(t *testing.T) {
+type s1 struct {
+	A int
+	B int64
+	C uint64
+	D float64
+	F []int64
+	G []float64
+}
+type s2 struct {
+	A int
+	B string
+}
+type s3 struct {
+	S2 s2
+	C  bool
+	D  float64
+}
 
-	var (
-		a int     = 1
-		b int64   = 259933429192721385
-		c uint    = 3
-		d uint64  = 4
-		e float32 = 5.5
-		f float64 = 133.7976931348623
-		g bool    = true
-		h string  = "TestJsonArgs"
-	)
-	jsonStr, _ := util.GoArgsToJson(a, b, c, d, e, f, g, h)
-	var base = [][]string{
-		{"int", "1"},
-		{"int64", "259933429192721385"},
-		{"uint", "3"},
-		{"uint64", "4"},
-		{"float32", "5.5"},
-		{"float64", "133.7976931348623"},
-		{"bool", "true"},
-		{"string", "TestJsonArgs"},
-	}
+var (
+	a int       = 1
+	b int64     = 259933429192721385
+	c uint      = 3
+	d uint64    = 4
+	e float32   = 5.5
+	f float64   = 133.7976931348623
+	g bool      = true
+	h string    = "TestJsonArgs"
+	i []int     = []int{123, 4456, 56756, 234, 123, 4, 5, 6, 7, 812, 123, 345, 756, 678, 7686, 7, 2, 23, 4}
+	j []int64   = []int64{259933429192721385, 219933429192721385, 4}
+	k []uint    = []uint{44, 56546, 2311, 567,}
+	l []uint64  = []uint64{18446744073709551615, 18446744073709551600, 184467440737095516}
+	m []float64 = []float64{445535.3321, 133.7976931348623}
+	n []string  = []string{"", "YTask", "is", "good", "!!", " "}
+	o           = s1{A: 12344, B: 4444444444444, C: 123789, D: 123.444456, G: []float64{677.4, 345.78221}}
+	p           = s3{S2: s2{345, "ggggggg"}, C: true, D: 344,}
+)
 
-	json := gjson.Parse(jsonStr)
-	for i, j := range json.Array() {
-		if j.Get("type").String() != base[i][0] {
-			t.Fatalf("'%v'.type != %s", j, base[i][0])
-		}
-		if j.Get("value").String() != base[i][1] {
-			t.Fatalf("'%v'.value != %s", j, base[i][1])
+func TestGoVarToYJson(t *testing.T) {
+
+	jsonSlice, _ := util.GoVarsToYJsonSlice(a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p)
+	var base = []string{fmt.Sprintf("%+v", a),
+		fmt.Sprintf("%+v", b),
+		fmt.Sprintf("%+v", c),
+		fmt.Sprintf("%+v", d),
+		fmt.Sprintf("%+v", e),
+		fmt.Sprintf("%+v", f),
+		fmt.Sprintf("%+v", g),
+		fmt.Sprintf(`"%+v"`, h),
+		"[123,4456,56756,234,123,4,5,6,7,812,123,345,756,678,7686,7,2,23,4]",
+		"[259933429192721385,219933429192721385,4]",
+		"[44,56546,2311,567]",
+		"[18446744073709551615,18446744073709551600,184467440737095516]",
+		"[445535.3321,133.7976931348623]",
+		`["","YTask","is","good","!!"," "]`,
+		`{"A":12344,"B":4444444444444,"C":123789,"D":123.444456,"F":null,"G":[677.4,345.78221]}`,
+		`{"S2":{"A":345,"B":"ggggggg"},"C":true,"D":344}`,}
+	for i, v := range base {
+		if v != jsonSlice[i] {
+			t.Fatalf("%+v != %+v", v, jsonSlice[i])
 		}
 	}
 
 }
 
 func TestGetCallInArgs(t *testing.T) {
-	testFunc := func(int, int64, uint, uint64, float32, float64, bool, string) {}
+	testFunc := func(int, int64, uint, uint64, float32, float64, bool, string, []int, []int64, []uint64, []string, s1, s3) {}
 
-	var (
-		a int     = 1
-		b int64   = 259933429192721385
-		c uint    = 3
-		d uint64  = 259933429192721385
-		e float32 = 5.5
-		f float64 = 133.7976931348623
-		g bool    = true
-		h string  = "TestJsonArgs"
-	)
-	jsonStr, _ := util.GoArgsToJson(a, b, c, d, e, f, g, h)
-	inValues, _ := util.GetCallInArgs(reflect.ValueOf(testFunc), jsonStr, 0)
+	jsonSlice, _ := util.GoVarsToYJsonSlice(a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p)
+	inValues, _ := util.GetCallInArgs(reflect.ValueOf(testFunc), jsonSlice, 0)
 	var base = []reflect.Value{
 		reflect.ValueOf(a),
 		reflect.ValueOf(b),
@@ -71,19 +88,28 @@ func TestGetCallInArgs(t *testing.T) {
 		reflect.ValueOf(f),
 		reflect.ValueOf(g),
 		reflect.ValueOf(h),
+		reflect.ValueOf(i),
+		reflect.ValueOf(j),
+		reflect.ValueOf(k),
+		reflect.ValueOf(l),
+		reflect.ValueOf(m),
+		reflect.ValueOf(n),
+		reflect.ValueOf(o),
+		reflect.ValueOf(p),
 	}
 	for i, v := range inValues {
-		if v.Interface() != base[i].Interface() {
+		if reflect.DeepEqual(b, base[i]) {
 			t.Fatalf("%v!=%v", v, base[i])
 		}
 	}
 
 }
 
+//
 func TestGetCallInArgs2(t *testing.T) {
 	testFunc := func() {}
 
-	inValues, err := util.GetCallInArgs(reflect.ValueOf(testFunc), "", 0)
+	inValues, err := util.GetCallInArgs(reflect.ValueOf(testFunc), nil, 0)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -94,49 +120,50 @@ func TestGetCallInArgs2(t *testing.T) {
 }
 
 func TestRunFunc(t *testing.T) {
-	var (
-		ra int     = 1
-		rb int64   = 259933429192721385
-		rc uint    = 3
-		rd uint64  = 4
-		re float32 = 5.5
-		rf float64 = 133.7976931348623
-		rg bool    = true
-		rh string  = "TestJsonArgs"
-	)
-	f := func(a, b int) (int, int, int64, uint, uint64, float32, float64, bool, string) {
-		return a + b, ra, rb, rc, rd, re, rf, rg, rh
+	fun := func(aa, bb int) (int, int, int64, uint, uint64, float32, float64, bool, string, []int64, []uint64, []float64, []string, s1, s3) {
+		return aa + bb, a, b, c, d, e, f, g, h, j, l, m, n, o, p
 	}
 
 	w := worker.FuncWorker{
-		F: f,
+		F: fun,
 	}
-	s, _ := util.GoArgsToJson(12, 33)
+	s, _ := util.GoVarsToYJsonSlice(12, 33)
 	msg := message.NewMessage(controller.NewTaskCtl())
-	msg.JsonArgs = s
+	msg.FuncArgs = s
 	result := message.Result{}
-	err := w.Run(&msg.TaskCtl, msg.JsonArgs, &result)
+	err := w.Run(&msg.TaskCtl, msg.FuncArgs, &result)
 	if err != nil {
 		t.Fatal(err)
 	}
+	var base = []interface{}{int(45), a, b, c, d, e, f, g, h, j, l, m, n, o, p,}
+	var (
+		raa int
+		ra  int
+		rb  int64
+		rc  uint
+		rd  uint64
+		re  float32
+		rf  float64
+		rg  bool
+		rh  string
+		rj  []int64
+		rl  []uint64
+		rm  []float64
+		rn  []string
+		ro  s1
+		rp  s3
+	)
+	var returnV = []interface{}{&raa, &ra, &rb, &rc, &rd, &re, &rf, &rg, &rh, &rj, &rl, &rm, &rn, &ro, &rp,}
 
-	var base = []reflect.Value{
-		reflect.ValueOf(int(45)),
-		reflect.ValueOf(ra),
-		reflect.ValueOf(rb),
-		reflect.ValueOf(rc),
-		reflect.ValueOf(rd),
-		reflect.ValueOf(re),
-		reflect.ValueOf(rf),
-		reflect.ValueOf(rg),
-		reflect.ValueOf(rh),
-	}
 	for i, v := range base {
-		inter, _ := result.GetInterface(i)
-		if inter != v.Interface() {
-			t.Fatalf("%v != %v", inter, v)
+		temp := returnV[i]
+		err := result.Get(i, temp)
+		if err != nil {
+			t.Fatal(err)
+		}
+		var realV=reflect.ValueOf(temp).Elem()
+		if fmt.Sprintf("%v", v) != fmt.Sprintf("%v",realV ) {
+			t.Fatalf("%v != %v", v, realV)
 		}
 	}
 }
-
-

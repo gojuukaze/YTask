@@ -95,7 +95,7 @@ RUN:
 	result.SetStatusRunning()
 	t.workerGoroutine_SaveResult(*result)
 
-	err := w.Run(&ctl, msg.JsonArgs, result)
+	err := w.Run(&ctl, msg.FuncArgs, result)
 	if err == nil {
 		result.Status = message.ResultStatus.Success
 		t.workerGoroutine_SaveResult(*result)

@@ -11,7 +11,7 @@ import (
 )
 
 type WorkerInterface interface {
-	Run(ctl *controller.TaskCtl, jsonArgs string, result *message.Result) error
+	Run(ctl *controller.TaskCtl, funcArgs []string, result *message.Result) error
 	WorkerName() string
 }
 
@@ -20,14 +20,14 @@ type FuncWorker struct {
 	Name string
 }
 
-func (f FuncWorker) Run(ctl *controller.TaskCtl, jsonArgs string, result *message.Result) error {
-	return runFunc(f.F, ctl, jsonArgs, result)
+func (f FuncWorker) Run(ctl *controller.TaskCtl, funcArgs []string, result *message.Result) error {
+	return runFunc(f.F, ctl, funcArgs, result)
 }
 func (f FuncWorker) WorkerName() string {
 	return f.Name
 }
 
-func runFunc(f interface{}, ctl *controller.TaskCtl, jsonArgs string, result *message.Result) (err error) {
+func runFunc(f interface{}, ctl *controller.TaskCtl, funcArgs []string, result *message.Result) (err error) {
 	defer func() {
 		e := recover()
 		if e != nil {
@@ -48,7 +48,7 @@ func runFunc(f interface{}, ctl *controller.TaskCtl, jsonArgs string, result *me
 		inStart = 1
 	}
 
-	inValue, err = util.GetCallInArgs(funcValue, jsonArgs, inStart)
+	inValue, err = util.GetCallInArgs(funcValue, funcArgs, inStart)
 	if err != nil {
 		return
 	}
@@ -66,11 +66,11 @@ func runFunc(f interface{}, ctl *controller.TaskCtl, jsonArgs string, result *me
 	} else {
 		result.Status = message.ResultStatus.Success
 		if len(funcOut) > 0 {
-			s, err2 := util.GoValuesToJson(funcOut)
+			re, err2 := util.GoValuesToYJsonSlice(funcOut)
 			if err2 != nil {
 				log.YTaskLog.Error(err2)
 			} else {
-				result.JsonResult = s
+				result.FuncReturn = re
 			}
 		}
 	}

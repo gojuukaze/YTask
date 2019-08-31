@@ -1,10 +1,7 @@
 package message
 
 import (
-	"fmt"
-	"github.com/gojuukaze/YTask/v2/util"
-	"github.com/gojuukaze/YTask/v2/yerrors"
-	"github.com/tidwall/gjson"
+	"github.com/gojuukaze/YTask/v2/util/yjson"
 )
 
 type resultStatusChoice struct {
@@ -26,10 +23,10 @@ var ResultStatus = resultStatusChoice{
 }
 
 type Result struct {
-	Id         string `json:"id"`
-	Status     int    `json:"status"` // 0:sent , 1:first running , 2: waiting to retry , 3: running , 4: success , 5: Failure
-	JsonResult string `json:"json_result"`
-	RetryCount int    `json:"retry_count"`
+	Id         string   `json:"id"`
+	Status     int      `json:"status"` // 0:sent , 1:first running , 2: waiting to retry , 3: running , 4: success , 5: Failure
+	FuncReturn []string `json:"func_return"`
+	RetryCount int      `json:"retry_count"`
 }
 
 func NewResult(id string) Result {
@@ -50,52 +47,48 @@ func (r *Result) SetStatusRunning() {
 	}
 }
 
-func (r Result) get(index int) (gjson.Result, error) {
-	gR := gjson.Get(r.JsonResult, fmt.Sprintf("%d", index))
-	var err error
-	if !gR.Exists() {
-		err = yerrors.ErrOutOfRange{}
-	} else {
-		gR = gR.Get("value")
-	}
-	return gR, err
+func (r Result) Get(index int, v interface{}) error {
+
+	err := yjson.YJson.UnmarshalFromString(r.FuncReturn[index], v)
+	return err
 }
 
+// 过时: 此方法只能用于v2.0.0，高版本中，如果值为int64,uint64类型，会导致获取的值不对
+// Deprecated: only can use in v2.0.0
 func (r Result) GetInterface(index int) (interface{}, error) {
 
-	gR := gjson.Get(r.JsonResult, fmt.Sprintf("%d", index))
-	if !gR.Exists() {
-		return nil, yerrors.ErrOutOfRange{}
-	} else {
-		v, err := util.GetValueFromJson(gR.String())
-		if err != nil {
-			return nil, err
-		}
-		return v.Interface(), err
-	}
+	var result interface{}
+
+	err := yjson.YJson.Unmarshal([]byte(r.FuncReturn[index]), &result)
+	return result, err
 }
 func (r Result) GetInt64(index int) (int64, error) {
-	gR, err := r.get(index)
-	return gR.Int(), err
+	var v int64
+	err := r.Get(index, &v)
+	return v, err
 }
 
 func (r Result) GetUint64(index int) (uint64, error) {
-	gR, err := r.get(index)
-	return gR.Uint(), err
+	var v uint64
+	err := r.Get(index, &v)
+	return v, err
 }
 func (r Result) GetFloat64(index int) (float64, error) {
-	gR, err := r.get(index)
-	return gR.Float(), err
+	var v float64
+	err := r.Get(index, &v)
+	return v, err
 }
 
 func (r Result) GetBool(index int) (bool, error) {
-	gR, err := r.get(index)
-	return gR.Bool(), err
+	var v bool
+	err := r.Get(index, &v)
+	return v, err
 }
 
 func (r Result) GetString(index int) (string, error) {
-	gR, err := r.get(index)
-	return gR.String(), err
+	var v string
+	err := r.Get(index, &v)
+	return v, err
 }
 
 func (r Result) IsSuccess() bool {

@@ -3,6 +3,7 @@ package test
 import (
 	"context"
 	"errors"
+	"fmt"
 	"github.com/gojuukaze/YTask/v2/backends"
 	"github.com/gojuukaze/YTask/v2/brokers"
 	"github.com/gojuukaze/YTask/v2/config"
@@ -14,6 +15,11 @@ import (
 	"time"
 )
 
+type User struct {
+	Id   int
+	Name string
+}
+
 func worker1() {
 }
 
@@ -21,6 +27,17 @@ func worker2(a int, b float32, c uint64, d bool) (float32, uint64, bool) {
 	return float32(a) + b, c, d
 }
 
+func worker3(user User, ids []int, names []string) []User {
+	var r = make([]User, 0)
+	r = append(r, user)
+	for i := range ids {
+		r = append(r, User{
+			Id:   ids[i],
+			Name: names[i],
+		})
+	}
+	return r
+}
 func workerTestRetry1() {
 	panic("test retry")
 }
@@ -50,12 +67,16 @@ func TestYTask1(t *testing.T) {
 	ser2 := ser
 	ser.Add("test_g", "worker1", worker1)
 	ser.Add("test_g", "worker2", worker2)
+	ser.Add("test_g", "worker3", worker3)
+
 	ser.Add("test_g", "workerTestRetry1", workerTestRetry1)
 	ser.Add("test_g", "workerTestRetry2", workerTestRetry2)
 
 	ser.Run("test_g", 3)
 	testWorker1(ser2, t)
 	testWorker2(ser2, t)
+	testWorker3(ser2, t)
+
 	testRetry1(ser2, t)
 	testRetry2(ser2, t)
 
@@ -111,10 +132,40 @@ func testWorker2(ser server.Server, t *testing.T) {
 	}
 }
 
+func testWorker3(ser server.Server, t *testing.T) {
+	client := ser.GetClient()
+
+	id, err := client.Send("test_g", "worker3",
+		User{
+			Id:   1,
+			Name: "a",
+		},
+		[]int{233, 44},
+		[]string{"bb", "cc"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	result, _ := client.GetResult(id, 2*time.Second, 300*time.Millisecond)
+
+	if !result.IsSuccess() {
+		t.Fatal("result is not success")
+	}
+	var base = []User{{1, "a"}, {233, "bb"}, {44, "cc"},}
+	var r []User
+	err = result.Get(0, &r)
+
+	if err != nil {
+		t.Fatal(err)
+	}
+	if fmt.Sprint(base) != fmt.Sprint(r) {
+		t.Fatalf("%v !=%v", base, r)
+	}
+}
+
 func testRetry1(ser server.Server, t *testing.T) {
 	client := ser.GetClient()
 
-	id, err := client.SetTaskCtl(client.RetryCount,5).Send("test_g", "workerTestRetry1")
+	id, err := client.SetTaskCtl(client.RetryCount, 5).Send("test_g", "workerTestRetry1")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -124,18 +175,17 @@ func testRetry1(ser server.Server, t *testing.T) {
 		t.Fatal("result is success")
 	}
 
-	if result.RetryCount!=5{
+	if result.RetryCount != 5 {
 		t.Fatal("result.RetryCount!=5")
 
 	}
-
 
 }
 
 func testRetry2(ser server.Server, t *testing.T) {
 	client := ser.GetClient()
 
-	id, err := client.Send("test_g", "workerTestRetry2",6)
+	id, err := client.Send("test_g", "workerTestRetry2", 6)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -144,11 +194,10 @@ func testRetry2(ser server.Server, t *testing.T) {
 	if !result.IsSuccess() {
 		t.Fatal("result is not success")
 	}
-	r1,_:=result.GetInt64(0)
-	if int(r1)!=6+1{
+	r1, _ := result.GetInt64(0)
+	if int(r1) != 6+1 {
 		t.Fatal("int(r1)!=6+1")
 
 	}
-
 
 }
