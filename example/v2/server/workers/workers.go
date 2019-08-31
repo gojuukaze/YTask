@@ -4,6 +4,10 @@ import (
 	"errors"
 	"github.com/gojuukaze/YTask/v2/controller"
 )
+type User struct {
+	Id   int
+	Name string
+}
 
 func Add(a int, b int) int {
 
@@ -27,4 +31,16 @@ func Retry(ctl *controller.TaskCtl, a int, b int) (int, int) {
 	}
 
 	return a + b, a - b
+}
+
+func AppendUser(user User, ids []int, names []string) []User {
+	var r = make([]User, 0)
+	r = append(r, user)
+	for i := range ids {
+		r = append(r, User{
+			Id:   ids[i],
+			Name: names[i],
+		})
+	}
+	return r
 }

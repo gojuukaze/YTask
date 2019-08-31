@@ -7,6 +7,11 @@ import (
 	"time"
 )
 
+type User struct {
+	Id   int
+	Name string
+}
+
 var client server.Client
 
 func sendAndGet() {
@@ -33,12 +38,30 @@ func sendAndGet() {
 	_ = err
 
 	if result.IsSuccess() {
-		sum, _ := result.GetInt64(0)
-		sub, _ := result.GetInt64(1)
+		sum, err := result.GetInt64(0)
+		var sub int
+		err = result.Get(1, &sub)
 		if err != nil {
 			fmt.Println(err)
 		}
-		fmt.Println("add_sub(123,44) =", int(sum), int(sub))
+		fmt.Println("add_sub(123,44) =", int(sum), sub)
+	} else {
+		fmt.Println("result failure")
+	}
+
+	// task append user
+	taskId, err = client.Send("group1", "add_user", User{1, "aa"}, []int{322, 11}, []string{"bb", "cc"})
+	_ = err
+	result, err = client.GetResult(taskId, 2*time.Second, 300*time.Millisecond)
+	_ = err
+
+	if result.IsSuccess() {
+		var users []User
+		err := result.Get(0, &users)
+		if err != nil {
+			fmt.Println(err)
+		}
+		fmt.Println(`add_user({1,"aa"}, [322,11], ["bb","cc"]) =`, users)
 	} else {
 		fmt.Println("result failure")
 	}
@@ -53,7 +76,6 @@ func retry() {
 
 	// do not retry
 	client.SetTaskCtl(client.RetryCount, 5).Send("group1", "retry", 123, 44)
-
 
 }
 func main() {

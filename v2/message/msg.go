@@ -7,9 +7,9 @@ import (
 )
 
 type Message struct {
-	Id         string             `json:"uuid"`
+	Id         string             `json:"id"`
 	WorkerName string             `json:"worker_name"`
-	JsonArgs   string             `json:"json_args"` // [ {"type":"int", "value":123 } , ...]
+	FuncArgs   []string           `json:"func_args"` //yjson string slice
 	TaskCtl    controller.TaskCtl `json:"task_ctl"`
 }
 
@@ -22,10 +22,10 @@ func NewMessage(ctl controller.TaskCtl) Message {
 }
 
 func (m *Message) SetArgs(args ...interface{}) error {
-	s, err := util.GoArgsToJson(args...)
+	r, err := util.GoVarsToYJsonSlice(args...)
 	if err != nil {
 		return err
 	}
-	m.JsonArgs = s
+	m.FuncArgs = r
 	return nil
 }

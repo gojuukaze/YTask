@@ -26,6 +26,7 @@ func main() {
 	ser.Add("group1", "add", workers.Add)
 	ser.Add("group1", "add_sub", workers.AddSub)
 	ser.Add("group1", "retry", workers.Retry)
+	ser.Add("group1", "add_user", workers.AppendUser)
 
 	ser.Run("group1", 3)
 
