@@ -10,6 +10,8 @@ golang异步任务/队列 框架
 ```bash
 go get github.com/gojuukaze/YTask
 ```
+# architecture diagram
+<img src="./architecture_diagram.png" alt="architecture_diagram" width="75%">
 
 # todo
 - [x] save result  
@@ -19,8 +21,7 @@ go get github.com/gojuukaze/YTask
 - [ ] more option in TaskCtl
 - [ ] support more type
 
-<img src="./architecture_diagram.png" alt="architecture_diagram">
-
+# doc
 
 * [Quick Start](#quick-start)
   * [server](#server-demo)
