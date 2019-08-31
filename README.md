@@ -19,6 +19,9 @@ go get github.com/gojuukaze/YTask
 - [ ] more option in TaskCtl
 - [ ] support more type
 
+<img src="./architecture_diagram.png" alt="architecture_diagram">
+
+
 * [Quick Start](#quick-start)
   * [server](#server-demo)
   * [client](#client-demo)
