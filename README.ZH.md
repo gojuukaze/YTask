@@ -19,7 +19,7 @@ go get github.com/gojuukaze/YTask
 - [ ] 支持 amqp
 - [ ] 一次运行多了group
 - [ ] 扩展TaskCtl参数
-- [ ] 支持更多类型
+- [x] 支持更多类型
 
 # 文档
 * [快速开始](#快速开始)
@@ -52,7 +52,7 @@ go get github.com/gojuukaze/YTask
 # 快速开始
 
 ## server demo
-简单的server样例
+
 ```go
 package main
 
@@ -63,12 +63,26 @@ import (
 	"os/signal"
 	"syscall"
 )
+type User struct {
+	Id   int
+	Name string
+}
 
 func add(a int,b int)int {
     return a+b
 }
 
+func appendUser(user User, ids []int, names []string) []User {
+	var r = make([]User, 0)
+	r = append(r, user)
+	for i := range ids {
+		r = append(r, User{ids[i],names[i],})
+	}
+	return r
+}
+
 func main() {
+	// For the client, you need to set up the poolSize
 	// Server端无需设置poolSize，
 	broker := ytask.Broker.NewRedisBroker("127.0.0.1", "6379", "", 0, 0)
 	backend := ytask.Backend.NewRedisBackend("127.0.0.1", "6379", "", 0, 0)
@@ -81,12 +95,13 @@ func main() {
 		ytask.Config.ResultExpires(60*5),
 	)
 
-    // 注册任务
 	ser.Add("group1", "add", add)
-    // 启动
+	ser.Add("group1", "append_user", appendUser)
+
 	ser.Run("group1", 3)
-    // 停止
+
 	quit := make(chan os.Signal, 1)
+
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 	<-quit
 	ser.Shutdown(context.Background())
@@ -105,11 +120,15 @@ import (
 	"github.com/gojuukaze/YTask/v2/server"
 	"time"
 )
-
+type User struct {
+	Id   int
+	Name string
+}
 var client server.Client
 
 
 func main() {
+	// For the client, you need to set up the poolSize
 	// 对于client你需要设置poolSize
 	broker := ytask.Broker.NewRedisBroker("127.0.0.1", "6379", "", 0, 5)
 	backend := ytask.Backend.NewRedisBackend("127.0.0.1", "6379", "", 0, 5)
@@ -121,18 +140,20 @@ func main() {
 		ytask.Config.StatusExpires(60*5),
 		ytask.Config.ResultExpires(60*5),
 	)
-    
+
 	client = ser.GetClient()
 
-	// 发送异步任务
+	// task add
 	taskId, err := client.Send("group1", "add", 123, 44)
 	_ = err
-    // 获取结果
 	result, err := client.GetResult(taskId, 2*time.Second, 300*time.Millisecond)
 	_ = err
-    // 获取返回值
+
 	if result.IsSuccess() {
 		sum, err := result.GetInt64(0)
+        // or
+        var sum2 int
+        err = result.Get(0, &sum2)
 		if err != nil {
 			fmt.Println(err)
 		}
@@ -140,6 +161,13 @@ func main() {
 	} else {
 		fmt.Println("result failure")
 	}
+    // task append user
+	taskId, _ = client.Send("group1", "append_user", User{1, "aa"}, []int{322, 11}, []string{"bb", "cc"})
+	_ = err
+	result, _ = client.GetResult(taskId, 2*time.Second, 300*time.Millisecond)
+	var users []User
+    result.Get(0, &users)
+    fmt.Println(users)
 
 }
 
@@ -375,16 +403,7 @@ type BackendInterface interface {
 ```
 
 ## 支持的类型
-支持的函数参数、返回值类型:
-
-* int  
-* int64
-* uint 
-* uint64
-* float32
-* float64
-* bool 
-* string
+支持所有能序列化为json格式的类型
 
 ## log
 YTask使用logrus打印日志，下面给出了一个输出日志到文件的样例

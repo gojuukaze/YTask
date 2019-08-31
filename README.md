@@ -19,7 +19,7 @@ go get github.com/gojuukaze/YTask
 - [ ] support amqp
 - [ ] run multi group
 - [ ] more option in TaskCtl
-- [ ] support more type
+- [x] support more type
 
 # doc
 
@@ -64,9 +64,22 @@ import (
 	"os/signal"
 	"syscall"
 )
+type User struct {
+	Id   int
+	Name string
+}
 
 func add(a int,b int)int {
     return a+b
+}
+
+func appendUser(user User, ids []int, names []string) []User {
+	var r = make([]User, 0)
+	r = append(r, user)
+	for i := range ids {
+		r = append(r, User{ids[i],names[i],})
+	}
+	return r
 }
 
 func main() {
@@ -84,6 +97,7 @@ func main() {
 	)
 
 	ser.Add("group1", "add", add)
+	ser.Add("group1", "append_user", appendUser)
 
 	ser.Run("group1", 3)
 
@@ -107,7 +121,10 @@ import (
 	"github.com/gojuukaze/YTask/v2/server"
 	"time"
 )
-
+type User struct {
+	Id   int
+	Name string
+}
 var client server.Client
 
 
@@ -135,6 +152,9 @@ func main() {
 
 	if result.IsSuccess() {
 		sum, err := result.GetInt64(0)
+        // or
+        var sum2 int
+        err = result.Get(0, &sum2)
 		if err != nil {
 			fmt.Println(err)
 		}
@@ -142,6 +162,13 @@ func main() {
 	} else {
 		fmt.Println("result failure")
 	}
+    // task append user
+	taskId, _ = client.Send("group1", "append_user", User{1, "aa"}, []int{322, 11}, []string{"bb", "cc"})
+	_ = err
+	result, _ = client.GetResult(taskId, 2*time.Second, 300*time.Millisecond)
+	var users []User
+    result.Get(0, &users)
+    fmt.Println(users)
 
 }
 
@@ -344,16 +371,8 @@ type BackendInterface interface {
 ```
 
 ## support type
-support func in and out type:
+Support all types what can be serialized to JSON
 
-* int  
-* int64
-* uint 
-* uint64
-* float32
-* float64
-* bool 
-* string
 
 ## log
 
