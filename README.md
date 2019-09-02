@@ -176,11 +176,11 @@ func main() {
 ```
 
 ## other example
-Also take a look at [example](https://github.com/gojuukaze/YTask/tree/master/example/v2) directory
+Also take a look at [example](https://github.com/gojuukaze/YTask/tree/master/v2/example) directory
 ```bash
-go run example/v2/server/main.go 
+go run v2/example/server/main.go 
 
-go run example/v2/send/main.go
+go run v2/example/send/main.go
 ```
 
 

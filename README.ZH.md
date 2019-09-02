@@ -175,11 +175,11 @@ func main() {
 ```
 
 ## other example
-[example](https://github.com/gojuukaze/YTask/tree/master/example/v2) 目录下有更多的样例可供参考
+[example](https://github.com/gojuukaze/YTask/tree/master/v2/example) 目录下有更多的样例可供参考
 ```bash
-go run example/v2/server/main.go 
+go run v2/example/server/main.go 
 
-go run example/v2/send/main.go
+go run v2/example/send/main.go
 ```
 
 
