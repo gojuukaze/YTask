@@ -2,8 +2,8 @@ package main
 
 import (
 	"context"
-	"github.com/gojuukaze/YTask/example/v2/server/workers"
 	"github.com/gojuukaze/YTask/v2"
+	workers2 "github.com/gojuukaze/YTask/v2/example/server/workers"
 	"os"
 	"os/signal"
 	"syscall"
@@ -23,10 +23,10 @@ func main() {
 		ytask.Config.ResultExpires(60*5),
 	)
 
-	ser.Add("group1", "add", workers.Add)
-	ser.Add("group1", "add_sub", workers.AddSub)
-	ser.Add("group1", "retry", workers.Retry)
-	ser.Add("group1", "add_user", workers.AppendUser)
+	ser.Add("group1", "add", workers2.Add)
+	ser.Add("group1", "add_sub", workers2.AddSub)
+	ser.Add("group1", "retry", workers2.Retry)
+	ser.Add("group1", "add_user", workers2.AppendUser)
 
 	ser.Run("group1", 3)
 

@@ -8,7 +8,7 @@ golang异步任务/队列 框架
 
 # install
 ```bash
-go get github.com/gojuukaze/YTask
+go get github.com/gojuukaze/YTask/v2
 ```
 # 架构图
 <img src="./architecture_diagram.png" alt="architecture_diagram" width="75%">
