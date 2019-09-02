@@ -108,7 +108,7 @@ RUN:
 		result.Status = message.ResultStatus.WaitingRetry
 		ctl.RetryCount -= 1
 		msg.TaskCtl = ctl
-		log.YTaskLog.WithField("goroutine", "worker").Errorf("retry task %s", msg)
+		log.YTaskLog.WithField("goroutine", "worker").Infof("retry task %s", msg)
 		ctl.SetError(nil)
 
 		goto RUN
