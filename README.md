@@ -264,8 +264,22 @@ taskId,err=client.SetTaskCtl(client.RetryCount, 5).Send("group1","add",12,33)
 result, _ := client.GetResult(taskId, 3*time.Second, 300*time.Millisecond)
 
 // get worker func return
-a,err:=result.GetInt64(0)
-b,err:=result.GetBool(1)
+if result.IsSuccess(){
+    // get worker func return
+    a,err:=result.GetInt64(0)
+    b,err:=result.GetBool(1)
+    
+    // or
+    var a int
+    var b bool
+    err:=result.Get(0, &a)
+    err:=result.Get(1, &b)
+
+    // or
+    var a int
+    var b bool
+    err:=result.Gets(&a, &b)
+}
 ```
 > **Warning!!!**  
 > Although YTask provides the ability to get results, don't rely on transitions.  

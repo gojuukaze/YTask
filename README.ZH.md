@@ -279,16 +279,28 @@ taskId,err=client.SetTaskCtl(client.RetryCount, 5).Send("group1","add",12,33)
 
 ### 获取结果
 调用`GetResult()`获取任务结果，第2个参数为超时时间，第3个参数为重新获取时间。  
-获取结果后可调用`GetXX()`获取任务函数的返回结果。
+获取结果后可调用`GetXX()`，`Get()`，`Gets()`获取任务函数的返回结果。
 ```go
 // taskId :
 // 3*time.Second : timeout
 // 300*time.Millisecond : sleep time
 result, _ := client.GetResult(taskId, 3*time.Second, 300*time.Millisecond)
+
 if result.IsSuccess(){
     // get worker func return
     a,err:=result.GetInt64(0)
     b,err:=result.GetBool(1)
+    
+    // or
+    var a int
+    var b bool
+    err:=result.Get(0, &a)
+    err:=result.Get(1, &b)
+
+    // or
+    var a int
+    var b bool
+    err:=result.Gets(&a, &b)
 }
 
 ```
