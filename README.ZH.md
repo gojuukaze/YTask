@@ -30,7 +30,7 @@ go get github.com/gojuukaze/YTask
   * [服务端](#服务端)
     * [服务端配置](#服务端配置)
     * [注册任务](#注册任务)
-    * [运行与停止](#run-and-shutdown)
+    * [运行与停止](#运行与停止)
   * [客户端](#客户端)
     * [获取连接](#获取连接)
     * [发送信息](#发送信息)
@@ -243,6 +243,14 @@ signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 <-quit
 ser.Shutdown(context.Background())
 ```
+> 你不能用同一个server运行不同的组，比如：
+> ```go
+> ser:=ytask.Server.NewServer(...)
+> ser.Run("g1",1)
+> // 这样会报错
+> ser.Run("g2",1)
+> ``` 
+> 这个功能会在接下来的版本中加入
 
 ## 客户端
 

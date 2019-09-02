@@ -225,6 +225,14 @@ signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 <-quit
 ser.Shutdown(context.Background())
 ```
+> You cannot run multiple groups with the same server.
+> ```go
+> ser:=ytask.Server.NewServer(...)
+> ser.Run("g1",1)
+> // panic
+> ser.Run("g2",1)
+> ``` 
+> This feature is already under development
 
 ## client
 
