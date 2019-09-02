@@ -47,6 +47,7 @@ go get github.com/gojuukaze/YTask
     * [custom backend](#custom-backend)
   * [support type](#support-type)
   * [log](#log)
+  * [error](#error)
 
 
 
@@ -415,3 +416,21 @@ log.YTaskLog.SetOutput(file)
 log.YTaskLog.SetLevel(logrus.InfoLevel)
 ```
 
+## error
+error type
+```go
+const (
+	ErrTypeEmptyQuery      = 1
+	ErrTypeUnsupportedType = 2
+	ErrTypeOutOfRange      = 3
+	ErrTypeNilResult       = 4
+	ErrTypeTimeOut         = 5
+)
+```
+
+compare err
+```go
+import 	"github.com/gojuukaze/YTask/v2/yerrors"
+yerrors.IsEqual(err, yerrors.ErrTypeNilResult)
+
+```

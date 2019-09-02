@@ -66,7 +66,7 @@ func (t *Server) WorkerGoroutine(groupName string) {
 
 			result, err := t.GetResult(msg.Id)
 			if err != nil {
-				if yerrors.Compare(err, yerrors.ErrTypeNilResult) {
+				if yerrors.IsEqual(err, yerrors.ErrTypeNilResult) {
 					result = message.NewResult(msg.Id)
 				} else {
 					log.YTaskLog.WithField("goroutine", "worker").

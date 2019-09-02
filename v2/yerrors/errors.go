@@ -12,7 +12,7 @@ const (
 	ErrTypeTimeOut         = 5
 )
 
-func Compare(err error, errType int) bool {
+func IsEqual(err error, errType int) bool {
 	yerr, ok := err.(YTaskError)
 	if !ok {
 		return ok

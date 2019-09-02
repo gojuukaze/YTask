@@ -1,11 +1,11 @@
 package brokers
 
 import (
+	"github.com/go-redis/redis"
 	"github.com/gojuukaze/YTask/v2/drive"
 	"github.com/gojuukaze/YTask/v2/message"
 	"github.com/gojuukaze/YTask/v2/util/yjson"
 	"github.com/gojuukaze/YTask/v2/yerrors"
-	"github.com/gomodule/redigo/redis"
 	"time"
 )
 
@@ -42,19 +42,15 @@ func (r *RedisBroker) GetPoolSize() int {
 
 func (r *RedisBroker) Next(queryName string) (message.Message, error) {
 	var msg message.Message
-	values, err := redis.Values(r.client.BLPop(queryName, 2*time.Second))
+	values, err := r.client.BLPop(queryName, 2*time.Second).Result()
 	if err != nil {
-		if err == redis.ErrNil {
+		if err == redis.Nil {
 			return msg, yerrors.ErrEmptyQuery{}
 		}
 		return msg, err
 	}
-	b, err := redis.Bytes(values[1], err)
 
-	if err != nil {
-		return msg, err
-	}
-	err = yjson.YJson.Unmarshal(b, &msg)
+	err = yjson.YJson.UnmarshalFromString(values[1], &msg)
 	return msg, err
 }
 
@@ -64,6 +60,6 @@ func (r *RedisBroker) Send(queryName string, msg message.Message) error {
 	if err != nil {
 		return err
 	}
-	_, err = r.client.RPush(queryName, b)
+	err = r.client.RPush(queryName, b)
 	return err
 }

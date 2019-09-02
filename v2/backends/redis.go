@@ -1,11 +1,11 @@
 package backends
 
 import (
+	"github.com/go-redis/redis"
 	"github.com/gojuukaze/YTask/v2/drive"
 	"github.com/gojuukaze/YTask/v2/message"
 	"github.com/gojuukaze/YTask/v2/util/yjson"
 	"github.com/gojuukaze/YTask/v2/yerrors"
-	"github.com/gomodule/redigo/redis"
 	"time"
 )
 
@@ -45,14 +45,15 @@ func (r *RedisBackend) SetResult(result message.Result, exTime int) error {
 	if err != nil {
 		return err
 	}
-	_, err = r.client.Set(result.GetBackendKey(), b, time.Duration(exTime)*time.Second)
+	err = r.client.Set(result.GetBackendKey(), b, time.Duration(exTime)*time.Second)
 	return err
 }
 func (r *RedisBackend) GetResult(key string) (message.Result, error) {
 	var result message.Result
-	b, err := redis.Bytes(r.client.Get(key))
+
+	b, err := r.client.Get(key).Bytes()
 	if err != nil {
-		if err == redis.ErrNil {
+		if err == redis.Nil {
 			return result, yerrors.ErrNilResult{}
 		}
 		return result, err

@@ -46,6 +46,7 @@ go get github.com/gojuukaze/YTask
     * [自定义backend](#自定义backend)
   * [支持的类型](#支持的类型)
   * [log](#log)
+  * [error](#error)
 
 
 
@@ -445,3 +446,22 @@ log.YTaskLog.SetLevel(logrus.InfoLevel)
 ```
 
 * [go-watch-file](https://github.com/gojuukaze/go-watch-file) ：一个专为日志系统编写的读写文件库，会自动监听文件的变化，文件被删除时自动创建新文件。
+
+## error
+内置的错误类型
+```go
+const (
+	ErrTypeEmptyQuery      = 1
+	ErrTypeUnsupportedType = 2
+	ErrTypeOutOfRange      = 3
+	ErrTypeNilResult       = 4
+	ErrTypeTimeOut         = 5
+)
+```
+
+比较错误
+```go
+import 	"github.com/gojuukaze/YTask/v2/yerrors"
+yerrors.IsEqual(err, yerrors.ErrTypeNilResult)
+
+```

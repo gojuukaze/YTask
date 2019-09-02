@@ -30,7 +30,7 @@ func TestRedisBackend(t *testing.T) {
 	time.Sleep(2 * time.Second)
 
 	_, err = b.GetResult(result.GetBackendKey())
-	if !yerrors.Compare(err, yerrors.ErrTypeNilResult) {
+	if !yerrors.IsEqual(err, yerrors.ErrTypeNilResult) {
 		t.Fatal("err != ErrNilResult")
 
 	}

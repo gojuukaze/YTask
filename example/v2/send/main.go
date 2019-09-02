@@ -47,7 +47,7 @@ func sendAndGet() {
 		/* or
 		var sum, sub int
 		err := result.Gets(&sum, &sub)
-		 */
+		*/
 
 		fmt.Println("add_sub(123,44) =", int(sum), sub)
 	} else {
