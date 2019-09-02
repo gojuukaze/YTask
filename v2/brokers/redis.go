@@ -1,9 +1,9 @@
 package brokers
 
 import (
-	"encoding/json"
 	"github.com/gojuukaze/YTask/v2/drive"
 	"github.com/gojuukaze/YTask/v2/message"
+	"github.com/gojuukaze/YTask/v2/util/yjson"
 	"github.com/gojuukaze/YTask/v2/yerrors"
 	"github.com/gomodule/redigo/redis"
 	"time"
@@ -54,16 +54,16 @@ func (r *RedisBroker) Next(queryName string) (message.Message, error) {
 	if err != nil {
 		return msg, err
 	}
-	err = json.Unmarshal(b, &msg)
+	err = yjson.YJson.Unmarshal(b, &msg)
 	return msg, err
 }
 
 func (r *RedisBroker) Send(queryName string, msg message.Message) error {
-	s, err := json.Marshal(msg)
+	b, err := yjson.YJson.Marshal(msg)
 
 	if err != nil {
 		return err
 	}
-	_, err = r.client.RPush(queryName, s)
+	_, err = r.client.RPush(queryName, b)
 	return err
 }
