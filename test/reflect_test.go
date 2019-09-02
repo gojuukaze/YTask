@@ -153,17 +153,29 @@ func TestRunFunc(t *testing.T) {
 		ro  s1
 		rp  s3
 	)
-	var returnV = []interface{}{&raa, &ra, &rb, &rc, &rd, &re, &rf, &rg, &rh, &rj, &rl, &rm, &rn, &ro, &rp,}
 
+	var returnV = []interface{}{&raa, &ra, &rb, &rc, &rd, &re, &rf, &rg, &rh, &rj, &rl, &rm, &rn, &ro, &rp,}
 	for i, v := range base {
 		temp := returnV[i]
 		err := result.Get(i, temp)
 		if err != nil {
 			t.Fatal(err)
 		}
-		var realV=reflect.ValueOf(temp).Elem()
-		if fmt.Sprintf("%v", v) != fmt.Sprintf("%v",realV ) {
+		var realV = reflect.ValueOf(temp).Elem()
+		if fmt.Sprintf("%v", v) != fmt.Sprintf("%v", realV) {
 			t.Fatalf("%v != %v", v, realV)
 		}
 	}
+
+	err = result.Gets(&raa, &ra, &rb, &rc, &rd, &re, &rf, &rg, &rh, &rj, &rl, &rm, &rn, &ro, &rp)
+	if err != nil {
+		t.Fatal(err)
+	}
+	returnV = []interface{}{raa, ra, rb, rc, rd, re, rf, rg, rh, rj, rl, rm, rn, ro, rp,}
+	for i, v := range base {
+		if fmt.Sprintf("%v", v) != fmt.Sprintf("%v", returnV[i]) {
+			t.Fatalf("%v != %v", v, returnV[i])
+		}
+	}
+
 }
