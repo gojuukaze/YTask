@@ -30,7 +30,7 @@ go get github.com/gojuukaze/YTask
   * [服务端](#服务端)
     * [服务端配置](#服务端配置)
     * [注册任务](#注册任务)
-    * [运行与停止](#run-and-shutdown)
+    * [运行与停止](#运行与停止)
   * [客户端](#客户端)
     * [获取连接](#获取连接)
     * [发送信息](#发送信息)
@@ -243,6 +243,14 @@ signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 <-quit
 ser.Shutdown(context.Background())
 ```
+> 你不能用同一个server运行不同的组，比如：
+> ```go
+> ser:=ytask.Server.NewServer(...)
+> ser.Run("g1",1)
+> // 这样会报错
+> ser.Run("g2",1)
+> ``` 
+> 这个功能会在接下来的版本中加入
 
 ## 客户端
 
@@ -279,16 +287,28 @@ taskId,err=client.SetTaskCtl(client.RetryCount, 5).Send("group1","add",12,33)
 
 ### 获取结果
 调用`GetResult()`获取任务结果，第2个参数为超时时间，第3个参数为重新获取时间。  
-获取结果后可调用`GetXX()`获取任务函数的返回结果。
+获取结果后可调用`GetXX()`，`Get()`，`Gets()`获取任务函数的返回结果。
 ```go
 // taskId :
 // 3*time.Second : timeout
 // 300*time.Millisecond : sleep time
 result, _ := client.GetResult(taskId, 3*time.Second, 300*time.Millisecond)
+
 if result.IsSuccess(){
     // get worker func return
     a,err:=result.GetInt64(0)
     b,err:=result.GetBool(1)
+    
+    // or
+    var a int
+    var b bool
+    err:=result.Get(0, &a)
+    err:=result.Get(1, &b)
+
+    // or
+    var a int
+    var b bool
+    err:=result.Gets(&a, &b)
 }
 
 ```

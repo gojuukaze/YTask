@@ -29,6 +29,7 @@ func main() {
 	ser.Add("group1", "add_user", workers.AppendUser)
 
 	ser.Run("group1", 3)
+	ser.Run("group1", 3)
 
 	quit := make(chan os.Signal, 1)
 

@@ -72,6 +72,11 @@ func (t *Server) Run(groupName string, numWorkers int) {
 	if !ok {
 		panic("not find group '" + groupName + "'")
 	}
+	_, ok = t.Load("isRunning")
+	if ok {
+		panic("Running multiple groups is not supported, this feature is already under development")
+	}
+	t.Store("isRunning", struct{}{})
 
 	if t.broker != nil {
 		if t.broker.GetPoolSize() <= 0 {

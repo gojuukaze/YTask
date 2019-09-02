@@ -44,6 +44,11 @@ func sendAndGet() {
 		if err != nil {
 			fmt.Println(err)
 		}
+		/* or
+		var sum, sub int
+		err := result.Gets(&sum, &sub)
+		 */
+
 		fmt.Println("add_sub(123,44) =", int(sum), sub)
 	} else {
 		fmt.Println("result failure")
