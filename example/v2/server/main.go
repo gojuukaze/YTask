@@ -10,7 +10,7 @@ import (
 )
 
 func main() {
-	// For the client, you need to set up the poolSize
+	// For the server, you do not need to set up the poolSize
 	// Server端无需设置poolSize，
 	broker := ytask.Broker.NewRedisBroker("127.0.0.1", "6379", "", 0, 0)
 	backend := ytask.Backend.NewRedisBackend("127.0.0.1", "6379", "", 0, 0)
