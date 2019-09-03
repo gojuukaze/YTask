@@ -2,8 +2,8 @@ package main
 
 import (
 	"context"
+	workers2 "github.com/gojuukaze/YTask/example/v2/server/workers"
 	"github.com/gojuukaze/YTask/v2"
-	workers2 "github.com/gojuukaze/YTask/v2/example/server/workers"
 	"os"
 	"os/signal"
 	"syscall"
