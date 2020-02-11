@@ -16,7 +16,7 @@ go get github.com/gojuukaze/YTask/v2
 # todo
 - [x] save result  
 - [x] task retry  
-- [ ] 支持 amqp
+- [ ] 支持 RabbitMQ
 - [ ] 一次运行多了group
 - [ ] 扩展TaskCtl参数
 - [x] 支持更多类型
