@@ -16,7 +16,7 @@ go get github.com/gojuukaze/YTask/v2
 # todo
 - [x] save result  
 - [x] task retry  
-- [ ] 支持 RabbitMQ
+- [x] 支持 RabbitMQ
 - [ ] 一次运行多了group
 - [ ] 扩展TaskCtl参数
 - [x] 支持更多类型
@@ -40,9 +40,12 @@ go get github.com/gojuukaze/YTask/v2
     * [禁用重试](#禁用重试)
   * [broker](#broker)
     * [redis broker](#redisbroker)
+    * [rabbitmq broker](#rabbitmqbroker)
     * [自定义broker](#自定义broker)
   * [backend](#backend)
     * [redis backend](#redisbackend)
+    * [memcache backend](#memcachebackend)
+    * [mongo backend](#mongobackend)
     * [自定义backend](#自定义backend)
   * [支持的类型](#支持的类型)
   * [log](#log)
@@ -380,6 +383,18 @@ import "github.com/gojuukaze/YTask/v2"
 ytask.Broker.NewRedisBroker("127.0.0.1", "6379", "", 0, 10)
 ```
 
+### rabbitMqBroker
+
+```go
+import "github.com/gojuukaze/YTask/v2"
+// 127.0.0.1 : host
+// 5672 : port
+// guest : username
+// guest : password
+
+ytask.Broker.NewRabbitMqBroker("127.0.0.1", "5672", "guest", "guest")
+```
+
 ### 自定义broker
 你可以自行定义broker。需要注意，因为系统中会调用`SetPoolSize`设置连接池，所以初始化broker时不要建立连接，调用`Activate()`时再建立。
 如果你的broker不支持连接池，那可以不用管Activate,SetPoolSize,GetPoolSize三个方法，直接返回空就行。
@@ -397,7 +412,9 @@ type BrokerInterface interface {
 ```
 
 ## backend
+
 ### redisBackend
+
 ```go
 import "github.com/gojuukaze/YTask/v2"
 
@@ -410,7 +427,36 @@ import "github.com/gojuukaze/YTask/v2"
 //      对于client端, 你需要根据情况自行设置连接池
 ytask.Backend.NewRedisBackend("127.0.0.1", "6379", "", 0, 10)
 ```
+
+### memCacheBackend
+
+```go
+import "github.com/gojuukaze/YTask/v2"
+
+// 127.0.0.1 : host
+// 11211 : port
+// 10 : connection pool size. 
+
+ytask.Backend.NewMemCacheBackend("127.0.0.1", "11211", 10)
+```
+
+### mongoBackend
+
+```go
+import "github.com/gojuukaze/YTask/v2"
+
+// 127.0.0.1 : host
+// 27017 : port
+// "" : username
+// "" : password
+// "task": db
+// "taks": collection
+
+ytask.Backend.NewMongoBackend("127.0.0.1", "27017", "", "", "task", "task")
+```
+
 ### 自定义backend
+
 你可以自行定义backend。同broker一样，调用`Activate()`时再建立连接。
 
 ```go

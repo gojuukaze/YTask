@@ -16,7 +16,7 @@ go get github.com/gojuukaze/YTask/v2
 # todo
 - [x] save result  
 - [x] task retry  
-- [ ] support RabbitMQ
+- [x] support RabbitMQ
 - [ ] run multi group
 - [ ] more option in TaskCtl
 - [x] support more type
@@ -41,9 +41,12 @@ go get github.com/gojuukaze/YTask/v2
     * [disable retry](#disable-retry)
   * [broker](#broker)
     * [redis broker](#redisbroker)
+    * [rabbitmq broker](#rabbitmqbroker)
     * [custom broker](#custom-broker)
   * [backend](#backend)
     * [redis backend](#redisbackend)
+    * [memcache backend](#memcachebackend)
+    * [mongo backend](#mongobackend)
     * [custom backend](#custom-backend)
   * [support type](#support-type)
   * [log](#log)
@@ -339,6 +342,7 @@ client.SetTaskCtl(client.RetryCount, 0).Send("group1", "retry", 123, 44)
 ```
 
 ## broker
+
 ### redisBroker
 
 ```go
@@ -352,6 +356,18 @@ import "github.com/gojuukaze/YTask/v2"
 //      For server, if poolSize is 0, the pool size will be set automatically.
 //      For client, you need to set up the poolSize by yourself
 ytask.Broker.NewRedisBroker("127.0.0.1", "6379", "", 0, 10)
+```
+
+### rabbitMqBroker
+
+```go
+import "github.com/gojuukaze/YTask/v2"
+// 127.0.0.1 : host
+// 5672 : port
+// guest : username
+// guest : password
+
+ytask.Broker.NewRabbitMqBroker("127.0.0.1", "5672", "guest", "guest")
 ```
 
 ### custom broker
@@ -369,7 +385,9 @@ type BrokerInterface interface {
 ```
 
 ## backend
+
 ### redisBackend
+
 ```go
 import "github.com/gojuukaze/YTask/v2"
 
@@ -380,9 +398,39 @@ import "github.com/gojuukaze/YTask/v2"
 // 10 : connection pool size. 
 //      For server, if poolSize is 0, the pool size will be set automatically.
 //      For client, you need to set up the poolSize by yourself
+
 ytask.Backend.NewRedisBackend("127.0.0.1", "6379", "", 0, 10)
 ```
+
+### memCacheBackend
+
+```go
+import "github.com/gojuukaze/YTask/v2"
+
+// 127.0.0.1 : host
+// 11211 : port
+// 10 : connection pool size. 
+
+ytask.Backend.NewMemCacheBackend("127.0.0.1", "11211", 10)
+```
+
+### mongoBackend
+
+```go
+import "github.com/gojuukaze/YTask/v2"
+
+// 127.0.0.1 : host
+// 27017 : port
+// "" : username
+// "" : password
+// "task": db
+// "taks": collection
+
+ytask.Backend.NewMongoBackend("127.0.0.1", "27017", "", "", "task", "task")
+```
+
 ### custom backend
+
 ```go
 type BackendInterface interface {
 	SetResult(result message.Result, exTime int) error

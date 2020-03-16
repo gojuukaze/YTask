@@ -17,7 +17,7 @@ var (
 type iServer struct {
 }
 
-func (is iServer) NewServer(setConfigFunc ...config.SetConfigFunc) server.Server {
+func (i iServer) NewServer(setConfigFunc ...config.SetConfigFunc) server.Server {
 	c := config.NewConfig(setConfigFunc...)
 	return server.NewServer(c)
 }
@@ -28,6 +28,10 @@ type iBroker struct {
 // poolSize: ( default: 1(for server) 10(for client) ) Maximum number of idle connections in the pool. if poolSize<=0 use default
 func (i iBroker) NewRedisBroker(host string, port string, password string, db int, poolSize int) brokers.RedisBroker {
 	return brokers.NewRedisBroker(host, port, password, db, poolSize)
+}
+
+func (i iBroker) NewRabbitMqBroker(host, port, user, password string) brokers.RabbitMqBroker {
+	return brokers.NewRabbitMqBroker(host, port, user, password)
 }
 
 type iConfig struct {
@@ -62,4 +66,12 @@ type iBackend struct {
 // poolSize: ( default: numWorkers(for server) 10(for client) ) Maximum number of idle connections in the pool. if poolSize<=0 use default
 func (i iBackend) NewRedisBackend(host string, port string, password string, db int, poolSize int) backends.RedisBackend {
 	return backends.NewRedisBackend(host, port, password, db, poolSize)
+}
+
+func (i iBackend) NewMemCacheBackend(host, port string, poolSize int) backends.MemCacheBackend {
+	return backends.NewMemCacheBackend(host, port, poolSize)
+}
+
+func (i iBackend) NewMongoBackend(host, port , user, password, db, collection string) backends.MongoBackend {
+	return backends.NewMongoBackend(host, port , user, password, db, collection)
 }
