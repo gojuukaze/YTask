@@ -1,5 +1,10 @@
 package test
 
+//
+// cd v2
+// go test -v -count=1 test/*
+//
+
 import (
 	"context"
 	"errors"
