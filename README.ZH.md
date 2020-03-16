@@ -213,6 +213,8 @@ ser := ytask.Server.NewServer(
   * 状态： 任务的开始、运行、成功、失败状态
   * 结果： 函数的返回值
 
+* StatusExpires，ResultExpires对mongo backend无效，0代表不存储，>0代表永久存储
+
 ### 注册任务
 使用`Add`注册任务
 ```go

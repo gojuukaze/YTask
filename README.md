@@ -16,7 +16,6 @@ go get github.com/gojuukaze/YTask/v2
 # todo
 - [x] save result  
 - [x] task retry  
-- [x] support RabbitMQ
 - [ ] run multi group
 - [ ] more option in TaskCtl
 - [x] support more type
@@ -209,6 +208,9 @@ ser := ytask.Server.NewServer(
 | Debug         |         | FALSE   | ytask\.Config\.Debug         |                                                  |
 | StatusExpires |         | 1day    | ytask\.Config\.StatusExpires | "task status expires in ex seconds, \-1:forever" |
 | ResultExpires |         | 1day    | ytask\.Config\.ResultExpires | "task result expires in ex seconds, \-1:forever" |
+
+* StatusExpires, ResultExpires is not valid for Mongo backend, 0 means no storage, > 0 means permanent storage
+  
 
 ### add worker func
 
