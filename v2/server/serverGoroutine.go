@@ -64,16 +64,20 @@ func (t *Server) WorkerGoroutine(groupName string) {
 			waitWorkerWG.Add(1)
 			defer waitWorkerWG.Done()
 
-			result, err := t.GetResult(msg.Id)
-			if err != nil {
-				if yerrors.IsEqual(err, yerrors.ErrTypeNilResult) {
-					result = message.NewResult(msg.Id)
-				} else {
-					log.YTaskLog.WithField("goroutine", "worker").
-						Error("get result error ", err)
-					result = message.NewResult(msg.Id)
-				}
-			}
+			// 这里应该直接创建result就行，不知道之前为啥会从backend中获取
+			result := message.NewResult(msg.Id)
+			//result, err := t.GetResult(msg.Id)
+			//log.YTaskLog.WithField("goroutine", "worker").
+			//	Info("rrr= ", result, err)
+			//if err != nil {
+			//	if yerrors.IsEqual(err, yerrors.ErrTypeNilResult) {
+			//		result = message.NewResult(msg.Id)
+			//	} else {
+			//		log.YTaskLog.WithField("goroutine", "worker").
+			//			Error("get result error ", err)
+			//		result = message.NewResult(msg.Id)
+			//	}
+			//}
 
 			t.workerGoroutine_RunWorker(w, &msg, &result)
 
@@ -123,6 +127,9 @@ RUN:
 func (t *Server) workerGoroutine_SaveResult(result message.Result) {
 	log.YTaskLog.WithField("goroutine", "worker").
 		Debugf("save result %+v", result)
+	if t.backend==nil{
+		return
+	}
 	err := t.SetResult(result)
 	if err != nil {
 		log.YTaskLog.WithField("goroutine", "worker").Errorf("save result error ", err)
