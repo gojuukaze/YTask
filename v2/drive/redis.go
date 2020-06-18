@@ -1,8 +1,9 @@
 package drive
 
 import (
+	"context"
 	//"github.com/gomodule/redigo/redis"
-	"github.com/go-redis/redis"
+	"github.com/go-redis/redis/v8"
 
 	"time"
 )
@@ -43,46 +44,58 @@ func HideKey(key string) string {
 // =======================
 func (c *RedisClient) Exists(key string) (bool, error) {
 	key = HideKey(key)
-	r, err := c.redisPool.Exists(key).Result()
+	var ctx = context.Background()
+	r, err := c.redisPool.Exists(ctx,key).Result()
 	return r == 1, err
 }
 func (c *RedisClient) Get(key string) *redis.StringCmd {
 	key = HideKey(key)
-	return c.redisPool.Get(key)
+	var ctx = context.Background()
+
+	return c.redisPool.Get(ctx,key)
 }
 
 func (c *RedisClient) Set(key string, value interface{}, exTime time.Duration) error {
 	key = HideKey(key)
+	var ctx = context.Background()
+
 	if exTime <= 0 {
-		return c.redisPool.Set(key, value, 0).Err()
+		return c.redisPool.Set(ctx,key, value, 0).Err()
 	} else {
-		return c.redisPool.Set(key, value, exTime).Err()
+		return c.redisPool.Set(ctx,key, value, exTime).Err()
 	}
 }
 
 func (c *RedisClient) RPush(key string, value interface{}) error {
 	key = HideKey(key)
-	return c.redisPool.RPush(key, value).Err()
+	var ctx = context.Background()
+
+	return c.redisPool.RPush(ctx,key, value).Err()
 }
 
 func (c *RedisClient) BLPop(key string, timeout time.Duration) *redis.StringSliceCmd {
 	key = HideKey(key)
+	var ctx = context.Background()
 
-	return c.redisPool.BLPop(timeout, key)
+	return c.redisPool.BLPop(ctx,timeout, key)
 }
 
 func (c *RedisClient) Do(args ...interface{}) *redis.Cmd {
+	var ctx = context.Background()
 
-	return c.redisPool.Do(args)
+	return c.redisPool.Do(ctx,args)
 }
 
 func (c *RedisClient) Flush() error {
-	return c.redisPool.FlushDB().Err()
+	var ctx = context.Background()
+
+	return c.redisPool.FlushDB(ctx).Err()
 }
 
 func (c *RedisClient) Ping() error {
+	var ctx = context.Background()
 
-	return c.redisPool.Ping().Err()
+	return c.redisPool.Ping(ctx).Err()
 }
 
 func (c *RedisClient) Close() {
