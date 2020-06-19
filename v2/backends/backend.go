@@ -9,4 +9,6 @@ type BackendInterface interface {
 	Activate()
 	SetPoolSize(int)
 	GetPoolSize() int
+	Clone() BackendInterface
+
 }

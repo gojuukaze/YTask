@@ -11,4 +11,5 @@ type BrokerInterface interface {
 	Activate()
 	SetPoolSize(int)
 	GetPoolSize()int
+	Clone() BrokerInterface
 }

@@ -73,3 +73,13 @@ func (r *MongoBackend) GetResult(key string) (message.Result, error) {
 
 	return result, err
 }
+
+func (r MongoBackend) Clone() BackendInterface{
+	return  &MongoBackend{
+		host:     r.host,
+		port:     r.port,
+		password: r.password,
+		db:       r.db,
+		collection: r.collection,
+	}
+}

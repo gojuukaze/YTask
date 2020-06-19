@@ -60,3 +60,11 @@ func (r *MemCacheBackend) GetResult(key string) (message.Result, error) {
 	err = yjson.YJson.Unmarshal([]byte(b), &result)
 	return result, err
 }
+
+func (r MemCacheBackend) Clone() BackendInterface{
+	return  &MemCacheBackend{
+		host:     r.host,
+		port:     r.port,
+		poolSize: r.poolSize,
+	}
+}

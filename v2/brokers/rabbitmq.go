@@ -10,7 +10,7 @@ type RabbitMqBroker struct {
 	client   *drive.RabbitMqClient
 	host     string
 	port     string
-	user	 string
+	user     string
 	password string
 	//poolSize int
 }
@@ -20,7 +20,7 @@ func NewRabbitMqBroker(host, port, user, password string) RabbitMqBroker {
 		host:     host,
 		port:     port,
 		password: password,
-		user:	  user,
+		user:     user,
 		//poolSize: 0,
 	}
 }
@@ -57,4 +57,15 @@ func (r *RabbitMqBroker) Send(queryName string, msg message.Message) error {
 	}
 	err = r.client.Set(queryName, b)
 	return err
+}
+
+func (r RabbitMqBroker) Clone() BrokerInterface {
+
+	return &RabbitMqBroker{
+		host:     r.host,
+		port:     r.port,
+		password: r.password,
+		user:     r.user,
+		//poolSize: 0,
+	}
 }

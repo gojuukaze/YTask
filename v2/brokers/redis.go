@@ -63,3 +63,14 @@ func (r *RedisBroker) Send(queryName string, msg message.Message) error {
 	err = r.client.RPush(queryName, b)
 	return err
 }
+
+func (r RedisBroker) Clone() BrokerInterface {
+
+	return &RedisBroker{
+		host:     r.host,
+		port:     r.port,
+		password: r.password,
+		db:       r.db,
+		poolSize: r.poolSize,
+	}
+}

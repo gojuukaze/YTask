@@ -63,8 +63,8 @@ func (r Result) Gets(args ...interface{}) error {
 	return nil
 }
 
-// 过时: 此方法只能用于v2.0.0，高版本中，如果值为int64,uint64类型，会导致获取的值不对
-// Deprecated: only can use in v2.0.0
+// 过时: 此方法只能用于v1.0.0，高版本中，如果值为int64,uint64类型，会导致获取的值不对
+// Deprecated: only can use in v1.0.0
 func (r Result) GetInterface(index int) (interface{}, error) {
 
 	var result interface{}
