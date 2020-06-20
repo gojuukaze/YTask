@@ -9,7 +9,7 @@ import (
 )
 
 // get next message if worker is ready
-func (t *Server) GetNextMessageGoroutine(groupName string) {
+func (t *InlineServer) GetNextMessageGoroutine(groupName string) {
 	log.YTaskLog.WithField("goroutine", "GetNextMessage").Debug("start")
 	var msg message.Message
 	var err error
@@ -38,7 +38,7 @@ func (t *Server) GetNextMessageGoroutine(groupName string) {
 }
 
 // start worker to run
-func (t *Server) WorkerGoroutine(groupName string) {
+func (t *InlineServer) WorkerGoroutine(groupName string) {
 	log.YTaskLog.WithField("goroutine", "worker").Debug("start")
 
 	workerMap, _ := t.workerGroup[groupName]
@@ -90,7 +90,7 @@ func (t *Server) WorkerGoroutine(groupName string) {
 
 }
 
-func (t *Server) workerGoroutine_RunWorker(w worker.WorkerInterface, msg *message.Message, result *message.Result) {
+func (t *InlineServer) workerGoroutine_RunWorker(w worker.WorkerInterface, msg *message.Message, result *message.Result) {
 
 	ctl := msg.TaskCtl
 
@@ -124,7 +124,7 @@ RUN:
 
 }
 
-func (t *Server) workerGoroutine_SaveResult(result message.Result) {
+func (t *InlineServer) workerGoroutine_SaveResult(result message.Result) {
 	log.YTaskLog.WithField("goroutine", "worker").
 		Debugf("save result %+v", result)
 	if t.backend==nil{

@@ -9,14 +9,14 @@ import (
 
 type Client struct {
 	isClone bool
-	server  *Server
+	server  *InlineServer
 	ctl     controller.TaskCtl
 
 	// ctl name
 	RetryCount string
 }
 
-func NewClient(server *Server) Client {
+func NewClient(server *InlineServer) Client {
 	return Client{
 		server:     server,
 		ctl:        controller.NewTaskCtl(),
@@ -64,6 +64,26 @@ func (c *Client) GetResult(taskId string, timeout time.Duration, sleepTime time.
 		r, err := c.server.GetResult(taskId)
 		if err == nil && r.IsFinish() {
 			return r, nil
+		}
+		time.Sleep(sleepTime)
+	}
+}
+
+// taskId:
+// timeout:
+// sleepDuration:
+func (c *Client) GetStatus(taskId string, timeout time.Duration, sleepTime time.Duration) (int, error) {
+	if c.server.backend == nil {
+		return 0, yerrors.ErrNilResult{}
+	}
+	n := time.Now()
+	for {
+		if time.Now().Sub(n) >= timeout {
+			return 0, yerrors.ErrTimeOut{}
+		}
+		r, err := c.server.GetResult(taskId)
+		if err == nil {
+			return r.Status,nil
 		}
 		time.Sleep(sleepTime)
 	}

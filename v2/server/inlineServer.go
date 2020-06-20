@@ -18,7 +18,7 @@ import (
 // [workerName]worker
 type workerMap map[string]worker.WorkerInterface
 
-type Server struct {
+type InlineServer struct {
 	sync.Map
 
 	workerGroup map[string]workerMap // [groupName]workerMap
@@ -39,13 +39,13 @@ type Server struct {
 	ResultExpires int // second, -1:forever
 }
 
-func NewServer(c config.Config) Server {
+func NewInlineServer(c config.Config) InlineServer {
 
 	g := make(map[string]workerMap)
 	if c.Debug {
 		log.YTaskLog.SetLevel(logrus.DebugLevel)
 	}
-	return Server{
+	return InlineServer{
 		workerGroup:   g,
 		broker:        c.Broker,
 		backend:       c.Backend,
@@ -55,18 +55,18 @@ func NewServer(c config.Config) Server {
 	}
 }
 
-func (t *Server) GetQueryName(groupName string) string {
+func (t *InlineServer) GetQueryName(groupName string) string {
 	return "YTask:Query:" + groupName
 }
 
-func (t *Server) MakeWorkerReady() {
+func (t *InlineServer) MakeWorkerReady() {
 	defer func() {
 		recover()
 	}()
 	t.workerReadyChan <- struct{}{}
 }
 
-func (t *Server) Run(groupName string, numWorkers int) {
+func (t *InlineServer) Run(groupName string, numWorkers int) {
 
 	workerMap, ok := t.workerGroup[groupName]
 	if !ok {
@@ -113,7 +113,7 @@ func (t *Server) Run(groupName string, numWorkers int) {
 
 }
 
-func (t *Server) safeStop() {
+func (t *InlineServer) safeStop() {
 	log.YTaskLog.Info("waiting for incomplete tasks ")
 
 	// stop get message goroutine
@@ -129,7 +129,7 @@ func (t *Server) safeStop() {
 
 }
 
-func (t *Server) Shutdown(ctx context.Context) error {
+func (t *InlineServer) Shutdown(ctx context.Context) error {
 
 	go func() {
 		t.safeStop()
@@ -145,9 +145,14 @@ func (t *Server) Shutdown(ctx context.Context) error {
 	return nil
 }
 
+func (t *InlineServer) IsRunning() bool {
+	_, ok := t.Load("isRunning")
+	return ok
+}
+
 // add worker to group
 // w : worker func
-func (t *Server) Add(groupName string, workerName string, w interface{}) {
+func (t *InlineServer) Add(groupName string, workerName string, w interface{}) {
 	_, ok := t.workerGroup[groupName]
 	if !ok {
 		t.workerGroup[groupName] = make(workerMap)
@@ -165,11 +170,11 @@ func (t *Server) Add(groupName string, workerName string, w interface{}) {
 
 }
 
-func (t *Server) Next(groupName string) (message.Message, error) {
+func (t *InlineServer) Next(groupName string) (message.Message, error) {
 	return t.broker.Next(t.GetQueryName(groupName))
 }
 
-func (t *Server) SetResult(result message.Result) error {
+func (t *InlineServer) SetResult(result message.Result) error {
 	var exTime int
 	if result.IsFinish() {
 		exTime = t.ResultExpires
@@ -185,7 +190,7 @@ func (t *Server) SetResult(result message.Result) error {
 // send msg to queue
 // t.Send("groupName", "workerName" , 1,"hi",1.2)
 //
-func (t *Server) Send(groupName string, workerName string, ctl controller.TaskCtl, args ...interface{}) (string, error) {
+func (t *InlineServer) Send(groupName string, workerName string, ctl controller.TaskCtl, args ...interface{}) (string, error) {
 	var msg = message.NewMessage(ctl)
 	msg.WorkerName = workerName
 	err := msg.SetArgs(args...)
@@ -197,12 +202,12 @@ func (t *Server) Send(groupName string, workerName string, ctl controller.TaskCt
 
 }
 
-func (t *Server) GetResult(id string) (message.Result, error) {
+func (t *InlineServer) GetResult(id string) (message.Result, error) {
 	result := message.NewResult(id)
 	return t.backend.GetResult(result.GetBackendKey())
 }
 
-func (t *Server) GetClient() Client {
+func (t *InlineServer) GetClient() Client {
 	if t.broker != nil {
 		if t.broker.GetPoolSize() <= 0 {
 			t.broker.SetPoolSize(10)
