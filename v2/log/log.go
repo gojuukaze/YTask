@@ -20,12 +20,26 @@ func (hook YTaskHook) Levels() []logrus.Level {
 }
 
 func (hook YTaskHook) Fire(entry *logrus.Entry) error {
-	goroutineName,ok := entry.Data["goroutine"]
-	delete(entry.Data, "goroutine")
+	serverName, ok := entry.Data["server"]
+	s := ""
 	if ok {
-		entry.Message = fmt.Sprintf("goroutine[%v]: %s", goroutineName, entry.Message)
+		s = fmt.Sprintf("server[%s]", serverName)
 
 	}
+
+	goroutineName, ok := entry.Data["goroutine"]
+	if ok {
+		goroutineName = fmt.Sprintf("%s ", goroutineName)
+
+	}
+	if !ok{
+		goroutineName=""
+	}
+	delete(entry.Data, "goroutine")
+	delete(entry.Data, "server")
+
+	entry.Message = fmt.Sprintf("%s: %s%s", s,goroutineName, entry.Message)
+
 	return nil
 }
 
@@ -61,7 +75,6 @@ func (hook lineNumHook) Fire(entry *logrus.Entry) error {
 	}
 	return nil
 }
-
 
 func init() {
 

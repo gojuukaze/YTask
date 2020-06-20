@@ -10,7 +10,7 @@ import (
 
 // get next message if worker is ready
 func (t *InlineServer) GetNextMessageGoroutine() {
-	log.YTaskLog.WithField("server",t.groupName).WithField("goroutine", "GetNextMessage").Debug("start")
+	log.YTaskLog.WithField("server",t.groupName).WithField("goroutine", "get_next_message").Debug("start")
 	var msg message.Message
 	var err error
 	for range t.workerReadyChan {
@@ -24,16 +24,16 @@ func (t *InlineServer) GetNextMessageGoroutine() {
 			go t.MakeWorkerReady()
 			ytaskErr, ok := err.(yerrors.YTaskError)
 			if ok && ytaskErr.Type() != yerrors.ErrTypeEmptyQuery {
-				log.YTaskLog.WithField("server",t.groupName).WithField("goroutine", "GetNextMessage").Error("get msg error, ", err)
+				log.YTaskLog.WithField("server",t.groupName).WithField("goroutine", "get_next_message").Error("get msg error, ", err)
 			}
 			continue
 		}
-		log.YTaskLog.WithField("server",t.groupName).WithField("goroutine", "GetNextMessage").Infof("new msg %+v", msg)
+		log.YTaskLog.WithField("server",t.groupName).WithField("goroutine", "get_next_message").Infof("new msg %+v", msg)
 		t.msgChan <- msg
 	}
 
 	t.getMessageGoroutineStopChan <- struct{}{}
-	log.YTaskLog.WithField("server",t.groupName).WithField("goroutine", "GetNextMessage").Debug("stop")
+	log.YTaskLog.WithField("server",t.groupName).WithField("goroutine", "get_next_message").Debug("stop")
 
 }
 

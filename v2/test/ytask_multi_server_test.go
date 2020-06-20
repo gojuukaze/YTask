@@ -66,7 +66,7 @@ func testMulti1(t *testing.T, client server.Client) {
 		t.Fatal("err!=yerrors.ErrTypeTimeOut")
 	}
 
-	_, err = client.GetStatus(id, 4*time.Second, 300*time.Millisecond)
+	_, err = client.GetResult(id, 4*time.Second, 300*time.Millisecond)
 	if err != nil {
 		t.Fatal("err!=nil")
 	}
