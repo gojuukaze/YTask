@@ -2,7 +2,6 @@ package server
 
 import (
 	"context"
-	"fmt"
 	"github.com/gojuukaze/YTask/v2/backends"
 	"github.com/gojuukaze/YTask/v2/brokers"
 	"github.com/gojuukaze/YTask/v2/config"
@@ -15,13 +14,11 @@ import (
 	"sync"
 )
 
-// [workerName]worker
-type workerMap map[string]worker.WorkerInterface
-
 type InlineServer struct {
 	sync.Map
+	groupName string
 
-	workerGroup map[string]workerMap // [groupName]workerMap
+	workerMap map[string]worker.WorkerInterface // [workerName]worker
 
 	broker  brokers.BrokerInterface
 	backend backends.BackendInterface
@@ -39,14 +36,15 @@ type InlineServer struct {
 	ResultExpires int // second, -1:forever
 }
 
-func NewInlineServer(c config.Config) InlineServer {
+func NewInlineServer(groupName string, c config.Config) InlineServer {
 
-	g := make(map[string]workerMap)
+	wm := make(map[string]worker.WorkerInterface)
 	if c.Debug {
 		log.YTaskLog.SetLevel(logrus.DebugLevel)
 	}
 	return InlineServer{
-		workerGroup:   g,
+		groupName:     groupName,
+		workerMap:     wm,
 		broker:        c.Broker,
 		backend:       c.Backend,
 		safeStopChan:  make(chan struct{}),
@@ -55,8 +53,11 @@ func NewInlineServer(c config.Config) InlineServer {
 	}
 }
 
-func (t *InlineServer) GetQueryName(groupName string) string {
-	return "YTask:Query:" + groupName
+func (t *InlineServer) GetQueryName(name ...string) string {
+	if len(name) > 0 {
+		return "YTask:Query:" + name[0]
+	}
+	return "YTask:Query:" + t.groupName
 }
 
 func (t *InlineServer) MakeWorkerReady() {
@@ -66,15 +67,11 @@ func (t *InlineServer) MakeWorkerReady() {
 	t.workerReadyChan <- struct{}{}
 }
 
-func (t *InlineServer) Run(groupName string, numWorkers int) {
+func (t *InlineServer) Run(numWorkers int) {
 
-	workerMap, ok := t.workerGroup[groupName]
-	if !ok {
-		panic("not find group '" + groupName + "'")
-	}
-	_, ok = t.Load("isRunning")
+	_, ok := t.Load("isRunning")
 	if ok {
-		panic("Running multiple groups is not supported, this feature is already under development")
+		panic("inlineServer " + t.groupName + " is running")
 	}
 	t.Store("isRunning", struct{}{})
 
@@ -91,21 +88,21 @@ func (t *InlineServer) Run(groupName string, numWorkers int) {
 		t.backend.Activate()
 	}
 
-	log.YTaskLog.Infof("Start group[%s] numWorkers=%d", groupName, numWorkers)
+	log.YTaskLog.WithField("server", t.groupName).Infof("Start server[%s] numWorkers=%d", t.groupName, numWorkers)
 
-	log.YTaskLog.Info("group workers:")
-	for name := range workerMap {
-		log.YTaskLog.Info("  - " + name)
+	log.YTaskLog.WithField("server", t.groupName).Info("group workers:")
+	for name := range t.workerMap {
+		log.YTaskLog.WithField("server", t.groupName).Info("  - " + name)
 	}
 
 	t.workerReadyChan = make(chan struct{}, numWorkers)
 	t.msgChan = make(chan message.Message, numWorkers)
 
 	t.getMessageGoroutineStopChan = make(chan struct{}, 1)
-	go t.GetNextMessageGoroutine(groupName)
+	go t.GetNextMessageGoroutine()
 
 	t.workerGoroutineStopChan = make(chan struct{}, 1)
-	go t.WorkerGoroutine(groupName)
+	go t.WorkerGoroutine()
 
 	for i := 0; i < numWorkers; i++ {
 		t.MakeWorkerReady()
@@ -114,7 +111,7 @@ func (t *InlineServer) Run(groupName string, numWorkers int) {
 }
 
 func (t *InlineServer) safeStop() {
-	log.YTaskLog.Info("waiting for incomplete tasks ")
+	log.YTaskLog.WithField("server", t.groupName).Info("waiting for incomplete tasks ")
 
 	// stop get message goroutine
 	close(t.workerReadyChan)
@@ -141,7 +138,7 @@ func (t *InlineServer) Shutdown(ctx context.Context) error {
 		return ctx.Err()
 	}
 
-	log.YTaskLog.Info("Shutdown!")
+	log.YTaskLog.WithField("server", t.groupName).Info("Shutdown!")
 	return nil
 }
 
@@ -152,26 +149,23 @@ func (t *InlineServer) IsRunning() bool {
 
 // add worker to group
 // w : worker func
-func (t *InlineServer) Add(groupName string, workerName string, w interface{}) {
-	_, ok := t.workerGroup[groupName]
-	if !ok {
-		t.workerGroup[groupName] = make(workerMap)
-	}
+func (t *InlineServer) Add(workerName string, w interface{}) {
+
 	wType := reflect.TypeOf(w).Kind().String()
 	if wType == "func" {
 		funcWorker := worker.FuncWorker{
 			Name: workerName,
 			F:    w,
 		}
-		t.workerGroup[groupName][workerName] = funcWorker
+		t.workerMap[workerName] = funcWorker
 	} else {
-		panic(fmt.Sprintf("worker must be func"))
+		panic("worker must be func")
 	}
 
 }
 
-func (t *InlineServer) Next(groupName string) (message.Message, error) {
-	return t.broker.Next(t.GetQueryName(groupName))
+func (t *InlineServer) Next() (message.Message, error) {
+	return t.broker.Next(t.GetQueryName())
 }
 
 func (t *InlineServer) SetResult(result message.Result) error {
@@ -208,12 +202,11 @@ func (t *InlineServer) GetResult(id string) (message.Result, error) {
 }
 
 func (t *InlineServer) GetClient() Client {
-	if t.broker != nil {
-		if t.broker.GetPoolSize() <= 0 {
+	if t.broker.GetPoolSize() <= 0 {
 			t.broker.SetPoolSize(10)
 		}
 		t.broker.Activate()
-	}
+
 	if t.backend != nil {
 		if t.backend.GetPoolSize() <= 0 {
 			t.backend.SetPoolSize(10)

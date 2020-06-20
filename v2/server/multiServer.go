@@ -41,7 +41,7 @@ func (t Server) CloneConfig() config.Config {
 // w : worker func
 func (t *Server) Add(groupName string, workerName string, w interface{}) {
 	server := t.GetOrCreateInlineServer(groupName)
-	server.Add(groupName, workerName, w)
+	server.Add(workerName, w)
 
 }
 
@@ -50,7 +50,7 @@ func (t *Server) GetOrCreateInlineServer(groupName string) *InlineServer {
 	if ok {
 		return server
 	} else {
-		newServer := NewInlineServer(t.config.Clone())
+		newServer := NewInlineServer(groupName, t.config.Clone())
 		t.ServerMap[groupName] = &newServer
 		return t.ServerMap[groupName]
 	}
@@ -62,12 +62,12 @@ func (t *Server) Run(groupName string, numWorkers int) {
 	if !ok {
 		panic("YTask: not found group: " + groupName)
 	}
-	server.Run(groupName, numWorkers)
+	server.Run(numWorkers)
 
 }
 
 func (t *Server) GetClient() Client {
-	server := NewInlineServer(t.config.Clone())
+	server := NewInlineServer("", t.config.Clone())
 
 	if server.broker != nil {
 		if server.broker.GetPoolSize() <= 0 {

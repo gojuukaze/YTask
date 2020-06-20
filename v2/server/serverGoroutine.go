@@ -9,8 +9,8 @@ import (
 )
 
 // get next message if worker is ready
-func (t *InlineServer) GetNextMessageGoroutine(groupName string) {
-	log.YTaskLog.WithField("goroutine", "GetNextMessage").Debug("start")
+func (t *InlineServer) GetNextMessageGoroutine() {
+	log.YTaskLog.WithField("server",t.groupName).WithField("goroutine", "GetNextMessage").Debug("start")
 	var msg message.Message
 	var err error
 	for range t.workerReadyChan {
@@ -18,30 +18,30 @@ func (t *InlineServer) GetNextMessageGoroutine(groupName string) {
 		if ok {
 			break
 		}
-		msg, err = t.Next(groupName)
+		msg, err = t.Next()
 
 		if err != nil {
 			go t.MakeWorkerReady()
 			ytaskErr, ok := err.(yerrors.YTaskError)
 			if ok && ytaskErr.Type() != yerrors.ErrTypeEmptyQuery {
-				log.YTaskLog.WithField("goroutine", "GetNextMessage").Error("get msg error, ", err)
+				log.YTaskLog.WithField("server",t.groupName).WithField("goroutine", "GetNextMessage").Error("get msg error, ", err)
 			}
 			continue
 		}
-		log.YTaskLog.WithField("goroutine", "GetNextMessage").Infof("new msg %+v", msg)
+		log.YTaskLog.WithField("server",t.groupName).WithField("goroutine", "GetNextMessage").Infof("new msg %+v", msg)
 		t.msgChan <- msg
 	}
 
 	t.getMessageGoroutineStopChan <- struct{}{}
-	log.YTaskLog.WithField("goroutine", "GetNextMessage").Debug("stop")
+	log.YTaskLog.WithField("server",t.groupName).WithField("goroutine", "GetNextMessage").Debug("stop")
 
 }
 
 // start worker to run
-func (t *InlineServer) WorkerGoroutine(groupName string) {
-	log.YTaskLog.WithField("goroutine", "worker").Debug("start")
+func (t *InlineServer) WorkerGoroutine() {
+	log.YTaskLog.WithField("server",t.groupName).WithField("goroutine", "worker").Debug("start")
 
-	workerMap, _ := t.workerGroup[groupName]
+
 	waitWorkerWG := sync.WaitGroup{}
 
 	for msg := range t.msgChan {
@@ -49,15 +49,15 @@ func (t *InlineServer) WorkerGoroutine(groupName string) {
 			defer func() {
 				e := recover()
 				if e != nil {
-					log.YTaskLog.WithField("goroutine", "worker").Errorf("run worker[%s] panic %v", msg.WorkerName, e)
+					log.YTaskLog.WithField("server",t.groupName).WithField("goroutine", "worker").Errorf("run worker[%s] panic %v", msg.WorkerName, e)
 				}
 			}()
 
 			defer func() { go t.MakeWorkerReady() }()
 
-			w, ok := workerMap[msg.WorkerName]
+			w, ok := t.workerMap[msg.WorkerName]
 			if !ok {
-				log.YTaskLog.WithField("goroutine", "worker").Error("not found worker", msg.WorkerName)
+				log.YTaskLog.WithField("server",t.groupName).WithField("goroutine", "worker").Error("not found worker", msg.WorkerName)
 				return
 			}
 
@@ -86,7 +86,7 @@ func (t *InlineServer) WorkerGoroutine(groupName string) {
 
 	waitWorkerWG.Wait()
 	t.workerGoroutineStopChan <- struct{}{}
-	log.YTaskLog.WithField("goroutine", "worker").Debug("stop")
+	log.YTaskLog.WithField("server",t.groupName).WithField("goroutine", "worker").Debug("stop")
 
 }
 
@@ -106,13 +106,13 @@ RUN:
 
 		return
 	}
-	log.YTaskLog.WithField("goroutine", "worker").Errorf("run worker[%s] error %s", msg.WorkerName, err)
+	log.YTaskLog.WithField("server",t.groupName).WithField("goroutine", "worker").Errorf("run worker[%s] error %s", msg.WorkerName, err)
 
 	if ctl.CanRetry() {
 		result.Status = message.ResultStatus.WaitingRetry
 		ctl.RetryCount -= 1
 		msg.TaskCtl = ctl
-		log.YTaskLog.WithField("goroutine", "worker").Infof("retry task %s", msg)
+		log.YTaskLog.WithField("server",t.groupName).WithField("goroutine", "worker").Infof("retry task %s", msg)
 		ctl.SetError(nil)
 
 		goto RUN
@@ -125,13 +125,13 @@ RUN:
 }
 
 func (t *InlineServer) workerGoroutine_SaveResult(result message.Result) {
-	log.YTaskLog.WithField("goroutine", "worker").
+	log.YTaskLog.WithField("server",t.groupName).WithField("goroutine", "worker").
 		Debugf("save result %+v", result)
 	if t.backend==nil{
 		return
 	}
 	err := t.SetResult(result)
 	if err != nil {
-		log.YTaskLog.WithField("goroutine", "worker").Errorf("save result error ", err)
+		log.YTaskLog.WithField("server",t.groupName).WithField("goroutine", "worker").Errorf("save result error ", err)
 	}
 }
