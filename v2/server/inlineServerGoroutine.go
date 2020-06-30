@@ -18,7 +18,7 @@ func (t *InlineServer) GetNextMessageGoroutine() {
 		if ok {
 			break
 		}
-		msg, err = t.Next()
+		msg, err = t.Next(t.groupName)
 
 		if err != nil {
 			go t.MakeWorkerReady()
@@ -125,9 +125,7 @@ RUN:
 func (t *InlineServer) workerGoroutine_SaveResult(result message.Result) {
 	log.YTaskLog.WithField("server", t.groupName).WithField("goroutine", "worker").
 		Debugf("save result %+v", result)
-	if t.backend == nil {
-		return
-	}
+
 	err := t.SetResult(result)
 	if err != nil {
 		log.YTaskLog.WithField("server", t.groupName).WithField("goroutine", "worker").Errorf("save result error ", err)
@@ -143,7 +141,7 @@ func (t *InlineServer) GetDelayMessageGoroutine() {
 		if ok {
 			break
 		}
-		msg, err = t.Next()
+		msg, err = t.Next(t.groupName)
 
 		if err != nil {
 			go t.MakeWorkerReady()

@@ -26,17 +26,6 @@ func NewServer(c config.Config) Server {
 	}
 }
 
-func (t Server) CloneConfig() config.Config {
-	return config.Config{
-		Broker:        t.config.Broker,
-		Backend:       t.config.Backend,
-		Debug:         t.config.Debug,
-		StatusExpires: t.config.StatusExpires,
-		ResultExpires: t.config.ResultExpires,
-	}
-
-}
-
 // add worker to group
 // w : worker func
 func (t *Server) Add(groupName string, workerName string, w interface{}) {
@@ -67,21 +56,8 @@ func (t *Server) Run(groupName string, numWorkers int) {
 }
 
 func (t *Server) GetClient() Client {
-	server := NewInlineServer("", t.config.Clone())
 
-	if server.broker != nil {
-		if server.broker.GetPoolSize() <= 0 {
-			server.broker.SetPoolSize(10)
-		}
-		server.broker.Activate()
-	}
-	if server.backend != nil {
-		if server.backend.GetPoolSize() <= 0 {
-			server.backend.SetPoolSize(10)
-		}
-		server.backend.Activate()
-	}
-	return NewClient(&server)
+	return NewClient(t.config.Clone())
 }
 
 func (t *Server) Shutdown(ctx context.Context) error {
