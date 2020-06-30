@@ -10,7 +10,7 @@ import (
 
 // get next message if worker is ready
 func (t *InlineServer) GetNextMessageGoroutine() {
-	log.YTaskLog.WithField("server",t.groupName).WithField("goroutine", "get_next_message").Debug("start")
+	log.YTaskLog.WithField("server", t.groupName).WithField("goroutine", "get_next_message").Debug("start")
 	var msg message.Message
 	var err error
 	for range t.workerReadyChan {
@@ -22,25 +22,23 @@ func (t *InlineServer) GetNextMessageGoroutine() {
 
 		if err != nil {
 			go t.MakeWorkerReady()
-			ytaskErr, ok := err.(yerrors.YTaskError)
-			if ok && ytaskErr.Type() != yerrors.ErrTypeEmptyQuery {
-				log.YTaskLog.WithField("server",t.groupName).WithField("goroutine", "get_next_message").Error("get msg error, ", err)
+			if !yerrors.IsEqual(err, yerrors.ErrTypeEmptyQuery) {
+				log.YTaskLog.WithField("server", t.groupName).WithField("goroutine", "get_next_message").Error("get msg error, ", err)
 			}
 			continue
 		}
-		log.YTaskLog.WithField("server",t.groupName).WithField("goroutine", "get_next_message").Infof("new msg %+v", msg)
+		log.YTaskLog.WithField("server", t.groupName).WithField("goroutine", "get_next_message").Infof("new msg %+v", msg)
 		t.msgChan <- msg
 	}
 
 	t.getMessageGoroutineStopChan <- struct{}{}
-	log.YTaskLog.WithField("server",t.groupName).WithField("goroutine", "get_next_message").Debug("stop")
+	log.YTaskLog.WithField("server", t.groupName).WithField("goroutine", "get_next_message").Debug("stop")
 
 }
 
 // start worker to run
 func (t *InlineServer) WorkerGoroutine() {
-	log.YTaskLog.WithField("server",t.groupName).WithField("goroutine", "worker").Debug("start")
-
+	log.YTaskLog.WithField("server", t.groupName).WithField("goroutine", "worker").Debug("start")
 
 	waitWorkerWG := sync.WaitGroup{}
 
@@ -49,7 +47,7 @@ func (t *InlineServer) WorkerGoroutine() {
 			defer func() {
 				e := recover()
 				if e != nil {
-					log.YTaskLog.WithField("server",t.groupName).WithField("goroutine", "worker").Errorf("run worker[%s] panic %v", msg.WorkerName, e)
+					log.YTaskLog.WithField("server", t.groupName).WithField("goroutine", "worker").Errorf("run worker[%s] panic %v", msg.WorkerName, e)
 				}
 			}()
 
@@ -57,7 +55,7 @@ func (t *InlineServer) WorkerGoroutine() {
 
 			w, ok := t.workerMap[msg.WorkerName]
 			if !ok {
-				log.YTaskLog.WithField("server",t.groupName).WithField("goroutine", "worker").Error("not found worker", msg.WorkerName)
+				log.YTaskLog.WithField("server", t.groupName).WithField("goroutine", "worker").Error("not found worker", msg.WorkerName)
 				return
 			}
 
@@ -86,7 +84,7 @@ func (t *InlineServer) WorkerGoroutine() {
 
 	waitWorkerWG.Wait()
 	t.workerGoroutineStopChan <- struct{}{}
-	log.YTaskLog.WithField("server",t.groupName).WithField("goroutine", "worker").Debug("stop")
+	log.YTaskLog.WithField("server", t.groupName).WithField("goroutine", "worker").Debug("stop")
 
 }
 
@@ -106,13 +104,13 @@ RUN:
 
 		return
 	}
-	log.YTaskLog.WithField("server",t.groupName).WithField("goroutine", "worker").Errorf("run worker[%s] error %s", msg.WorkerName, err)
+	log.YTaskLog.WithField("server", t.groupName).WithField("goroutine", "worker").Errorf("run worker[%s] error %s", msg.WorkerName, err)
 
 	if ctl.CanRetry() {
 		result.Status = message.ResultStatus.WaitingRetry
 		ctl.RetryCount -= 1
 		msg.TaskCtl = ctl
-		log.YTaskLog.WithField("server",t.groupName).WithField("goroutine", "worker").Infof("retry task %s", msg)
+		log.YTaskLog.WithField("server", t.groupName).WithField("goroutine", "worker").Infof("retry task %s", msg)
 		ctl.SetError(nil)
 
 		goto RUN
@@ -125,13 +123,42 @@ RUN:
 }
 
 func (t *InlineServer) workerGoroutine_SaveResult(result message.Result) {
-	log.YTaskLog.WithField("server",t.groupName).WithField("goroutine", "worker").
+	log.YTaskLog.WithField("server", t.groupName).WithField("goroutine", "worker").
 		Debugf("save result %+v", result)
-	if t.backend==nil{
+	if t.backend == nil {
 		return
 	}
 	err := t.SetResult(result)
 	if err != nil {
-		log.YTaskLog.WithField("server",t.groupName).WithField("goroutine", "worker").Errorf("save result error ", err)
+		log.YTaskLog.WithField("server", t.groupName).WithField("goroutine", "worker").Errorf("save result error ", err)
 	}
+}
+
+func (t *InlineServer) GetDelayMessageGoroutine() {
+	log.YTaskLog.WithField("server", t.groupName).WithField("goroutine", "get_next_message").Debug("start")
+	var msg message.Message
+	var err error
+	for range t.workerReadyChan {
+		_, ok := t.Load("isStop")
+		if ok {
+			break
+		}
+		msg, err = t.Next()
+
+		if err != nil {
+			go t.MakeWorkerReady()
+			if !yerrors.IsEqual(err, yerrors.ErrTypeEmptyQuery) {
+				log.YTaskLog.WithField("server", t.groupName).
+					WithField("goroutine", "get_next_message").
+					Error("get msg error, ", err)
+			}
+			continue
+		}
+		log.YTaskLog.WithField("server", t.groupName).WithField("goroutine", "get_next_message").Infof("new msg %+v", msg)
+		t.msgChan <- msg
+	}
+
+	t.getMessageGoroutineStopChan <- struct{}{}
+	log.YTaskLog.WithField("server", t.groupName).WithField("goroutine", "get_next_message").Debug("stop")
+
 }
