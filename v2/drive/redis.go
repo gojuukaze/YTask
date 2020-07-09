@@ -1,8 +1,9 @@
 package drive
 
 import (
+	"context"
 	//"github.com/gomodule/redigo/redis"
-	"github.com/go-redis/redis"
+	"github.com/go-redis/redis/v7"
 
 	"time"
 )
@@ -48,11 +49,13 @@ func (c *RedisClient) Exists(key string) (bool, error) {
 }
 func (c *RedisClient) Get(key string) *redis.StringCmd {
 	key = HideKey(key)
+
 	return c.redisPool.Get(key)
 }
 
 func (c *RedisClient) Set(key string, value interface{}, exTime time.Duration) error {
 	key = HideKey(key)
+
 	if exTime <= 0 {
 		return c.redisPool.Set(key, value, 0).Err()
 	} else {
@@ -65,6 +68,11 @@ func (c *RedisClient) RPush(key string, value interface{}) error {
 	return c.redisPool.RPush(key, value).Err()
 }
 
+func (c *RedisClient) LPush(key string, value interface{}) error {
+	key = HideKey(key)
+	return c.redisPool.LPush(key, value).Err()
+}
+
 func (c *RedisClient) BLPop(key string, timeout time.Duration) *redis.StringSliceCmd {
 	key = HideKey(key)
 
@@ -72,11 +80,13 @@ func (c *RedisClient) BLPop(key string, timeout time.Duration) *redis.StringSlic
 }
 
 func (c *RedisClient) Do(args ...interface{}) *redis.Cmd {
+	var ctx = context.Background()
 
-	return c.redisPool.Do(args)
+	return c.redisPool.Do(ctx,args)
 }
 
 func (c *RedisClient) Flush() error {
+
 	return c.redisPool.FlushDB().Err()
 }
 

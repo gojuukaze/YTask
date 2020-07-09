@@ -25,9 +25,12 @@ func (i iServer) NewServer(setConfigFunc ...config.SetConfigFunc) server.Server 
 type iBroker struct {
 }
 
-// poolSize: ( default: 1(for server) 10(for client) ) Maximum number of idle connections in the pool. if poolSize<=0 use default
-func (i iBroker) NewRedisBroker(host string, port string, password string, db int, poolSize int) brokers.RedisBroker {
-	return brokers.NewRedisBroker(host, port, password, db, poolSize)
+//
+// clientPoolSize: Maximum number of idle connections in the client pool.
+//                 If clientPoolSize<=0, clientPoolSize=10
+//
+func (i iBroker) NewRedisBroker(host string, port string, password string, db int, clientPoolSize int) brokers.RedisBroker {
+	return brokers.NewRedisBroker(host, port, password, db, clientPoolSize)
 }
 
 func (i iBroker) NewRabbitMqBroker(host, port, user, password string) brokers.RabbitMqBroker {
@@ -48,7 +51,7 @@ func (i iConfig) Debug(debug bool) config.SetConfigFunc {
 	return config.Debug(debug)
 }
 
-// default: 1day
+// default: 1 day
 // task status expires in ex seconds, -1:forever,
 func (i iConfig) StatusExpires(ex int) config.SetConfigFunc {
 	return config.StatusExpires(ex)
@@ -63,7 +66,11 @@ func (i iConfig) ResultExpires(ex int) config.SetConfigFunc {
 type iBackend struct {
 }
 
-// poolSize: ( default: numWorkers(for server) 10(for client) ) Maximum number of idle connections in the pool. if poolSize<=0 use default
+//
+// poolSize: Maximum number of idle connections in the pool. If poolSize<=0 use default value
+//           default value is min(10, numWorkers) at the server
+//           default value is 10 at the client
+//
 func (i iBackend) NewRedisBackend(host string, port string, password string, db int, poolSize int) backends.RedisBackend {
 	return backends.NewRedisBackend(host, port, password, db, poolSize)
 }

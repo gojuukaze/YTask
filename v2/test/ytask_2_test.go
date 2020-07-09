@@ -45,8 +45,7 @@ func TestStatusExpires(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	time.Sleep(1*time.Second)
-	_, err = ser.GetResult(id)
+	_, err = client.GetStatus(id,1*time.Second,300*time.Millisecond)
 	if err == nil {
 		t.Fatal("err==nill")
 	}
@@ -87,17 +86,16 @@ func TestResultExpires(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	time.Sleep(1*time.Second)
-	r1, err := ser.GetResult(id)
-	if err != nil {
+	status, err := client.GetStatus(id,1*time.Second,100*time.Millisecond)
+	if err!=nil {
 		t.Fatal(err)
 	}
-	if r1.Status!=message.ResultStatus.FirstRunning{
-		t.Fatal("r1.Status!=message.ResultStatus.FirstRunning")
+	if status!=message.ResultStatus.FirstRunning{
+		t.Fatal("r1.Status!=message.ResultStatus.FirstRunning",status)
 
 	}
 
-	_, err = client.GetResult(id, 2*time.Second, 300*time.Millisecond)
+	_, err = client.GetResult(id, 3*time.Second, 300*time.Millisecond)
 	if err==nil{
 		t.Fatal("err==nil")
 

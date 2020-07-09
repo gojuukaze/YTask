@@ -7,7 +7,7 @@ import (
 
 type Config struct {
 	// require: true
-	Broker  brokers.BrokerInterface
+	Broker brokers.BrokerInterface
 
 	// require: false
 	Backend backends.BackendInterface
@@ -25,6 +25,21 @@ type Config struct {
 	// default: 1 day
 	// task result expires in ex seconds, -1:forever
 	ResultExpires int
+}
+
+func (c Config) Clone() Config {
+	newC := Config{
+		Broker:        c.Broker.Clone(),
+		Backend:       nil,
+		Debug:         c.Debug,
+		StatusExpires: c.StatusExpires,
+		ResultExpires: c.ResultExpires,
+	}
+	if c.Backend != nil {
+		newC.Backend = c.Backend.Clone()
+	}
+	return newC
+
 }
 
 type Opt struct {

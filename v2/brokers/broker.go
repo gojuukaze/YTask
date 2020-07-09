@@ -5,10 +5,12 @@ import (
 )
 
 type BrokerInterface interface {
-	Next(queryName string) (message.Message, error)
-	Send(queryName string, msg message.Message) error
+	Next(queueName string) (message.Message, error)
+	Send(queueName string, msg message.Message) error
+	LSend(queueName string, msg message.Message) error
 	// 调用Activate后才真正建立连接
 	Activate()
 	SetPoolSize(int)
 	GetPoolSize()int
+	Clone() BrokerInterface
 }

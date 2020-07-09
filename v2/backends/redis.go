@@ -1,7 +1,7 @@
 package backends
 
 import (
-	"github.com/go-redis/redis"
+	"github.com/go-redis/redis/v7"
 	"github.com/gojuukaze/YTask/v2/drive"
 	"github.com/gojuukaze/YTask/v2/message"
 	"github.com/gojuukaze/YTask/v2/util/yjson"
@@ -61,4 +61,14 @@ func (r *RedisBackend) GetResult(key string) (message.Result, error) {
 
 	err = yjson.YJson.Unmarshal(b, &result)
 	return result, err
+}
+
+func (r RedisBackend) Clone() BackendInterface{
+	return  &RedisBackend{
+		host:     r.host,
+		port:     r.port,
+		password: r.password,
+		db:       r.db,
+		poolSize: r.poolSize,
+	}
 }
