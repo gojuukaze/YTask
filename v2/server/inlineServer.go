@@ -26,7 +26,6 @@ type InlineServer struct {
 	workerGoroutineStopChan     chan struct{}
 
 	safeStopChan chan struct{}
-
 }
 
 func NewInlineServer(groupName string, c config.Config) InlineServer {
@@ -37,14 +36,34 @@ func NewInlineServer(groupName string, c config.Config) InlineServer {
 	}
 
 	return InlineServer{
-		groupName:     groupName,
-		workerMap:     wm,
-		serverUtils:   newServerUtils(c.Broker,c.Backend,c.StatusExpires,c.ResultExpires),
-		safeStopChan:  make(chan struct{}),
-
+		groupName:    groupName,
+		workerMap:    wm,
+		serverUtils:  newServerUtils(c.Broker, c.Backend, c.StatusExpires, c.ResultExpires),
+		safeStopChan: make(chan struct{}),
+		getMessageGoroutineStopChan: make(chan struct{}),
+		workerGoroutineStopChan: make(chan struct{}),
 	}
 }
 
+func (t *InlineServer) IsRunning() bool {
+	_, ok := t.Load("isRunning")
+	return ok
+}
+
+func (t *InlineServer) SetRunning() {
+	t.Store("isRunning", struct{}{})
+
+}
+
+func (t *InlineServer) IsStop() bool {
+	_, ok := t.Load("isStop")
+	return ok
+}
+
+func (t *InlineServer) SetStop() {
+	t.Store("isStop", struct{}{})
+
+}
 
 func (t *InlineServer) MakeWorkerReady() {
 	defer func() {
@@ -55,11 +74,10 @@ func (t *InlineServer) MakeWorkerReady() {
 
 func (t *InlineServer) Run(numWorkers int) {
 
-
 	if t.IsRunning() {
 		panic("inlineServer " + t.groupName + " is running")
 	}
-	t.Store("isRunning", struct{}{})
+	t.SetRunning()
 
 	t.SetBrokerPoolSize(1)
 	t.BrokerActivate()
@@ -98,14 +116,12 @@ func (t *InlineServer) safeStop() {
 
 	// stop get message goroutine
 	close(t.workerReadyChan)
-	t.Store("isStop", struct{}{})
+	t.SetStop()
 	<-t.getMessageGoroutineStopChan
 
 	// stop worker goroutine
 	close(t.msgChan)
 	<-t.workerGoroutineStopChan
-
-	close(t.safeStopChan)
 
 }
 
@@ -113,6 +129,8 @@ func (t *InlineServer) Shutdown(ctx context.Context) error {
 
 	go func() {
 		t.safeStop()
+		close(t.safeStopChan)
+
 	}()
 
 	select {
@@ -123,11 +141,6 @@ func (t *InlineServer) Shutdown(ctx context.Context) error {
 
 	log.YTaskLog.WithField("server", t.groupName).Info("Shutdown!")
 	return nil
-}
-
-func (t *InlineServer) IsRunning() bool {
-	_, ok := t.Load("isRunning")
-	return ok
 }
 
 // add worker to group
@@ -146,4 +159,3 @@ func (t *InlineServer) Add(workerName string, w interface{}) {
 	}
 
 }
-
