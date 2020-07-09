@@ -38,24 +38,33 @@ func (r *RabbitMqBroker) GetPoolSize() int {
 	return 0
 }
 
-func (r *RabbitMqBroker) Next(queryName string) (message.Message, error) {
+func (r *RabbitMqBroker) Next(queueName string) (message.Message, error) {
 	var msg message.Message
-	value, err := r.client.Get(queryName)
+	value, err := r.client.Get(queueName)
 	if err != nil {
 		return msg, err
 	}
-
 	err = yjson.YJson.UnmarshalFromString(value, &msg)
 	return msg, err
 }
 
-func (r *RabbitMqBroker) Send(queryName string, msg message.Message) error {
+func (r *RabbitMqBroker) Send(queueName string, msg message.Message) error {
 	b, err := yjson.YJson.Marshal(msg)
 
 	if err != nil {
 		return err
 	}
-	err = r.client.Set(queryName, b)
+	err = r.client.Publish(queueName, b, 0)
+	return err
+}
+
+func (r *RabbitMqBroker) LSend(queueName string, msg message.Message) error {
+	b, err := yjson.YJson.Marshal(msg)
+
+	if err != nil {
+		return err
+	}
+	err = r.client.Publish(queueName, b, 5)
 	return err
 }
 

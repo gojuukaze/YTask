@@ -9,22 +9,21 @@ import (
 )
 
 func TestRabbitmqBroker(t *testing.T) {
-	b := brokers.NewRabbitMqBroker("127.0.0.1", "5672", "guest", "guest")
-	var broker brokers.BrokerInterface = &b
+	broker := brokers.NewRabbitMqBroker("127.0.0.1", "5672", "guest", "guest")
 	broker.Activate()
 	msg := message.NewMessage(controller.NewTaskCtl())
 	msg2 := message.NewMessage(controller.NewTaskCtl())
 
-	err := broker.Send("test_redis", msg)
+	err := broker.Send("test_amqp", msg)
 	if err != nil {
 		t.Fatal(err)
 	}
-	err = broker.Send("test_redis", msg2)
+	err = broker.Send("test_amqp", msg2)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	m, err := broker.Next("test_redis")
+	m, err := broker.Next("test_amqp")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -32,12 +31,47 @@ func TestRabbitmqBroker(t *testing.T) {
 		t.Fatalf("%v != %v", m, msg)
 	}
 
-	m2, err := broker.Next("test_redis")
+	m2, err := broker.Next("test_amqp")
 	if err != nil {
 		t.Fatal(err)
 	}
 	if fmt.Sprintf("%v", m2) != fmt.Sprintf("%v", msg2) {
 		t.Fatalf("%v != %v", m2, msg2)
+
+	}
+}
+
+
+func TestRabbitmqBrokerLSend(t *testing.T) {
+	broker := brokers.NewRabbitMqBroker("127.0.0.1", "5672", "guest", "guest")
+	broker.Activate()
+	msg := message.NewMessage(controller.NewTaskCtl())
+	msg.Id="1"
+	msg2 := message.NewMessage(controller.NewTaskCtl())
+	msg2.Id="2"
+	err := broker.Send("test_amqp", msg)
+	if err != nil {
+		t.Fatal(err)
+	}
+	err = broker.LSend("test_amqp", msg2)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	m, err := broker.Next("test_amqp")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if m.Id!=msg2.Id {
+		t.Fatalf("%v != %v", m, msg2)
+	}
+
+	m2, err := broker.Next("test_amqp")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if m2.Id!=msg.Id {
+		t.Fatalf("%v != %v", m2, msg)
 
 	}
 }

@@ -8,21 +8,33 @@ import (
 	"time"
 )
 
+type ctlKeyChoices struct {
+	RetryCount int
+	RunAt      int
+	RunAfter   int
+}
+
+var ctlKey = ctlKeyChoices{
+	RetryCount: 0,
+	RunAt:      1,
+	RunAfter:   2,
+}
+
 type Client struct {
 	sUtils  *serverUtils
 	isClone bool
 	ctl     controller.TaskCtl
 
 	// ctl name
-	RetryCount string
+	ctlKeyChoices
 }
 
 func NewClient(c config.Config) Client {
 	su := newServerUtils(c.Broker, c.Backend, c.StatusExpires, c.ResultExpires)
 	client := Client{
-		sUtils:     &su,
-		ctl:        controller.NewTaskCtl(),
-		RetryCount: "RetryCount",
+		sUtils:        &su,
+		ctl:           controller.NewTaskCtl(),
+		ctlKeyChoices: ctlKey,
 	}
 
 	if client.sUtils.GetBrokerPoolSize() <= 0 {
@@ -44,18 +56,25 @@ func (c *Client) Clone() *Client {
 		return c
 	} else {
 		return &Client{
-			sUtils:     c.sUtils,
-			isClone:    true,
-			ctl:        c.ctl,
-			RetryCount: c.RetryCount,
+			sUtils:        c.sUtils,
+			isClone:       true,
+			ctl:           c.ctl,
+			ctlKeyChoices: ctlKey,
 		}
 	}
 }
-func (c *Client) SetTaskCtl(name string, value interface{}) *Client {
+func (c *Client) SetTaskCtl(name int, value interface{}) *Client {
 	cloneC := c.Clone()
 	switch name {
-	case cloneC.RetryCount:
+	case ctlKey.RetryCount:
 		cloneC.ctl.RetryCount = value.(int)
+	case ctlKey.RunAfter:
+		n := time.Now()
+		cloneC.ctl.SetRunTime(n.Add(value.(time.Duration)))
+	case ctlKey.RunAt:
+
+		cloneC.ctl.SetRunTime(value.(time.Time))
+
 	}
 	return cloneC
 }
@@ -64,6 +83,9 @@ func (c *Client) SetTaskCtl(name string, value interface{}) *Client {
 // return: taskId, err
 //
 func (c *Client) Send(groupName string, workerName string, args ...interface{}) (string, error) {
+	if !c.ctl.IsZeroRunTime() {
+		groupName = c.sUtils.GetDelayGroupName(groupName)
+	}
 	return c.sUtils.Send(groupName, workerName, c.ctl, args...)
 }
 

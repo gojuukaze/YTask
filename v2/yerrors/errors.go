@@ -10,6 +10,7 @@ const (
 	ErrTypeOutOfRange      = 3
 	ErrTypeNilResult       = 4
 	ErrTypeTimeOut         = 5
+	ErrTypeServerStop      = 6
 )
 
 func IsEqual(err error, errType int) bool {
@@ -82,4 +83,15 @@ func (e ErrTimeOut) Error() string {
 
 func (e ErrTimeOut) Type() int {
 	return ErrTypeTimeOut
+}
+
+type ErrServerStop struct {
+}
+
+func (e ErrServerStop) Error() string {
+	return "YTask: server stop"
+}
+
+func (e ErrServerStop) Type() int {
+	return ErrTypeServerStop
 }

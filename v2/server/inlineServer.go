@@ -55,8 +55,8 @@ func (t *InlineServer) MakeWorkerReady() {
 
 func (t *InlineServer) Run(numWorkers int) {
 
-	_, ok := t.Load("isRunning")
-	if ok {
+
+	if t.IsRunning() {
 		panic("inlineServer " + t.groupName + " is running")
 	}
 	t.Store("isRunning", struct{}{})

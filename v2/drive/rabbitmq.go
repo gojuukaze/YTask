@@ -10,7 +10,7 @@ import (
 type RabbitMqClient struct {
 	rabbitMqConn *amqp.Connection
 	rabbitMqChan *amqp.Channel
-
+	queueName    map[string]struct{}
 }
 
 func NewRabbitMqClient(host, port, user, password string) RabbitMqClient {
@@ -27,6 +27,7 @@ func NewRabbitMqClient(host, port, user, password string) RabbitMqClient {
 	return RabbitMqClient{
 		rabbitMqConn: client,
 		rabbitMqChan: channel,
+		queueName:    make(map[string]struct{}),
 	}
 
 }
@@ -34,19 +35,35 @@ func NewRabbitMqClient(host, port, user, password string) RabbitMqClient {
 // =======================
 // high api
 // =======================
-func (c *RabbitMqClient) Get(key string) (string, error) {
-	msg, ok, err := c.rabbitMqChan.Get(key, true)
+
+func (c *RabbitMqClient) queueDeclare(queueName string) error {
+	_, ok := c.queueName[queueName]
+	if ok {
+		return nil
+	}
+	_, err := c.rabbitMqChan.QueueDeclare(queueName, true, false, false, false, amqp.Table{"x-max-priority": 9})
+	return err
+}
+
+func (c *RabbitMqClient) Get(queueName string) (string, error) {
+	if err := c.queueDeclare(queueName); err != nil {
+		return "", err
+	}
+	msg, ok, err := c.rabbitMqChan.Get(queueName, true)
 	if ok && err == nil {
 		return string(msg.Body), nil
 	}
 	return "", err
 }
 
-func (c *RabbitMqClient) Set(key string, value interface{}) error {
-	q, _ := c.rabbitMqChan.QueueDeclare(key, false, false, false, false, nil)
-	err := c.rabbitMqChan.Publish("", q.Name, false, false, amqp.Publishing{
-		ContentType:     "text/plain",
-		Body:            value.([]byte),
+func (c *RabbitMqClient) Publish(queueName string, value interface{}, Priority uint8) error {
+	if err := c.queueDeclare(queueName); err != nil {
+		return err
+	}
+	err := c.rabbitMqChan.Publish("", queueName, false, false, amqp.Publishing{
+		ContentType: "text/plain",
+		Body:        value.([]byte),
+		Priority:    Priority,
 	})
 	if err != nil {
 		return err

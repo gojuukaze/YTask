@@ -1,7 +1,10 @@
 package controller
 
+import "time"
+
 type TaskCtl struct {
 	RetryCount int
+	RunTime    time.Time
 	err        error
 }
 
@@ -29,4 +32,16 @@ func (t TaskCtl) GetError() error {
 
 func (t *TaskCtl) SetError(err error) {
 	t.err = err
+}
+
+func (t *TaskCtl) SetRunTime(_t time.Time) {
+	t.RunTime = _t
+}
+
+func (t *TaskCtl) GetRunTime() time.Time {
+	return t.RunTime
+}
+
+func (t *TaskCtl) IsZeroRunTime() bool {
+	return t.RunTime.IsZero()
 }

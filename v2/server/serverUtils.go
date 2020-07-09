@@ -21,6 +21,15 @@ type serverUtils struct {
 func newServerUtils(broker brokers.BrokerInterface, backend backends.BackendInterface, statusExpires int, resultExpires int) serverUtils {
 	return serverUtils{broker: broker, backend: backend, statusExpires: statusExpires, resultExpires: resultExpires}
 }
+func (b serverUtils) GetQueueName(groupName string) string {
+	// 这个key的名称拼错了，为了不影响已在运行的程序，只能这样了 = =
+	return "YTask:Query:" + groupName
+}
+
+func (b serverUtils) GetDelayGroupName(groupName string) string {
+	return "Delay:" + groupName
+}
+
 
 func (b *serverUtils) GetBrokerPoolSize() int {
 	return b.broker.GetPoolSize()
@@ -34,16 +43,12 @@ func (b *serverUtils) BrokerActivate() {
 	b.broker.Activate()
 }
 
-func (b serverUtils) GetQueueName(groupName string) string {
-	// 这个key的名称拼错了，为了不影响已在运行的程序，只能这样了 = =
-	return "YTask:Query:" + groupName
-}
 
 func (b *serverUtils) Next(groupName string) (message.Message, error) {
 	return b.broker.Next(b.GetQueueName(groupName))
 }
 
-// send msg to queue
+// send msg to Queue
 // t.Send("groupName", "workerName" , 1,"hi",1.2)
 //
 func (b *serverUtils) Send(groupName string, workerName string, ctl controller.TaskCtl, args ...interface{}) (string, error) {
@@ -54,7 +59,32 @@ func (b *serverUtils) Send(groupName string, workerName string, ctl controller.T
 		return "", err
 	}
 
-	return msg.Id, b.broker.Send(b.GetQueueName(groupName), msg)
+	return msg.Id, b.SendMsg(groupName, msg)
+
+}
+
+func (b *serverUtils) SendMsg(groupName string, msg message.Message) error {
+	var err error
+	for i := 0; i < 3; i++ {
+		err = b.broker.Send(b.GetQueueName(groupName), msg)
+		if err == nil {
+			break
+		}
+	}
+	return err
+
+}
+
+func (b *serverUtils) LSendMsg(groupName string, msg message.Message) error {
+
+	var err error
+	for i := 0; i < 3; i++ {
+		err = b.broker.LSend(b.GetQueueName(groupName), msg)
+		if err == nil {
+			break
+		}
+	}
+	return err
 
 }
 

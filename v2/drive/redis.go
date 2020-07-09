@@ -68,6 +68,11 @@ func (c *RedisClient) RPush(key string, value interface{}) error {
 	return c.redisPool.RPush(key, value).Err()
 }
 
+func (c *RedisClient) LPush(key string, value interface{}) error {
+	key = HideKey(key)
+	return c.redisPool.LPush(key, value).Err()
+}
+
 func (c *RedisClient) BLPop(key string, timeout time.Duration) *redis.StringSliceCmd {
 	key = HideKey(key)
 
