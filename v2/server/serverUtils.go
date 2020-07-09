@@ -30,7 +30,6 @@ func (b serverUtils) GetDelayGroupName(groupName string) string {
 	return "Delay:" + groupName
 }
 
-
 func (b *serverUtils) GetBrokerPoolSize() int {
 	return b.broker.GetPoolSize()
 }
@@ -42,7 +41,6 @@ func (b *serverUtils) SetBrokerPoolSize(num int) {
 func (b *serverUtils) BrokerActivate() {
 	b.broker.Activate()
 }
-
 
 func (b *serverUtils) Next(groupName string) (message.Message, error) {
 	return b.broker.Next(b.GetQueueName(groupName))

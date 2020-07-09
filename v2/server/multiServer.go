@@ -9,32 +9,33 @@ import (
 )
 
 type Server struct {
-	ServerMap map[string]*InlineServer // groupName:server
+	ServerMap      map[string]*InlineServer // groupName:server
+	DelayServerMap map[string]*DelayServer  // groupName:server
 
 	config config.Config
 }
 
 func NewServer(c config.Config) Server {
 
-	s := make(map[string]*InlineServer)
 	if c.Debug {
 		log.YTaskLog.SetLevel(logrus.DebugLevel)
 	}
 	return Server{
-		ServerMap: s,
-		config:    c,
+		ServerMap:      make(map[string]*InlineServer),
+		DelayServerMap: make(map[string]*DelayServer),
+		config:         c,
 	}
 }
 
 // add worker to group
 // w : worker func
 func (t *Server) Add(groupName string, workerName string, w interface{}) {
-	server := t.GetOrCreateInlineServer(groupName)
+	server := t.getOrCreateInlineServer(groupName)
 	server.Add(workerName, w)
 
 }
 
-func (t *Server) GetOrCreateInlineServer(groupName string) *InlineServer {
+func (t *Server) getOrCreateInlineServer(groupName string) *InlineServer {
 	server, ok := t.ServerMap[groupName]
 	if ok {
 		return server
@@ -46,12 +47,29 @@ func (t *Server) GetOrCreateInlineServer(groupName string) *InlineServer {
 
 }
 
-func (t *Server) Run(groupName string, numWorkers int) {
+func (t *Server) getOrCreateDelayServer(groupName string) *DelayServer {
+	ds, ok := t.DelayServerMap[groupName]
+	if ok {
+		return ds
+	} else {
+		is := t.ServerMap[groupName]
+		ds := NewDelayServer(groupName, t.config.Clone(), is.msgChan)
+		t.DelayServerMap[groupName] = &ds
+		return t.DelayServerMap[groupName]
+	}
+
+}
+
+func (t *Server) Run(groupName string, numWorkers int, enableDelayServer ...bool) {
 	server, ok := t.ServerMap[groupName]
 	if !ok {
 		panic("YTask: not found group: " + groupName)
 	}
 	server.Run(numWorkers)
+	if len(enableDelayServer) > 0 && enableDelayServer[0] {
+		ds := t.getOrCreateDelayServer(groupName)
+		ds.Run()
+	}
 
 }
 
@@ -64,6 +82,15 @@ func (t *Server) Shutdown(ctx context.Context) error {
 
 	var eg = errgroup.Group{}
 	for _, s := range t.ServerMap {
+		s := s
+		if s.IsRunning() {
+			eg.Go(func() error {
+				return s.Shutdown(ctx)
+			})
+		}
+	}
+
+	for _, s := range t.DelayServerMap {
 		s := s
 		if s.IsRunning() {
 			eg.Go(func() error {
