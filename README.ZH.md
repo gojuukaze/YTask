@@ -11,7 +11,7 @@ golang异步任务/队列 框架
 go get github.com/gojuukaze/YTask/v2
 ```
 # 架构图
-<img src="./architecture_diagram.png" alt="architecture_diagram" width="75%">
+<img src="./architecture_diagram.png" alt="architecture_diagram" width="80%">
 
 # 特点
 - 简单无侵入  
