@@ -14,8 +14,7 @@ func (t *InlineServer) GetNextMessageGoroutine() {
 	var msg message.Message
 	var err error
 	for range t.workerReadyChan {
-		_, ok := t.Load("isStop")
-		if ok {
+		if t.IsStop() {
 			break
 		}
 		msg, err = t.Next(t.groupName)
@@ -137,8 +136,8 @@ func (t *InlineServer) GetDelayMessageGoroutine() {
 	var msg message.Message
 	var err error
 	for range t.workerReadyChan {
-		_, ok := t.Load("isStop")
-		if ok {
+
+		if t.IsStop() {
 			break
 		}
 		msg, err = t.Next(t.groupName)

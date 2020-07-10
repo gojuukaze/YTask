@@ -23,13 +23,13 @@ func (hook YTaskHook) Fire(entry *logrus.Entry) error {
 	serverName, ok := entry.Data["server"]
 	s := ""
 	if ok {
-		s = fmt.Sprintf("server[%s]", serverName)
+		s = fmt.Sprintf("server[%s", serverName)
 
 	}
 
 	goroutineName, ok := entry.Data["goroutine"]
 	if ok {
-		goroutineName = fmt.Sprintf("%s ", goroutineName)
+		goroutineName = fmt.Sprintf("|%s", goroutineName)
 
 	}
 	if !ok{
@@ -38,7 +38,7 @@ func (hook YTaskHook) Fire(entry *logrus.Entry) error {
 	delete(entry.Data, "goroutine")
 	delete(entry.Data, "server")
 
-	entry.Message = fmt.Sprintf("%s: %s%s", s,goroutineName, entry.Message)
+	entry.Message = fmt.Sprintf("%s%s]: %s", s,goroutineName, entry.Message)
 
 	return nil
 }

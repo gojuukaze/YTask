@@ -11,15 +11,13 @@ golang异步任务/队列 框架
 go get github.com/gojuukaze/YTask/v2
 ```
 # 架构图
-<img src="./architecture_diagram.png" alt="architecture_diagram" width="75%">
+<img src="./architecture_diagram.png" alt="architecture_diagram" width="80%">
 
-# todo
-- [x] save result  
-- [x] task retry  
-- [x] 支持 RabbitMQ
-- [ ] 一次运行多了group
-- [ ] 扩展TaskCtl参数
-- [x] 支持更多类型
+# 特点
+- 简单无侵入  
+- 方便扩展broker，backend
+- 支持所有能被序列化为json的类型
+- 支持任务重试，延时任务
 
 # 文档
 * [快速开始](#快速开始)
@@ -50,7 +48,6 @@ go get github.com/gojuukaze/YTask/v2
   * [支持的类型](#支持的类型)
   * [log](#log)
   * [error](#error)
-
 
 
 # 快速开始
@@ -86,10 +83,11 @@ func appendUser(user User, ids []int, names []string) []User {
 }
 
 func main() {
-	// For the server, you do not need to set up the poolSize
-	// Server端无需设置poolSize，
+	// clientPoolSize: Server端无需设置broker clientPoolSize
 	broker := ytask.Broker.NewRedisBroker("127.0.0.1", "6379", "", 0, 0)
-	backend := ytask.Backend.NewRedisBackend("127.0.0.1", "6379", "", 0, 0)
+	// poolSize: 如果backend poolSize<=0 会使用默认值，
+	//           对于server端backendPoolSize的默认值是 min(10, numWorkers)	
+    backend := ytask.Backend.NewRedisBackend("127.0.0.1", "6379", "", 0, 0)
 
 	ser := ytask.Server.NewServer(
 		ytask.Config.Broker(&broker),
@@ -132,10 +130,10 @@ var client server.Client
 
 
 func main() {
-	// For the client, you need to set up the poolSize
-	// 对于client你需要设置poolSize
+	// 对于client你需要设置broker clientPoolSize
 	broker := ytask.Broker.NewRedisBroker("127.0.0.1", "6379", "", 0, 5)
-	backend := ytask.Backend.NewRedisBackend("127.0.0.1", "6379", "", 0, 5)
+	// 对于client端，如果backend poolSize<=0，poolSize会设为10
+    backend := ytask.Backend.NewRedisBackend("127.0.0.1", "6379", "", 0, 5)
 
 	ser := ytask.Server.NewServer(
 		ytask.Config.Broker(&broker),
@@ -218,6 +216,10 @@ ser := ytask.Server.NewServer(
 ### 注册任务
 使用`Add`注册任务
 ```go
+func addFunc(a,b int) (int, bool){
+    return a+b, true
+}
+
 // group1 : 任务所属组，也是队列的名字
 // add : 任务名 
 // addFunc : 任务函数
@@ -250,14 +252,12 @@ signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 <-quit
 ser.Shutdown(context.Background())
 ```
-> 你不能用同一个server运行不同的组，比如：
+> v2.2+支持运行不同的组，比如：
 > ```go
 > ser:=ytask.Server.NewServer(...)
 > ser.Run("g1",1)
-> // 这样会报错
 > ser.Run("g2",1)
 > ``` 
-> 这个功能会在接下来的版本中加入
 
 ## 客户端
 
@@ -289,6 +289,9 @@ taskId,err:=client.Send("group1","add",12,33)
 
 // set retry count
 taskId,err=client.SetTaskCtl(client.RetryCount, 5).Send("group1","add",12,33)
+
+// set delay time
+taskId,err=client.SetTaskCtl(client.RunAfter, 2*time.Second).Send("group1","add",12,33)
 
 ```
 
@@ -367,6 +370,17 @@ func add(ctl *controller.TaskCtl,a, b int){
 client.SetTaskCtl(client.RetryCount, 0).Send("group1", "retry", 123, 44)
 ```
 
+## 延时任务
+
+set delay time
+
+```go
+client.SetTaskCtl(client.RunAfter, 1*time.Second).Send("group2", "add_sub", 123, 44)
+
+runTime := time.Now().Add(1 * time.Second)
+client.SetTaskCtl(client.RunAt, runTime).Send("group2", "add_sub", 123, 44)
+```
+
 ## broker
 YTask使用broker与任务队列通信，发送或接收任务。  
 支持的broker有：
@@ -379,8 +393,7 @@ import "github.com/gojuukaze/YTask/v2"
 // 6379 : port
 // "" : password
 // 0 : db
-// 10 : 连接池大小. 
-//      对于server端，你无需自定义连接池，如果连接池为0，系统会自动设置合适的连接池
+// 10 : client连接池大小. (server端无需设置)
 //      对于client端, 你需要根据情况自行设置连接池
 ytask.Broker.NewRedisBroker("127.0.0.1", "6379", "", 0, 10)
 ```
@@ -406,10 +419,16 @@ type BrokerInterface interface {
 	Next(queryName string) (message.Message, error)
     // 发送任务
 	Send(queryName string, msg message.Message) error
+    // 把任务插到队头
+    //  - 如果你的broker不支持，也没有优先队列这样的替代方案，则可以服用Send。
+    //  - 这样做会影响延时任务的处理时间
+	LSend(queryName string, msg message.Message) error
 	// 建立连接
 	Activate()
 	SetPoolSize(int)
 	GetPoolSize()int
+    // 用当前broker的配置生成个新的broker
+    Clone() BrokerInterface
 }
 ```
 
@@ -425,7 +444,7 @@ import "github.com/gojuukaze/YTask/v2"
 // "" : password
 // 0 : db
 // 10 : 连接池大小. 
-//      对于server端，你无需自定义连接池，如果连接池为0，系统会自动设置合适的连接池
+//      对于server端，如果为0，则值为min(10, numWorkers)
 //      对于client端, 你需要根据情况自行设置连接池
 ytask.Backend.NewRedisBackend("127.0.0.1", "6379", "", 0, 10)
 ```
@@ -437,7 +456,9 @@ import "github.com/gojuukaze/YTask/v2"
 
 // 127.0.0.1 : host
 // 11211 : port
-// 10 : connection pool size. 
+// 10 : 连接池大小. 
+//      对于server端，如果为0，则值为min(10, numWorkers)
+//      对于client端, 你需要根据情况自行设置连接池
 
 ytask.Backend.NewMemCacheBackend("127.0.0.1", "11211", 10)
 ```
