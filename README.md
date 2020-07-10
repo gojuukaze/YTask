@@ -8,17 +8,11 @@ golang异步任务/队列 框架
 
 # install
 ```bash
-go get github.com/gojuukaze/YTask/v2
+go get -u github.com/gojuukaze/YTask/v2
 ```
 # architecture diagram
 <img src="./architecture_diagram.png" alt="architecture_diagram" width="75%">
 
-# todo
-- [x] save result  
-- [x] task retry  
-- [ ] run multi group
-- [ ] more option in TaskCtl
-- [x] support more type
 
 # doc
 
@@ -86,10 +80,16 @@ func appendUser(user User, ids []int, names []string) []User {
 }
 
 func main() {
-	// For the server, you do not need to set up the poolSize
-	// Server端无需设置poolSize，
+	// clientPoolSize: brokerPoolSize need not be set at the server
+	//                 -------------
+	//                 server端不需要设置brokerPoolSize
 	broker := ytask.Broker.NewRedisBroker("127.0.0.1", "6379", "", 0, 0)
-	backend := ytask.Backend.NewRedisBackend("127.0.0.1", "6379", "", 0, 0)
+    // poolSize: Maximum number of idle connections in the pool. If poolSize<=0 use default value
+	//           default value is min(10, numWorkers) at the server
+	//           -------------
+	//           如果poolSize<=0 会使用默认值，
+	//           对于server端backend PoolSize的默认值是 min(10, numWorkers)	
+    backend := ytask.Backend.NewRedisBackend("127.0.0.1", "6379", "", 0, 0)
 
 	ser := ytask.Server.NewServer(
 		ytask.Config.Broker(&broker),
@@ -132,10 +132,15 @@ var client server.Client
 
 
 func main() {
-	// For the client, you need to set up the poolSize
-	// 对于client你需要设置poolSize
+    // clientPoolSize: Maximum number of idle connections in the client pool.
+	//                 If clientPoolSize<=0, clientPoolSize=10
+	//
 	broker := ytask.Broker.NewRedisBroker("127.0.0.1", "6379", "", 0, 5)
-	backend := ytask.Backend.NewRedisBackend("127.0.0.1", "6379", "", 0, 5)
+	// poolSize: Maximum number of idle connections in the pool. If poolSize<=0 use default value
+	//           default value is 10 at the client
+	//           ---------------
+	//           对于client端，如果poolSize<=0，poolSize会设为10
+    backend := ytask.Backend.NewRedisBackend("127.0.0.1", "6379", "", 0, 5)
 
 	ser := ytask.Server.NewServer(
 		ytask.Config.Broker(&broker),
@@ -148,26 +153,20 @@ func main() {
 	client = ser.GetClient()
 
 	// task add
-	taskId, err := client.Send("group1", "add", 123, 44)
-	_ = err
-	result, err := client.GetResult(taskId, 2*time.Second, 300*time.Millisecond)
-	_ = err
+	taskId, _ := client.Send("group1", "add", 123, 44)
+	result, _ := client.GetResult(taskId, 2*time.Second, 300*time.Millisecond)
 
 	if result.IsSuccess() {
-		sum, err := result.GetInt64(0)
+		sum, _ := result.GetInt64(0)
         // or
         var sum2 int
-        err = result.Get(0, &sum2)
-		if err != nil {
-			fmt.Println(err)
-		}
+        result.Get(0, &sum2)
+
 		fmt.Println("add(123,44) =", int(sum))
-	} else {
-		fmt.Println("result failure")
-	}
+	} 
+
     // task append user
 	taskId, _ = client.Send("group1", "append_user", User{1, "aa"}, []int{322, 11}, []string{"bb", "cc"})
-	_ = err
 	result, _ = client.GetResult(taskId, 2*time.Second, 300*time.Millisecond)
 	var users []User
     result.Get(0, &users)
@@ -215,6 +214,10 @@ ser := ytask.Server.NewServer(
 ### add worker func
 
 ```go
+func addFunc(a,b int) (int, bool){
+    return a+b, true
+}
+
 // group1 : group name is also the query name
 // add : worker name 
 // addFunc : worker func
@@ -232,14 +235,13 @@ signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 <-quit
 ser.Shutdown(context.Background())
 ```
-> You cannot run multiple groups with the same server.
+
+> v2.2+ can run multiple groups with the same server.
 > ```go
 > ser:=ytask.Server.NewServer(...)
 > ser.Run("g1",1)
-> // panic
 > ser.Run("g2",1)
 > ``` 
-> This feature is already under development
 
 ## client
 
@@ -268,6 +270,9 @@ taskId,err:=client.Send("group1","add",12,33)
 
 // set retry count
 taskId,err=client.SetTaskCtl(client.RetryCount, 5).Send("group1","add",12,33)
+
+// set delay time 
+taskId,err=client.SetTaskCtl(client.RunAfter, 2*time.Second).Send("group1","add",12,33)
 
 ```
 
@@ -302,7 +307,7 @@ if result.IsSuccess(){
 > Keep retrying will cause the task to fail to start or end.  
 > If you need task results in particular, it is recommended that you save them yourself in the task function.
 
-## retry
+## Retry
 **default retry count is 3**  
 
 there are 2 way to trigger retry
@@ -343,6 +348,17 @@ func add(ctl *controller.TaskCtl,a, b int){
 client.SetTaskCtl(client.RetryCount, 0).Send("group1", "retry", 123, 44)
 ```
 
+## Delay
+
+set delay time
+
+```go
+client.SetTaskCtl(client.RunAfter, 1*time.Second).Send("group2", "add_sub", 123, 44)
+
+runTime := time.Now().Add(1 * time.Second)
+client.SetTaskCtl(client.RunAt, runTime).Send("group2", "add_sub", 123, 44)
+```
+
 ## broker
 
 ### redisBroker
@@ -354,9 +370,8 @@ import "github.com/gojuukaze/YTask/v2"
 // 6379 : port
 // "" : password
 // 0 : db
-// 10 : connection pool size. 
-//      For server, if poolSize is 0, the pool size will be set automatically.
-//      For client, you need to set up the poolSize by yourself
+// 10 : Maximum number of idle connections in the client pool.
+//      If clientPoolSize<=0, clientPoolSize=10
 ytask.Broker.NewRedisBroker("127.0.0.1", "6379", "", 0, 10)
 ```
 
@@ -379,10 +394,14 @@ type BrokerInterface interface {
 	Next(queryName string) (message.Message, error)
     // send task
 	Send(queryName string, msg message.Message) error
+    // left send task
+	LSend(queryName string, msg message.Message) error
 	// Activate connection
 	Activate()
 	SetPoolSize(int)
 	GetPoolSize()int
+    // clone config
+    Clone() BrokerInterface
 }
 ```
 
@@ -397,9 +416,9 @@ import "github.com/gojuukaze/YTask/v2"
 // 6379 : port
 // "" : password
 // 0 : db
-// 10 : connection pool size. 
-//      For server, if poolSize is 0, the pool size will be set automatically.
-//      For client, you need to set up the poolSize by yourself
+// 10 : Maximum number of idle connections in the pool. If poolSize<=0 use default value
+//      default value is min(10, numWorkers) at the server
+//      default value is 10 at the client
 
 ytask.Backend.NewRedisBackend("127.0.0.1", "6379", "", 0, 10)
 ```
@@ -411,7 +430,9 @@ import "github.com/gojuukaze/YTask/v2"
 
 // 127.0.0.1 : host
 // 11211 : port
-// 10 : connection pool size. 
+// 10 : Maximum number of idle connections in the pool. If poolSize<=0 use default value
+//      default value is min(10, numWorkers) at the server
+//      default value is 10 at the client
 
 ytask.Backend.NewMemCacheBackend("127.0.0.1", "11211", 10)
 ```
