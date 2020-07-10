@@ -61,20 +61,21 @@ import (
 	"os/signal"
 	"syscall"
 )
+
 type User struct {
 	Id   int
 	Name string
 }
 
-func add(a int,b int)int {
-    return a+b
+func add(a int, b int) int {
+	return a + b
 }
 
 func appendUser(user User, ids []int, names []string) []User {
 	var r = make([]User, 0)
 	r = append(r, user)
 	for i := range ids {
-		r = append(r, User{ids[i],names[i],})
+		r = append(r, User{ids[i], names[i]})
 	}
 	return r
 }
@@ -83,13 +84,14 @@ func main() {
 	// clientPoolSize: brokerPoolSize need not be set at the server
 	//                 -------------
 	//                 server端不需要设置brokerPoolSize
+	
 	broker := ytask.Broker.NewRedisBroker("127.0.0.1", "6379", "", 0, 0)
-    // poolSize: Maximum number of idle connections in the pool. If poolSize<=0 use default value
+	// poolSize: Maximum number of idle connections in the pool. If poolSize<=0 use default value
 	//           default value is min(10, numWorkers) at the server
 	//           -------------
 	//           如果poolSize<=0 会使用默认值，
 	//           对于server端backend PoolSize的默认值是 min(10, numWorkers)	
-    backend := ytask.Backend.NewRedisBackend("127.0.0.1", "6379", "", 0, 0)
+	backend := ytask.Backend.NewRedisBackend("127.0.0.1", "6379", "", 0, 0)
 
 	ser := ytask.Server.NewServer(
 		ytask.Config.Broker(&broker),
@@ -124,23 +126,25 @@ import (
 	"github.com/gojuukaze/YTask/v2/server"
 	"time"
 )
+
 type User struct {
 	Id   int
 	Name string
 }
+
 var client server.Client
 
-
 func main() {
-    // clientPoolSize: Maximum number of idle connections in the client pool.
+	// clientPoolSize: Maximum number of idle connections in the client pool.
 	//                 If clientPoolSize<=0, clientPoolSize=10
 	//
 	broker := ytask.Broker.NewRedisBroker("127.0.0.1", "6379", "", 0, 5)
+	
 	// poolSize: Maximum number of idle connections in the pool. If poolSize<=0 use default value
 	//           default value is 10 at the client
 	//           ---------------
 	//           对于client端，如果poolSize<=0，poolSize会设为10
-    backend := ytask.Backend.NewRedisBackend("127.0.0.1", "6379", "", 0, 5)
+	backend := ytask.Backend.NewRedisBackend("127.0.0.1", "6379", "", 0, 5)
 
 	ser := ytask.Server.NewServer(
 		ytask.Config.Broker(&broker),
@@ -158,19 +162,19 @@ func main() {
 
 	if result.IsSuccess() {
 		sum, _ := result.GetInt64(0)
-        // or
-        var sum2 int
-        result.Get(0, &sum2)
+		// or
+		var sum2 int
+		result.Get(0, &sum2)
 
 		fmt.Println("add(123,44) =", int(sum))
-	} 
+	}
 
-    // task append user
+	// task append user
 	taskId, _ = client.Send("group1", "append_user", User{1, "aa"}, []int{322, 11}, []string{"bb", "cc"})
 	result, _ = client.GetResult(taskId, 2*time.Second, 300*time.Millisecond)
 	var users []User
-    result.Get(0, &users)
-    fmt.Println(users)
+	result.Get(0, &users)
+	fmt.Println(users)
 
 }
 

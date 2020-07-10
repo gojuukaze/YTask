@@ -64,20 +64,21 @@ import (
 	"os/signal"
 	"syscall"
 )
+
 type User struct {
 	Id   int
 	Name string
 }
 
-func add(a int,b int)int {
-    return a+b
+func add(a int, b int) int {
+	return a + b
 }
 
 func appendUser(user User, ids []int, names []string) []User {
 	var r = make([]User, 0)
 	r = append(r, user)
 	for i := range ids {
-		r = append(r, User{ids[i],names[i],})
+		r = append(r, User{ids[i], names[i]})
 	}
 	return r
 }
@@ -85,9 +86,10 @@ func appendUser(user User, ids []int, names []string) []User {
 func main() {
 	// clientPoolSize: Server端无需设置broker clientPoolSize
 	broker := ytask.Broker.NewRedisBroker("127.0.0.1", "6379", "", 0, 0)
+
 	// poolSize: 如果backend poolSize<=0 会使用默认值，
-	//           对于server端backendPoolSize的默认值是 min(10, numWorkers)	
-    backend := ytask.Backend.NewRedisBackend("127.0.0.1", "6379", "", 0, 0)
+	//           对于server端backendPoolSize的默认值是 min(10, numWorkers)
+	backend := ytask.Backend.NewRedisBackend("127.0.0.1", "6379", "", 0, 0)
 
 	ser := ytask.Server.NewServer(
 		ytask.Config.Broker(&broker),
@@ -122,18 +124,19 @@ import (
 	"github.com/gojuukaze/YTask/v2/server"
 	"time"
 )
+
 type User struct {
 	Id   int
 	Name string
 }
-var client server.Client
 
+var client server.Client
 
 func main() {
 	// 对于client你需要设置broker clientPoolSize
 	broker := ytask.Broker.NewRedisBroker("127.0.0.1", "6379", "", 0, 5)
 	// 对于client端，如果backend poolSize<=0，poolSize会设为10
-    backend := ytask.Backend.NewRedisBackend("127.0.0.1", "6379", "", 0, 5)
+	backend := ytask.Backend.NewRedisBackend("127.0.0.1", "6379", "", 0, 5)
 
 	ser := ytask.Server.NewServer(
 		ytask.Config.Broker(&broker),
@@ -153,9 +156,9 @@ func main() {
 
 	if result.IsSuccess() {
 		sum, err := result.GetInt64(0)
-        // or
-        var sum2 int
-        err = result.Get(0, &sum2)
+		// or
+		var sum2 int
+		err = result.Get(0, &sum2)
 		if err != nil {
 			fmt.Println(err)
 		}
@@ -163,13 +166,13 @@ func main() {
 	} else {
 		fmt.Println("result failure")
 	}
-    // task append user
+	// task append user
 	taskId, _ = client.Send("group1", "append_user", User{1, "aa"}, []int{322, 11}, []string{"bb", "cc"})
 	_ = err
 	result, _ = client.GetResult(taskId, 2*time.Second, 300*time.Millisecond)
 	var users []User
-    result.Get(0, &users)
-    fmt.Println(users)
+	result.Get(0, &users)
+	fmt.Println(users)
 
 }
 
