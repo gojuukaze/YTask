@@ -32,6 +32,7 @@ go get -u github.com/gojuukaze/YTask/v2
   * [retry](#retry)
     * [set retry count](#set-retry-count)
     * [disable retry](#disable-retry)
+  * [delay](#Delay)
   * [broker](#broker)
     * [redis broker](#redisbroker)
     * [rabbitmq broker](#rabbitmqbroker)
