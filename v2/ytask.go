@@ -26,7 +26,7 @@ type iBroker struct {
 }
 
 //
-// clientPoolSize: Maximum number of idle connections in the client pool.
+// clientPoolSize: Maximum number of idle connections in client pool.
 //                 If clientPoolSize<=0, clientPoolSize=10
 //
 func (i iBroker) NewRedisBroker(host string, port string, password string, db int, clientPoolSize int) brokers.RedisBroker {
@@ -68,8 +68,8 @@ type iBackend struct {
 
 //
 // poolSize: Maximum number of idle connections in the pool. If poolSize<=0 use default value
-//           default value is min(10, numWorkers) at the server
-//           default value is 10 at the client
+//           default value is min(10, numWorkers) at server
+//           default value is 10 at client
 //
 func (i iBackend) NewRedisBackend(host string, port string, password string, db int, poolSize int) backends.RedisBackend {
 	return backends.NewRedisBackend(host, port, password, db, poolSize)

@@ -10,12 +10,12 @@ import (
 )
 
 func main() {
-	// clientPoolSize: brokerPoolSize need not be set at the server
+	// clientPoolSize: brokerPoolSize need not be set at server
 	//                 -------------
 	//                 server端不需要设置brokerPoolSize
 	broker := ytask.Broker.NewRedisBroker("127.0.0.1", "6379", "", 0, 0)
 	// poolSize: Maximum number of idle connections in the pool. If poolSize<=0 use default value
-	//           default value is min(10, numWorkers) at the server
+	//           default value is min(10, numWorkers) at server
 	//           -------------
 	//           如果poolSize<=0 会使用默认值，对于server端backendPoolSize的默认值是 min(10, numWorkers)
 	backend := ytask.Backend.NewRedisBackend("127.0.0.1", "6379", "", 0, 0)

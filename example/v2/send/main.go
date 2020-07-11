@@ -103,12 +103,12 @@ func delay() {
 	fmt.Println("add_sub(123,44) =", sum, sub)
 }
 func main() {
-	// clientPoolSize: Maximum number of idle connections in the client pool.
+	// clientPoolSize: Maximum number of idle connections in client pool.
 	//                 If clientPoolSize<=0, clientPoolSize=10
 	//
 	broker := ytask.Broker.NewRedisBroker("127.0.0.1", "6379", "", 0, 5)
 	// poolSize: Maximum number of idle connections in the pool. If poolSize<=0 use default value
-	//           default value is 10 at the client
+	//           default value is 10 at client
 	//           ---------------
 	//           对于client端，如果poolSize<=0，poolSize会设为10
 	backend := ytask.Backend.NewRedisBackend("127.0.0.1", "6379", "", 0, 5)
