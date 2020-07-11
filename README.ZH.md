@@ -36,6 +36,7 @@ go get github.com/gojuukaze/YTask/v2
   * [重试](#重试)
     * [设置重试次数](#设置重试次数)
     * [禁用重试](#禁用重试)
+  * [延时任务](#延时任务)
   * [broker](#broker)
     * [redis broker](#redisbroker)
     * [rabbitmq broker](#rabbitmqbroker)
