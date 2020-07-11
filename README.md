@@ -81,13 +81,13 @@ func appendUser(user User, ids []int, names []string) []User {
 }
 
 func main() {
-	// clientPoolSize: brokerPoolSize need not be set at the server
+	// clientPoolSize: brokerPoolSize need not be set at server
 	//                 -------------
 	//                 server端不需要设置brokerPoolSize
 	
 	broker := ytask.Broker.NewRedisBroker("127.0.0.1", "6379", "", 0, 0)
 	// poolSize: Maximum number of idle connections in the pool. If poolSize<=0 use default value
-	//           default value is min(10, numWorkers) at the server
+	//           default value is min(10, numWorkers) at server
 	//           -------------
 	//           如果poolSize<=0 会使用默认值，
 	//           对于server端backend PoolSize的默认值是 min(10, numWorkers)	
@@ -135,13 +135,13 @@ type User struct {
 var client server.Client
 
 func main() {
-	// clientPoolSize: Maximum number of idle connections in the client pool.
+	// clientPoolSize: Maximum number of idle connections in client pool.
 	//                 If clientPoolSize<=0, clientPoolSize=10
 	//
 	broker := ytask.Broker.NewRedisBroker("127.0.0.1", "6379", "", 0, 5)
 	
 	// poolSize: Maximum number of idle connections in the pool. If poolSize<=0 use default value
-	//           default value is 10 at the client
+	//           default value is 10 at client
 	//           ---------------
 	//           对于client端，如果poolSize<=0，poolSize会设为10
 	backend := ytask.Backend.NewRedisBackend("127.0.0.1", "6379", "", 0, 5)
