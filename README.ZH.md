@@ -14,7 +14,7 @@ go get github.com/gojuukaze/YTask/v2
 <img src="./architecture_diagram.png" alt="architecture_diagram" width="80%">
 
 # 特点
-- 简单无侵入  
+- 简单链式调用  
 - 方便扩展broker，backend
 - 支持所有能被序列化为json的类型
 - 支持任务重试，延时任务
