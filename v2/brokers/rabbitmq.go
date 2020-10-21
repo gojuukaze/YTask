@@ -12,21 +12,23 @@ type RabbitMqBroker struct {
 	port     string
 	user     string
 	password string
+	vhost    string
 	//poolSize int
 }
 
-func NewRabbitMqBroker(host, port, user, password string) RabbitMqBroker {
+func NewRabbitMqBroker(host, port, user, password, vhost string) RabbitMqBroker {
 	return RabbitMqBroker{
 		host:     host,
 		port:     port,
 		password: password,
 		user:     user,
+		vhost:    vhost,
 		//poolSize: 0,
 	}
 }
 
 func (r *RabbitMqBroker) Activate() {
-	client := drive.NewRabbitMqClient(r.host, r.port, r.user, r.password)
+	client := drive.NewRabbitMqClient(r.host, r.port, r.user, r.password, r.vhost)
 	r.client = &client
 }
 

@@ -13,8 +13,8 @@ type RabbitMqClient struct {
 	queueName    map[string]struct{}
 }
 
-func NewRabbitMqClient(host, port, user, password string) RabbitMqClient {
-	client, err := amqp.Dial(fmt.Sprintf("amqp://%s:%s@%s:%s/", user, password, host, port))
+func NewRabbitMqClient(host, port, user, password, vhost string) RabbitMqClient {
+	client, err := amqp.Dial(fmt.Sprintf("amqp://%s:%s@%s:%s/%s", user, password, host, port, vhost))
 	if err != nil {
 		panic("YTask: connect rabbitMq error : " + err.Error())
 	}
