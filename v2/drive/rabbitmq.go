@@ -7,6 +7,14 @@ import (
 	"github.com/streadway/amqp"
 )
 
+
+
+type amqpErr string
+
+func (e amqpErr) Error() string { return string(e) }
+
+const AMQPNil = amqpErr("amqp: nil")
+
 type RabbitMqClient struct {
 	rabbitMqConn *amqp.Connection
 	rabbitMqChan *amqp.Channel
@@ -50,10 +58,14 @@ func (c *RabbitMqClient) Get(queueName string) (string, error) {
 		return "", err
 	}
 	msg, ok, err := c.rabbitMqChan.Get(queueName, true)
-	if ok && err == nil {
-		return string(msg.Body), nil
+	if err!=nil{
+		return "", err
 	}
-	return "", err
+	if ok {
+		return string(msg.Body), nil
+	}else {
+		return "", AMQPNil
+	}
 }
 
 func (c *RabbitMqClient) Publish(queueName string, value interface{}, Priority uint8) error {

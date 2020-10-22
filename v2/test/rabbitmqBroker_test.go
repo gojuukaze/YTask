@@ -5,6 +5,7 @@ import (
 	"github.com/gojuukaze/YTask/v2/brokers"
 	"github.com/gojuukaze/YTask/v2/controller"
 	"github.com/gojuukaze/YTask/v2/message"
+	"github.com/gojuukaze/YTask/v2/yerrors"
 	"testing"
 )
 
@@ -14,7 +15,12 @@ func TestRabbitmqBroker(t *testing.T) {
 	msg := message.NewMessage(controller.NewTaskCtl())
 	msg2 := message.NewMessage(controller.NewTaskCtl())
 
-	err := broker.Send("test_amqp", msg)
+	_, err := broker.Next("test_amqp")
+	if !yerrors.IsEqual(err, yerrors.ErrTypeEmptyQuery) {
+		t.Fatal(err)
+	}
+
+	err = broker.Send("test_amqp", msg)
 	if err != nil {
 		t.Fatal(err)
 	}

@@ -4,6 +4,8 @@ import (
 	"github.com/gojuukaze/YTask/v2/drive"
 	"github.com/gojuukaze/YTask/v2/message"
 	"github.com/gojuukaze/YTask/v2/util/yjson"
+	"github.com/gojuukaze/YTask/v2/yerrors"
+	"time"
 )
 
 type RabbitMqBroker struct {
@@ -42,10 +44,26 @@ func (r *RabbitMqBroker) GetPoolSize() int {
 
 func (r *RabbitMqBroker) Next(queueName string) (message.Message, error) {
 	var msg message.Message
-	value, err := r.client.Get(queueName)
-	if err != nil {
-		return msg, err
+	var value string
+	var err error
+	// amqp没找到类似redis的blpop方法，只能手动循环
+	for i := 0; i < 10; i++ {
+		value, err = r.client.Get(queueName)
+		if err == nil {
+			break
+		}
+		if err == drive.AMQPNil {
+			time.Sleep(100*time.Millisecond)
+			continue
+		}else {
+			return msg, err
+		}
 	}
+
+	if err == drive.AMQPNil {
+		return msg, yerrors.ErrEmptyQuery{}
+	}
+
 	err = yjson.YJson.UnmarshalFromString(value, &msg)
 	return msg, err
 }
