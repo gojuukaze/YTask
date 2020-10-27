@@ -7,14 +7,22 @@ import (
 	"github.com/streadway/amqp"
 )
 
+
+
+type amqpErr string
+
+func (e amqpErr) Error() string { return string(e) }
+
+const AMQPNil = amqpErr("amqp: nil")
+
 type RabbitMqClient struct {
 	rabbitMqConn *amqp.Connection
 	rabbitMqChan *amqp.Channel
 	queueName    map[string]struct{}
 }
 
-func NewRabbitMqClient(host, port, user, password string) RabbitMqClient {
-	client, err := amqp.Dial(fmt.Sprintf("amqp://%s:%s@%s:%s/", user, password, host, port))
+func NewRabbitMqClient(host, port, user, password, vhost string) RabbitMqClient {
+	client, err := amqp.Dial(fmt.Sprintf("amqp://%s:%s@%s:%s/%s", user, password, host, port, vhost))
 	if err != nil {
 		panic("YTask: connect rabbitMq error : " + err.Error())
 	}
@@ -50,10 +58,14 @@ func (c *RabbitMqClient) Get(queueName string) (string, error) {
 		return "", err
 	}
 	msg, ok, err := c.rabbitMqChan.Get(queueName, true)
-	if ok && err == nil {
-		return string(msg.Body), nil
+	if err!=nil{
+		return "", err
 	}
-	return "", err
+	if ok {
+		return string(msg.Body), nil
+	}else {
+		return "", AMQPNil
+	}
 }
 
 func (c *RabbitMqClient) Publish(queueName string, value interface{}, Priority uint8) error {

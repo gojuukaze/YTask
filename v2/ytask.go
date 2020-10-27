@@ -33,8 +33,8 @@ func (i iBroker) NewRedisBroker(host string, port string, password string, db in
 	return brokers.NewRedisBroker(host, port, password, db, clientPoolSize)
 }
 
-func (i iBroker) NewRabbitMqBroker(host, port, user, password string) brokers.RabbitMqBroker {
-	return brokers.NewRabbitMqBroker(host, port, user, password)
+func (i iBroker) NewRabbitMqBroker(host, port, user, password, vhost string) brokers.RabbitMqBroker {
+	return brokers.NewRabbitMqBroker(host, port, user, password, vhost)
 }
 
 type iConfig struct {
@@ -79,6 +79,6 @@ func (i iBackend) NewMemCacheBackend(host, port string, poolSize int) backends.M
 	return backends.NewMemCacheBackend(host, port, poolSize)
 }
 
-func (i iBackend) NewMongoBackend(host, port , user, password, db, collection string) backends.MongoBackend {
-	return backends.NewMongoBackend(host, port , user, password, db, collection)
+func (i iBackend) NewMongoBackend(host, port, user, password, db, collection string) backends.MongoBackend {
+	return backends.NewMongoBackend(host, port, user, password, db, collection)
 }
