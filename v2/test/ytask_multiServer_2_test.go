@@ -23,7 +23,8 @@ func delayWorker1() int {
 }
 
 func TestMultit2(t *testing.T) {
-	b := brokers.NewRedisBroker("127.0.0.1", "6379", "", 0, 0)
+	//b := brokers.NewRedisBroker("127.0.0.1", "6379", "", 0, 0)
+	b := brokers.NewRocketMqBroker("127.0.0.1", "9876")
 	b2 := backends.NewRedisBackend("127.0.0.1", "6379", "", 0, 0)
 
 	ser := server.NewServer(
@@ -60,7 +61,7 @@ func testMulti2_1(t *testing.T, client server.Client) {
 		t.Fatal("err=", err)
 	}
 
-	_, err = client.GetResult(id2, 1*time.Second, 300*time.Millisecond)
+	_, err = client.GetResult(id2, 5*time.Second, 300*time.Millisecond)
 	if err != nil {
 		t.Fatal("err=", err)
 	}
@@ -105,7 +106,7 @@ func testMulti2_3(t *testing.T, client server.Client) {
 
 	time.Sleep(1 * time.Second)
 
-	_, err = client.GetResult(id2, 1*time.Second, 300*time.Millisecond)
+	_, err = client.GetResult(id2, 5*time.Second, 300*time.Millisecond)
 	if err != nil {
 		t.Fatal("err=", err)
 	}

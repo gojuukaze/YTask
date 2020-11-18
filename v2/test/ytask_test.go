@@ -16,10 +16,14 @@ import (
 	"github.com/gojuukaze/YTask/v2/log"
 	"github.com/gojuukaze/YTask/v2/server"
 	"io/ioutil"
+	"os"
 	"testing"
 	"time"
 )
-
+func init(){
+	fmt.Println("ROCKETMQ_GO_LOG_LEVEL setting")
+	os.Setenv("ROCKETMQ_GO_LOG_LEVEL","info")
+}
 type User struct {
 	Id   int
 	Name string
@@ -57,7 +61,9 @@ func workerTestRetry2(ctl *controller.TaskCtl, a int) int {
 	return a + ctl.RetryCount
 }
 func TestYTask1(t *testing.T) {
-	b := brokers.NewRedisBroker("127.0.0.1", "6379", "", 0, 0)
+	b := brokers.NewRocketMqBroker("127.0.0.1", "9876")
+	//b := brokers.NewRedisBroker("127.0.0.1", "6379", "", 0, 0)
+
 	b2 := backends.NewRedisBackend("127.0.0.1", "6379", "", 0, 0)
 
 	ser := server.NewServer(
@@ -93,10 +99,11 @@ func testWorker1(ser server.Server, t *testing.T) {
 	client := ser.GetClient()
 
 	id, err := client.Send("test_g", "worker1")
+
 	if err != nil {
 		t.Fatal(err)
 	}
-	result, _ := client.GetResult(id, 2*time.Second, 300*time.Millisecond)
+	result, _ := client.GetResult(id, 200*time.Second, 300*time.Millisecond)
 
 	if !result.IsSuccess() {
 		t.Fatal("result is not success")
@@ -115,6 +122,7 @@ func testWorker2(ser server.Server, t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+
 	result, _ := client.GetResult(id, 2*time.Second, 300*time.Millisecond)
 
 	if !result.IsSuccess() {
@@ -150,7 +158,7 @@ func testWorker3(ser server.Server, t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	result, _ := client.GetResult(id, 2*time.Second, 300*time.Millisecond)
+	result, _ := client.GetResult(id, 20*time.Second, 300*time.Millisecond)
 
 	if !result.IsSuccess() {
 		t.Fatal("result is not success")

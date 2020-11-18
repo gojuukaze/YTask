@@ -28,7 +28,8 @@ func multiWorker2() int {
 }
 
 func TestMulti(t *testing.T) {
-	b := brokers.NewRedisBroker("127.0.0.1", "6379", "", 0, 0)
+	//b := brokers.NewRedisBroker("127.0.0.1", "6379", "", 0, 0)
+	b := brokers.NewRocketMqBroker("127.0.0.1", "9876")
 	b2 := backends.NewRedisBackend("127.0.0.1", "6379", "", 0, 0)
 
 	ser := server.NewServer(
@@ -58,15 +59,17 @@ func TestMulti(t *testing.T) {
 func testMulti1(t *testing.T, client server.Client) {
 
 	client.Send("test_group1", "multiWorker1")
+
 	id, _ := client.Send("test_group1", "multiWorker1")
 
-	// 连续发两次，因为并发是1，此时第二次应该还没运行
-	_, err := client.GetStatus(id, 1*time.Second, 300*time.Millisecond)
+	//连续发两次，因为并发是1，此时第二次应该还没运行
+	_, err:= client.GetStatus(id, 1*time.Second, 300*time.Millisecond)
+
 	if !yerrors.IsEqual(err, yerrors.ErrTypeTimeOut) {
 		t.Fatal("err!=yerrors.ErrTypeTimeOut")
 	}
 
-	_, err = client.GetResult(id, 4*time.Second, 300*time.Millisecond)
+	_, err = client.GetResult(id, 10*time.Second, 300*time.Millisecond)
 	if err != nil {
 		t.Fatal("err!=nil")
 	}
@@ -75,17 +78,17 @@ func testMulti1(t *testing.T, client server.Client) {
 
 func testMulti2(t *testing.T, client server.Client) {
 
-	client.Send("test_group1", "multiWorker1")
-	id, _ := client.Send("test_group2", "multiWorker2")
+	id,_:=client.Send("test_group1", "multiWorker1")
 
-	result, err := client.GetResult(id, 1*time.Second, 300*time.Millisecond)
+	id ,_ = client.Send("test_group2", "multiWorker2")
+
+	result, err := client.GetResult(id, 10*time.Second, 300*time.Millisecond)
 	if err != nil {
 		t.Fatal("err!=nil")
 	}
 	r,_:=result.GetInt64(0)
 	if r!=123{
 		t.Fatal("r!=123")
-
 	}
 
 }

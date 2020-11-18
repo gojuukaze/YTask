@@ -3,7 +3,7 @@ package main
 import (
 	"context"
 	workers2 "github.com/gojuukaze/YTask/example/v2/server/workers"
-	"github.com/gojuukaze/YTask/v2"
+	ytask "github.com/gojuukaze/YTask/v2"
 	"os"
 	"os/signal"
 	"syscall"
@@ -13,7 +13,8 @@ func main() {
 	// clientPoolSize: brokerPoolSize need not be set at server
 	//                 -------------
 	//                 server端不需要设置brokerPoolSize
-	broker := ytask.Broker.NewRedisBroker("127.0.0.1", "6379", "", 0, 0)
+	//broker := ytask.Broker.NewRedisBroker("127.0.0.1", "6379", "", 0, 0)
+	broker:=ytask.Broker.NewRocketMqBroker("127.0.0.1", "9876")
 	// poolSize: Maximum number of idle connections in the pool. If poolSize<=0 use default value
 	//           default value is min(10, numWorkers) at server
 	//           -------------

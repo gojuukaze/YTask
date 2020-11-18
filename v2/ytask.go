@@ -36,6 +36,9 @@ func (i iBroker) NewRedisBroker(host string, port string, password string, db in
 func (i iBroker) NewRabbitMqBroker(host, port, user, password, vhost string) brokers.RabbitMqBroker {
 	return brokers.NewRabbitMqBroker(host, port, user, password, vhost)
 }
+func (i iBroker) NewRocketMqBroker(host, port string) brokers.RocketMqBroker {
+	return brokers.NewRocketMqBroker(host, port)
+}
 
 type iConfig struct {
 }
