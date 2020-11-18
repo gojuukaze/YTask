@@ -17,7 +17,7 @@ type RocketMqBroker struct {
 
 func NewRocketMqBroker(host, port string) RocketMqBroker {
 	 /*
-	    1、目前不能自动创建topic
+	    1、目前不能自动创建topic (mqadmin手动创建，并设置读写队列数为1)
 	    2、rocketmq topic名称不允许存在 ‘:’ ,
 	    所以在生产、消费前先做了名称转换topic RocketMqClient.topicChecker 将非法字符全部转换为 ‘_’
 		3、为提供pullConsumer实现，所以添加了在worker和consumer之间添加了 RocketMqClient.MsgChan
