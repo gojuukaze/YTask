@@ -9,8 +9,11 @@ import (
 )
 
 func TestRocketMqBroker(t *testing.T) {
+
 	broker := brokers.NewRocketMqBroker("127.0.0.1", "9876")
 	broker.Activate()
+	//broker.Shutdown()主要是为了关闭consumer,同步offset到broker
+	//BUG：会出现同步失败
 	defer broker.Shutdown()
 	msg := message.NewMessage(controller.NewTaskCtl())
 	msg2 := message.NewMessage(controller.NewTaskCtl())
