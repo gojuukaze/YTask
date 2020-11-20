@@ -10,11 +10,10 @@ import (
 
 func TestRocketMqBroker(t *testing.T) {
 
-<<<<<<< HEAD
+
 	broker := brokers.NewRocketMqBroker([]string{"127.0.0.1:9876"},[]string{"127.0.0.1:10911"})
-=======
+
 	broker := brokers.NewRocketMqBroker("127.0.0.1", "9876")
->>>>>>> 6923f1fd36d69b5578fc87d37124db840959a22a
 	broker.Activate()
 	//broker.Shutdown()主要是为了关闭consumer,同步offset到broker
 	//BUG：会出现同步失败
@@ -51,15 +50,11 @@ func TestRocketMqBroker(t *testing.T) {
 }
 
 func TestRocketMqBrokerLSend(t *testing.T) {
-<<<<<<< HEAD
 	broker := brokers.NewRocketMqBroker(
 		[]string{"127.0.0.1:9876"},
-	[]string{"127.0.0.1:10911"},
-	[]string{"test_group1","test_group2"})
+	[]string{"127.0.0.1:10911"})
 
-=======
 	broker := brokers.NewRocketMqBroker("127.0.0.1", "9876")
->>>>>>> 6923f1fd36d69b5578fc87d37124db840959a22a
 	broker.Activate()
 	defer broker.Shutdown()
 	msg := message.NewMessage(controller.NewTaskCtl())
