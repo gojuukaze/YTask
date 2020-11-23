@@ -9,6 +9,7 @@ import (
 	"github.com/apache/rocketmq-client-go/v2/primitive"
 	"github.com/apache/rocketmq-client-go/v2/producer"
 	"regexp"
+	"sync"
 )
 
 type RocketMqClient struct {
@@ -17,6 +18,7 @@ type RocketMqClient struct {
 	ConsumerMap map[string]rocketmq.PushConsumer
  	MsgChanMap map[string]chan string
 	Admin admin.Admin
+	topicMap sync.Map
 
 }
 type clientOptions struct {
@@ -119,9 +121,11 @@ func (c *RocketMqClient) topicChecker(topic string)(string) {
 
 func (c *RocketMqClient) Register(topic string)(<-chan string,error){
 	topic=c.topicChecker(topic)
-	if _,ok:=c.MsgChanMap[topic];!ok{
-		if c.options.auto {
-			c.topicCreator(topic)
+	if _,ok:=c.ConsumerMap[topic];!ok{
+		if _,ok:=c.topicMap.LoadOrStore(topic,1);!ok {
+			if c.options.auto {
+				c.topicCreator(topic)
+			}
 		}
 		c.MsgChanMap[topic]=make(chan string,0)
 		output,err:=rocketmq.NewPushConsumer(
@@ -147,11 +151,17 @@ func (c *RocketMqClient) Register(topic string)(<-chan string,error){
 		c.ConsumerMap[topic]=output
 		return c.MsgChanMap[topic],nil
 	}
+
 	return c.MsgChanMap[topic],nil
 }
 
 
 func (c *RocketMqClient) Publish(topic string,value interface{}, Priority uint8) error {
+	if _,ok:=c.topicMap.LoadOrStore(topic,1);!ok {
+		if c.options.auto {
+			c.topicCreator(topic)
+		}
+	}
 	topic=c.topicChecker(topic)
 	fmt.Println("produce:",string(value.([]byte)))
 	_, err := c.Producer.SendSync(context.Background(),
