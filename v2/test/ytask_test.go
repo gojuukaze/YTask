@@ -101,6 +101,7 @@ func testWorker1(ser server.Server, t *testing.T) {
 	if !result.IsSuccess() {
 		t.Fatal("result is not success")
 	}
+
 }
 
 func testWorker2(ser server.Server, t *testing.T) {

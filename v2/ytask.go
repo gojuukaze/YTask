@@ -37,8 +37,8 @@ func (i iBroker) NewRabbitMqBroker(host, port, user, password, vhost string) bro
 	return brokers.NewRabbitMqBroker(host, port, user, password, vhost)
 }
 
-func (i iBroker) NewRocketMqBroker(host, port string) brokers.RocketMqBroker {
-	return brokers.NewRocketMqBroker(host, port)
+func (i iBroker) NewRocketMqBroker(namesrvAddr []string,brokerAddr... []string) brokers.RocketMqBroker {
+	return brokers.NewRocketMqBroker(namesrvAddr,brokerAddr...)
 }
 
 type iConfig struct {
