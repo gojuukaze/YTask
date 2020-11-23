@@ -2,6 +2,7 @@ package brokers
 
 import (
 	"fmt"
+
 	"github.com/gojuukaze/YTask/v2/drive"
 	"github.com/gojuukaze/YTask/v2/message"
 	"github.com/gojuukaze/YTask/v2/util/yjson"
@@ -11,31 +12,35 @@ import (
 
 type RocketMqBroker struct {
 	client   *drive.RocketMqClient
-	host     string
-	port     string
+	namesrvAddr []string
+	brokerAddr []string
+	auto bool
 }
 
-func NewRocketMqBroker(host, port string) RocketMqBroker {
+func NewRocketMqBroker(namesrvAddr []string,brokerAddr... []string) RocketMqBroker {
 	 /*
-	    1、目前不能自动创建topic (mqadmin手动创建，并设置读写队列数为1)
-	    2、rocketmq topic名称不允许存在 ‘:’ ,
-	    (所以在生产、消费前先做了名称转换topic RocketMqClient.topicChecker 将非法字符全部转换为 ‘_’)
-		3、为提供pullConsumer实现，所以添加了在worker和consumer之间添加了 RocketMqClient.MsgChan
-	    4、consumerOffset不能同步更新，所以任务执行时间更长
+	    FIX：1、目前不能自动创建topic (mqadmin手动创建，并设置读写队列数为1)
+	    2、consumerOffset不能同步更新，所以任务执行时间更长
 	    (需要将队列中多余的message消费掉才能消费到当前taskId对应的消息)
-	    5、未支持RocketMqBroker.LSend
-	    6、rockemq日志级别设置,设置环境变量"ROCKETMQ_GO_LOG_LEVEL"="error"||"info"||“debug”||...
+	    3、未支持RocketMqBroker.LSend
 	 */
+	var auto bool
+	if len(brokerAddr)>0 {
+		auto=true
+	}
 	return RocketMqBroker{
-		host:     host,
-		port:     port,
-		//poolSize: 0,
+		namesrvAddr: namesrvAddr,
+		brokerAddr: brokerAddr[0],
+		auto: auto,
 	}
 }
 func (r *RocketMqBroker) Activate() {
-
-	client := drive.NewRocketMqClient(r.host, r.port)
+	client := drive.NewRocketMqClient(
+		drive.WithNameSrvAddr(r.namesrvAddr),
+		drive.WithBrokerAddr(r.brokerAddr),
+		drive.WithAutoCreateTopic(r.auto))
 	r.client = &client
+
 }
 
 func (r *RocketMqBroker) SetPoolSize(n int) {
@@ -58,12 +63,11 @@ func (r *RocketMqBroker) Next(topic string) (message.Message, error) {
 	select {
 	case value=<-queue:
 
-	case <-time.After(2 * time.Second):
+	case <-time.After(5 * time.Second):
 		return msg,yerrors.ErrEmptyQuery{}
 	}
 
 	err = yjson.YJson.UnmarshalFromString(value, &msg)
-
 	return msg, err
 }
 
@@ -92,28 +96,36 @@ func (r *RocketMqBroker) LSend(queueName string, msg message.Message) error {
 func (r RocketMqBroker) Clone() BrokerInterface {
 
 	return &RocketMqBroker{
-		host:     r.host,
-		port:     r.port,
-
-		//poolSize: 0,
+		namesrvAddr: r.namesrvAddr,
+		brokerAddr: r.brokerAddr,
+		auto: r.auto,
 	}
 }
+//目前不做使用
 func (r RocketMqBroker)Shutdown(){
-	for topic,producer:=range r.client.RocketMqProducerMap{
-		TRY1:
-		err:=producer.Shutdown()
-		if err !=nil{
-			fmt.Println(topic,"producer shutdown err",err)
-			goto TRY1
-		}
+	TRY1:
+	err:=r.client.Producer.Shutdown()
+	if err !=nil{
+		fmt.Println("YTask[RocketMQ]: producer shutdown err:",err)
+		goto TRY1
 	}
-	for topic,consumer:=range r.client.RocketMqConsumerMap{
-		close(r.client.MsgChanMap[topic])
+	for topic,consumer:=range r.client.ConsumerMap{
+		err:=consumer.Unsubscribe(topic)
+		if err!=nil {
+			fmt.Println("YTask[RocketMQ]: Unsubscribe err: ",err)
+		}
 		TRY2:
-		err:=consumer.Shutdown()
+		err=consumer.Shutdown()
 		if err !=nil{
-			fmt.Println(topic,"consumer shutdown err",err)
+			fmt.Println(topic,"YTask[RocketMQ]: consumer shutdown err: ",err)
 			goto TRY2
 		}
+		close(r.client.MsgChanMap[topic])
+
+		r.client.TopicDeleter(topic)
+		//consumer.Shutdown()方法没法及时同步，所以在异步任务结束后删除topic
+		//重新开启任务时创建topic,代理点位和消费点位重置为0
+		//不得已为之，待改善
 	}
+	r.client.Admin.Close()
 }
