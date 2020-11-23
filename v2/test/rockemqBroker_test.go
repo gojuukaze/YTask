@@ -53,7 +53,6 @@ func TestRocketMqBrokerLSend(t *testing.T) {
 		[]string{"127.0.0.1:9876"},
 	[]string{"127.0.0.1:10911"})
 
-	broker := brokers.NewRocketMqBroker("127.0.0.1", "9876")
 	broker.Activate()
 	defer broker.Shutdown()
 	msg := message.NewMessage(controller.NewTaskCtl())
