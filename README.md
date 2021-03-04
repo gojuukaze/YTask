@@ -164,7 +164,7 @@ go run send/main.go
 
 开源不易，如果你觉得对你有帮助，求打赏个一块两块的
 
-![](https://lpm-resource-1302770967.cos.ap-beijing.myqcloud.com/s_cover/i_shang.jpg)
+![](https://gitee.com/gojuukaze/liteAuth/raw/master/shang.jpg)
 
 
 
