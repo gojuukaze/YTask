@@ -55,6 +55,14 @@ func (i iConfig) Debug(debug bool) config.SetConfigFunc {
 	return config.Debug(debug)
 }
 
+func (i iConfig) enableDelayServer(enable bool) config.SetConfigFunc {
+	return config.EnableDelayServer(enable)
+}
+
+func (i iConfig) delayServerReadyMsgChanSize(size int) config.SetConfigFunc {
+	return config.DelayServerReadyMsgChanSize(size)
+}
+
 // default: 1 day
 // task status expires in ex seconds, -1:forever,
 func (i iConfig) StatusExpires(ex int) config.SetConfigFunc {

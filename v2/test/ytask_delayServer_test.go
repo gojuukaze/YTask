@@ -89,7 +89,7 @@ func TestDelayServer(t *testing.T) {
 	b2 := b.Clone()
 	b2.Activate()
 	for true {
-		_, err := b2.Next("YTask:Query:Delay:testDelay" )
+		_, err := b2.Next("YTask:Query:Delay:testDelay")
 		if err != nil {
 			break
 		}
@@ -147,7 +147,7 @@ func TestDelayServer2(t *testing.T) {
 	}
 	//清空测试用的队列
 	for true {
-		_, err := b2.Next("YTask:Query:Delay:testDelay2" )
+		_, err := b2.Next("YTask:Query:Delay:testDelay2")
 		if err != nil {
 			break
 		}
@@ -211,5 +211,33 @@ func TestDelayServer3(t *testing.T) {
 		t.Fatal("not found ", names)
 
 	}
+
+}
+
+func TestDelayServer4(t *testing.T) {
+	// config中启用延时任务
+
+	b := brokers.NewRedisBroker("127.0.0.1", "6379", "", 0, 0)
+	ch := make(chan message.Message, 5)
+	ds := server.NewDelayServer("testDelay", config.NewConfig(
+		config.Broker(&b),
+		config.Debug(true),
+		config.EnableDelayServer(true),
+	), ch)
+	client := server.NewClient(config.NewConfig(
+		config.Broker(&b),
+		config.Debug(true),
+	))
+	log.YTaskLog.Out = ioutil.Discard
+	ds.Run()
+
+	client.SetTaskCtl(client.RunAfter, 2*time.Second).Send("testDelay", "1")
+	data := <-ch
+	if data.WorkerName != "1" {
+		t.Fatal("data.WorkerName!=\"1\"")
+
+	}
+
+	ds.Shutdown(context.TODO())
 
 }

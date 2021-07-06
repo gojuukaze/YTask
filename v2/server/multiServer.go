@@ -66,11 +66,11 @@ func (t *Server) Run(groupName string, numWorkers int, enableDelayServer ...bool
 		panic("YTask: not found group: " + groupName)
 	}
 	server.Run(numWorkers)
-	if len(enableDelayServer) > 0 && enableDelayServer[0] {
+	if (t.config.EnableDelayServer && t.config.DelayServerReadyMsgChanSize > 0) ||
+		(len(enableDelayServer) > 0 && enableDelayServer[0]) {
 		ds := t.getOrCreateDelayServer(groupName)
 		ds.Run()
 	}
-
 }
 
 func (t *Server) GetClient() Client {

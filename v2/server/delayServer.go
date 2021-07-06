@@ -8,7 +8,6 @@ import (
 	"sync"
 )
 
-const readyMsgChanSize = 5
 
 type DelayServer struct {
 	sync.Map
@@ -34,7 +33,7 @@ func NewDelayServer(groupName string, c config.Config, msgChan chan message.Mess
 	ds := DelayServer{
 		serverUtils:          newServerUtils(c.Broker, nil, 0, 0),
 		queue:                SortQueue{},
-		readyMsgChan:         make(chan message.Message, readyMsgChanSize),
+		readyMsgChan:         make(chan message.Message, c.DelayServerReadyMsgChanSize),
 		inlineServerMsgChan:  msgChan,
 		safeStopChan:         make(chan struct{}),
 		getDelayMsgStopChan:  make(chan struct{}),
