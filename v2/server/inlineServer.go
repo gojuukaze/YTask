@@ -36,12 +36,12 @@ func NewInlineServer(groupName string, c config.Config) InlineServer {
 	}
 
 	return InlineServer{
-		groupName:    groupName,
-		workerMap:    wm,
-		serverUtils:  newServerUtils(c.Broker, c.Backend, c.StatusExpires, c.ResultExpires),
-		safeStopChan: make(chan struct{}),
+		groupName:                   groupName,
+		workerMap:                   wm,
+		serverUtils:                 newServerUtils(c.Broker, c.Backend, c.StatusExpires, c.ResultExpires),
+		safeStopChan:                make(chan struct{}),
 		getMessageGoroutineStopChan: make(chan struct{}),
-		workerGoroutineStopChan: make(chan struct{}),
+		workerGoroutineStopChan:     make(chan struct{}),
 	}
 }
 
@@ -143,19 +143,29 @@ func (t *InlineServer) Shutdown(ctx context.Context) error {
 	return nil
 }
 
-// add worker to group
+// Add worker to group
 // w : worker func
-func (t *InlineServer) Add(workerName string, w interface{}) {
+// callbackFunc : callbackFunc func
+func (t *InlineServer) Add(workerName string, w interface{}, callbackFunc ...interface{}) {
+
+	var cFunc interface{} = nil
+
+	cType := "func"
+	if len(callbackFunc) > 0 {
+		cFunc = callbackFunc[0]
+		cType = reflect.TypeOf(cFunc).Kind().String()
+	}
 
 	wType := reflect.TypeOf(w).Kind().String()
-	if wType == "func" {
+	if wType == "func" && cType == "func" {
 		funcWorker := worker.FuncWorker{
-			Name: workerName,
-			F:    w,
+			Name:         workerName,
+			Func:         w,
+			CallbackFunc: cFunc,
 		}
 		t.workerMap[workerName] = funcWorker
 	} else {
-		panic("worker must be func")
+		panic("worker and callbackFunc must be func")
 	}
 
 }

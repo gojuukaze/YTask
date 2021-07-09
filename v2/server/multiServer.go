@@ -27,11 +27,12 @@ func NewServer(c config.Config) Server {
 	}
 }
 
-// add worker to group
+// Add worker to group
 // w : worker func
-func (t *Server) Add(groupName string, workerName string, w interface{}) {
+// callbackFunc:callbackFunc
+func (t *Server) Add(groupName string, workerName string, w interface{}, callbackFunc ...interface{}) {
 	server := t.getOrCreateInlineServer(groupName)
-	server.Add(workerName, w)
+	server.Add(workerName, w, callbackFunc...)
 
 }
 

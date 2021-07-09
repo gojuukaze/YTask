@@ -13,31 +13,45 @@ import (
 type WorkerInterface interface {
 	Run(ctl *controller.TaskCtl, funcArgs []string, result *message.Result) error
 	WorkerName() string
+	After(ctl *controller.TaskCtl, funcArgs []string, result *message.Result) error
 }
 
 type FuncWorker struct {
-	F    interface{}
-	Name string
+	Func         interface{} // 执行的函数
+	CallbackFunc interface{} // 回调函数
+	Name         string
 }
 
 func (f FuncWorker) Run(ctl *controller.TaskCtl, funcArgs []string, result *message.Result) error {
-	return runFunc(f.F, ctl, funcArgs, result)
+	return runFunc(f.Func, ctl, funcArgs, result, false)
+}
+
+func (f FuncWorker) After(ctl *controller.TaskCtl, funcArgs []string, result *message.Result) error {
+	if f.CallbackFunc != nil {
+		return runFunc(f.CallbackFunc, ctl, funcArgs, result, true)
+
+	}
+	return nil
 }
 func (f FuncWorker) WorkerName() string {
 	return f.Name
 }
 
-func runFunc(f interface{}, ctl *controller.TaskCtl, funcArgs []string, result *message.Result) (err error) {
+// isCallBack: 是否是回调函数
+func runFunc(f interface{}, ctl *controller.TaskCtl, funcArgs []string, result *message.Result, isCallBack bool) (err error) {
 	defer func() {
 		e := recover()
 		if e != nil {
-			result.Status = message.ResultStatus.Failure
 			t, ok := e.(error)
 			if ok {
 				err = t
 			} else {
 				err = errors.New(fmt.Sprintf("%v", e))
 			}
+			if !isCallBack {
+				result.Status = message.ResultStatus.Failure
+			}
+
 		}
 	}()
 	funcValue := reflect.ValueOf(f)
@@ -56,14 +70,21 @@ func runFunc(f interface{}, ctl *controller.TaskCtl, funcArgs []string, result *
 		inValue = append(inValue, reflect.Value{})
 		copy(inValue[1:], inValue)
 		inValue[0] = reflect.ValueOf(ctl)
+	}
+
+	if isCallBack {
+		inValue[len(inValue)-1]=reflect.ValueOf(result)
 
 	}
 
+
 	funcOut := funcValue.Call(inValue)
 
-	if ctl.GetError() != nil {
-		err = ctl.GetError()
-	} else {
+	if isCallBack {
+		return
+	}
+	err = ctl.GetError()
+	if err == nil {
 		result.Status = message.ResultStatus.Success
 		if len(funcOut) > 0 {
 			re, err2 := util.GoValuesToYJsonSlice(funcOut)

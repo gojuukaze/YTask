@@ -64,7 +64,7 @@ func TestGoVarToYJson(t *testing.T) {
 		"[18446744073709551615,18446744073709551600,184467440737095516]",
 		"[445535.3321,133.7976931348623]",
 		`["","YTask","is","good","!!"," "]`,
-		`{"A":12344,"B":4444444444444,"C":123789,"D":123.444456,"F":null,"G":[677.4,345.78221]}`,
+		`{"A":12344,"B":4444444444444,"C":123789,"D":123.444456,"Func":null,"G":[677.4,345.78221]}`,
 		`{"S2":{"A":345,"B":"ggggggg"},"C":true,"D":344}`,}
 	for i, v := range base {
 		if v != jsonSlice[i] {
@@ -125,7 +125,7 @@ func TestRunFunc(t *testing.T) {
 	}
 
 	w := worker.FuncWorker{
-		F: fun,
+		Func: fun,
 	}
 	s, _ := util.GoVarsToYJsonSlice(12, 33)
 	msg := message.NewMessage(controller.NewTaskCtl())

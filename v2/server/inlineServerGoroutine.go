@@ -61,20 +61,7 @@ func (t *InlineServer) WorkerGoroutine() {
 			waitWorkerWG.Add(1)
 			defer waitWorkerWG.Done()
 
-			// 这里应该直接创建result就行，不知道之前为啥会从backend中获取
 			result := message.NewResult(msg.Id)
-			//result, err := t.GetResult(msg.Id)
-			//log.YTaskLog.WithField("goroutine", "worker").
-			//	Info("rrr= ", result, err)
-			//if err != nil {
-			//	if yerrors.IsEqual(err, yerrors.ErrTypeNilResult) {
-			//		result = message.NewResult(msg.Id)
-			//	} else {
-			//		log.YTaskLog.WithField("goroutine", "worker").
-			//			Error("get result error ", err)
-			//		result = message.NewResult(msg.Id)
-			//	}
-			//}
 
 			t.workerGoroutine_RunWorker(w, &msg, &result)
 
@@ -97,11 +84,11 @@ RUN:
 	t.workerGoroutine_SaveResult(*result)
 
 	err := w.Run(&ctl, msg.FuncArgs, result)
+
 	if err == nil {
 		result.Status = message.ResultStatus.Success
 		t.workerGoroutine_SaveResult(*result)
-
-		return
+		goto AFTER
 	}
 	log.YTaskLog.WithField("server", t.groupName).WithField("goroutine", "worker").Errorf("run worker[%s] error %s", msg.WorkerName, err)
 
@@ -117,6 +104,11 @@ RUN:
 		result.Status = message.ResultStatus.Failure
 		t.workerGoroutine_SaveResult(*result)
 
+	}
+AFTER:
+	err = w.After(&ctl, msg.FuncArgs, result)
+	if err != nil {
+		log.YTaskLog.WithField("server", t.groupName).WithField("goroutine", "worker").Errorf("run worker[%s] callback error %s", msg.WorkerName, err)
 	}
 
 }
