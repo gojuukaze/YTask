@@ -1,0 +1,31 @@
+Log
+=======
+
+YTask使用logrus打印日志
+
+输出日志到文件
+----------------
+
+.. code:: go
+
+   import (
+   "github.com/gojuukaze/YTask/v2/log"
+   "github.com/gojuukaze/go-watch-file")
+
+   // write to file
+   file,err:=watchFile.OpenWatchFile("xx.log")
+   if err != nil {
+       panic(err)
+   }
+   log.YTaskLog.SetOutput(file)
+
+-  `go-watch-file <https://github.com/gojuukaze/go-watch-file>`__
+   ：一个专为日志系统编写的读写文件库，会自动监听文件的变化，文件被删除时自动创建新文件。
+
+设置level
+----------------
+
+.. code:: go
+
+   // set level
+   log.YTaskLog.SetLevel(logrus.InfoLevel)
