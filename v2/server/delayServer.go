@@ -17,7 +17,7 @@ type DelayServer struct {
 	// 延时任务的本地队列，用于在本地排序
 	queue SortQueue
 
-	// 到处理时间的队列
+	// 到处理时间的任务先放入readyMsgChan暂存，然后在放入inlineServerMsgChan
 	readyMsgChan chan message.Message
 	// inlineServer中的chan
 	inlineServerMsgChan chan message.Message
@@ -32,8 +32,8 @@ type DelayServer struct {
 func NewDelayServer(groupName string, c config.Config, msgChan chan message.Message) DelayServer {
 	ds := DelayServer{
 		serverUtils:          newServerUtils(c.Broker, nil, 0, 0),
-		queue:                SortQueue{},
-		readyMsgChan:         make(chan message.Message, c.DelayServerReadyMsgChanSize),
+		queue:                NewSortQueue(c.DelayServerQueueSize),
+		readyMsgChan:         make(chan message.Message, 5),
 		inlineServerMsgChan:  msgChan,
 		safeStopChan:         make(chan struct{}),
 		getDelayMsgStopChan:  make(chan struct{}),

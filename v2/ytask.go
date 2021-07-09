@@ -59,8 +59,8 @@ func (i iConfig) enableDelayServer(enable bool) config.SetConfigFunc {
 	return config.EnableDelayServer(enable)
 }
 
-func (i iConfig) delayServerReadyMsgChanSize(size int) config.SetConfigFunc {
-	return config.DelayServerReadyMsgChanSize(size)
+func (i iConfig) delayServerQueueSize(size int) config.SetConfigFunc {
+	return config.DelayServerQueueSize(size)
 }
 
 // default: 1 day

@@ -26,19 +26,19 @@ type Config struct {
 	// task result expires in ex seconds, -1:forever
 	ResultExpires int
 
-	EnableDelayServer           bool
-	DelayServerReadyMsgChanSize int
+	EnableDelayServer    bool
+	DelayServerQueueSize int
 }
 
 func (c Config) Clone() Config {
 	newC := Config{
-		Broker:                      c.Broker.Clone(),
-		Backend:                     nil,
-		Debug:                       c.Debug,
-		StatusExpires:               c.StatusExpires,
-		ResultExpires:               c.ResultExpires,
-		EnableDelayServer:           c.EnableDelayServer,
-		DelayServerReadyMsgChanSize: c.DelayServerReadyMsgChanSize,
+		Broker:               c.Broker.Clone(),
+		Backend:              nil,
+		Debug:                c.Debug,
+		StatusExpires:        c.StatusExpires,
+		ResultExpires:        c.ResultExpires,
+		EnableDelayServer:    c.EnableDelayServer,
+		DelayServerQueueSize: c.DelayServerQueueSize,
 	}
 	if c.Backend != nil {
 		newC.Backend = c.Backend.Clone()
@@ -53,9 +53,9 @@ type SetConfigFunc func(*Config)
 
 func NewConfig(setConfigFunc ...SetConfigFunc) Config {
 	var config = Config{
-		StatusExpires:               60 * 60 * 24,
-		ResultExpires:               60 * 60 * 24,
-		DelayServerReadyMsgChanSize: 20,
+		StatusExpires:        60 * 60 * 24,
+		ResultExpires:        60 * 60 * 24,
+		DelayServerQueueSize: 20,
 	}
 	for _, f := range setConfigFunc {
 		f(&config)
@@ -74,9 +74,9 @@ func Backend(b backends.BackendInterface) SetConfigFunc {
 	}
 }
 
-func DelayServerReadyMsgChanSize(size int) SetConfigFunc {
+func DelayServerQueueSize(size int) SetConfigFunc {
 	return func(config *Config) {
-		config.DelayServerReadyMsgChanSize = size
+		config.DelayServerQueueSize = size
 	}
 }
 

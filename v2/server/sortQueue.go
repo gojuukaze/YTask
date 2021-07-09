@@ -7,17 +7,25 @@ import (
 	"time"
 )
 
-const maxLen =20
+
 
 type SortQueue struct {
 	sync.Mutex
 
-	Queue [maxLen + 1]message.Message
+	Queue []message.Message
 	len   int
+	MaxLen int
+}
+
+func NewSortQueue(maxLen int) SortQueue {
+	return SortQueue{
+		Queue:make([]message.Message,maxLen+1),
+		MaxLen:maxLen,
+	}
 }
 
 func (s *SortQueue) IsFull() bool {
-	return s.len == maxLen
+	return s.len == s.MaxLen
 }
 
 func (s *SortQueue) Insert(msg message.Message) *message.Message {
@@ -39,7 +47,7 @@ func (s *SortQueue) Insert(msg message.Message) *message.Message {
 
 	}
 
-	if s.len== maxLen {
+	if s.len== s.MaxLen {
 		return &s.Queue[s.len]
 	} else {
 		s.len++

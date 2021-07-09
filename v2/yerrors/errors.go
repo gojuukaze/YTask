@@ -5,12 +5,12 @@ import (
 )
 
 const (
-	ErrTypeEmptyQuery      = 1
-	ErrTypeUnsupportedType = 2
-	ErrTypeOutOfRange      = 3
-	ErrTypeNilResult       = 4
-	ErrTypeTimeOut         = 5
-	ErrTypeServerStop      = 6
+	ErrTypeEmptyQuery      = 1 // 队列为空， broker获取任务时用到
+	ErrTypeUnsupportedType = 2 // 不支持此参数类型
+	ErrTypeOutOfRange      = 3 // 暂时没用
+	ErrTypeNilResult       = 4 // 任务结果为空
+	ErrTypeTimeOut         = 5 // broker，backend超时
+	ErrTypeServerStop      = 6 // 服务已停止
 )
 
 func IsEqual(err error, errType int) bool {
