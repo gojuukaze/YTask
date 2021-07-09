@@ -31,13 +31,14 @@ func TestMultit2(t *testing.T) {
 			config.Broker(&b),
 			config.Backend(&b2),
 			config.Debug(true),
+			config.EnableDelayServer(true),
 		),
 	)
 	log.YTaskLog.Out = ioutil.Discard
 
 	ser.Add("TestMulti2Group", "delayWorker1", delayWorker1)
 
-	ser.Run("TestMulti2Group", 2, true)
+	ser.Run("TestMulti2Group", 2)
 
 	client := ser.GetClient()
 
