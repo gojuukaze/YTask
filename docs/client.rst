@@ -40,6 +40,9 @@
    // set delay time
    taskId,err=client.SetTaskCtl(client.RunAfter, 2*time.Second).Send("group1","add",12,33)
 
+   // set expire time
+   taskId,err=client.SetTaskCtl(client.ExpireTime,time.Now().Add(4*time.Second)).Send("group1","add",12,33)
+
 获取结果
 ----------
 
