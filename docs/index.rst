@@ -52,6 +52,7 @@ Welcome to YTask's documentation!
    client
    retry
    delay
+   expire
    broker
    backend
    log
