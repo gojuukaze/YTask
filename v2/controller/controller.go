@@ -1,10 +1,13 @@
 package controller
 
-import "time"
+import (
+	"time"
+)
 
 type TaskCtl struct {
 	RetryCount int
 	RunTime    time.Time
+	ExpireTime time.Time
 	err        error
 }
 
@@ -44,4 +47,12 @@ func (t *TaskCtl) GetRunTime() time.Time {
 
 func (t *TaskCtl) IsZeroRunTime() bool {
 	return t.RunTime.IsZero()
+}
+
+func (t *TaskCtl) SetExpireTime(_t time.Time) {
+	t.ExpireTime= _t
+}
+
+func (t *TaskCtl) IsExpired() bool {
+	return !t.ExpireTime.IsZero() && time.Now().After(t.ExpireTime)
 }

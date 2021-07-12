@@ -102,3 +102,42 @@ func TestResultExpires(t *testing.T) {
 	}
 	ser.Shutdown(context.TODO())
 }
+
+
+func TestWorkerExpires(t *testing.T) {
+	// 测试任务过期
+	b := brokers.NewRedisBroker("127.0.0.1", "6379", "", 0, 0)
+	b2 := backends.NewRedisBackend("127.0.0.1", "6379", "", 0, 0)
+
+	ser := server.NewServer(
+		config.NewConfig(
+			config.Broker(&b),
+			config.Backend(&b2),
+			config.Debug(false),
+		),
+	)
+	log.YTaskLog.Out = ioutil.Discard
+
+	ser.Add("test_we", "w1", workerTestResultExpires)
+	ser.Run("test_we",1)
+
+	client := ser.GetClient()
+	client.Send("test_we", "w1")
+
+	// 这个任务能执行
+	id, _ := client.SetTaskCtl(client.ExpireTime,time.Now().Add(4*time.Second)).Send("test_we", "w1")
+	// 这个任务应该过期
+	id2, _ := client.SetTaskCtl(client.ExpireTime,time.Now().Add(2*time.Second)).Send("test_we", "w1")
+
+	result, _ := client.GetResult(id, 6*time.Second, 300*time.Millisecond)
+	if !result.IsSuccess(){
+		t.Fatal("!result.IsSuccess()")
+
+	}
+	result, _ = client.GetResult(id2, 2*time.Second, 300*time.Millisecond)
+	if result.IsSuccess() || result.Status!=message.ResultStatus.Expired{
+		t.Fatal("任务状态错误")
+
+	}
+	ser.Shutdown(context.TODO())
+}

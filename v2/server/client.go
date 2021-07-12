@@ -12,12 +12,14 @@ type ctlKeyChoices struct {
 	RetryCount int
 	RunAt      int
 	RunAfter   int
+	ExpireTime int
 }
 
 var ctlKey = ctlKeyChoices{
 	RetryCount: 0,
 	RunAt:      1,
 	RunAfter:   2,
+	ExpireTime: 3,
 }
 
 type Client struct {
@@ -72,8 +74,9 @@ func (c *Client) SetTaskCtl(name int, value interface{}) *Client {
 		n := time.Now()
 		cloneC.ctl.SetRunTime(n.Add(value.(time.Duration)))
 	case ctlKey.RunAt:
-
 		cloneC.ctl.SetRunTime(value.(time.Time))
+	case ctlKey.ExpireTime:
+		cloneC.ctl.SetExpireTime(value.(time.Time))
 
 	}
 	return cloneC

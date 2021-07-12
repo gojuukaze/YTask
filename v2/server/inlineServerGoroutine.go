@@ -76,14 +76,21 @@ func (t *InlineServer) WorkerGoroutine() {
 
 func (t *InlineServer) workerGoroutine_RunWorker(w worker.WorkerInterface, msg *message.Message, result *message.Result) {
 
+	var err error
 	ctl := msg.TaskCtl
 
 RUN:
 
+	if ctl.IsExpired(){
+		result.Status = message.ResultStatus.Expired
+		t.workerGoroutine_SaveResult(*result)
+		goto AFTER
+	}
+
 	result.SetStatusRunning()
 	t.workerGoroutine_SaveResult(*result)
 
-	err := w.Run(&ctl, msg.FuncArgs, result)
+	err = w.Run(&ctl, msg.FuncArgs, result)
 
 	if err == nil {
 		result.Status = message.ResultStatus.Success
@@ -105,7 +112,9 @@ RUN:
 		t.workerGoroutine_SaveResult(*result)
 
 	}
+
 AFTER:
+
 	err = w.After(&ctl, msg.FuncArgs, result)
 	if err != nil {
 		log.YTaskLog.WithField("server", t.groupName).WithField("goroutine", "worker").Errorf("run worker[%s] callback error %s", msg.WorkerName, err)
@@ -121,33 +130,4 @@ func (t *InlineServer) workerGoroutine_SaveResult(result message.Result) {
 	if err != nil {
 		log.YTaskLog.WithField("server", t.groupName).WithField("goroutine", "worker").Errorf("save result error ", err)
 	}
-}
-
-func (t *InlineServer) GetDelayMessageGoroutine() {
-	log.YTaskLog.WithField("server", t.groupName).WithField("goroutine", "get_next_message").Debug("start")
-	var msg message.Message
-	var err error
-	for range t.workerReadyChan {
-
-		if t.IsStop() {
-			break
-		}
-		msg, err = t.Next(t.groupName)
-
-		if err != nil {
-			go t.MakeWorkerReady()
-			if !yerrors.IsEqual(err, yerrors.ErrTypeEmptyQuery) {
-				log.YTaskLog.WithField("server", t.groupName).
-					WithField("goroutine", "get_next_message").
-					Error("get msg error, ", err)
-			}
-			continue
-		}
-		log.YTaskLog.WithField("server", t.groupName).WithField("goroutine", "get_next_message").Infof("new msg %+v", msg)
-		t.msgChan <- msg
-	}
-
-	t.getMessageGoroutineStopChan <- struct{}{}
-	log.YTaskLog.WithField("server", t.groupName).WithField("goroutine", "get_next_message").Debug("stop")
-
 }

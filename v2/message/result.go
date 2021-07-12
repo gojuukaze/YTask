@@ -11,6 +11,7 @@ type resultStatusChoice struct {
 	Running      int
 	Success      int
 	Failure      int
+	Expired      int
 }
 
 var ResultStatus = resultStatusChoice{
@@ -20,6 +21,7 @@ var ResultStatus = resultStatusChoice{
 	Running:      3,
 	Success:      4,
 	Failure:      5,
+	Expired:      6,
 }
 
 type Result struct {
@@ -106,7 +108,7 @@ func (r Result) IsSuccess() bool {
 }
 
 func (r Result) IsFinish() bool {
-	if r.Status == ResultStatus.Success || r.Status == ResultStatus.Failure {
+	if r.Status == ResultStatus.Success || r.Status == ResultStatus.Failure || r.Status == ResultStatus.Expired {
 		return true
 	}
 	return false
