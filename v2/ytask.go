@@ -55,11 +55,11 @@ func (i iConfig) Debug(debug bool) config.SetConfigFunc {
 	return config.Debug(debug)
 }
 
-func (i iConfig) enableDelayServer(enable bool) config.SetConfigFunc {
+func (i iConfig) EnableDelayServer(enable bool) config.SetConfigFunc {
 	return config.EnableDelayServer(enable)
 }
 
-func (i iConfig) delayServerQueueSize(size int) config.SetConfigFunc {
+func (i iConfig) DelayServerQueueSize(size int) config.SetConfigFunc {
 	return config.DelayServerQueueSize(size)
 }
 
