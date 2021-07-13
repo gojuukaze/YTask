@@ -38,16 +38,10 @@ Welcome to YTask's documentation!
 
 .. toctree::
    :maxdepth: 2
-   :hidden:
-   :caption: 目录
-
-   QuickStart
-
-.. toctree::
-   :maxdepth: 2
    :caption: 使用指南
    :hidden:
 
+   QuickStart
    server
    client
    retry
