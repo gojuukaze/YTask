@@ -1,6 +1,9 @@
 快速开始
 ==========
 
+这里给出一个简单的server端，client端代码，更多的样例可以参考 `example/v2 <https://github.com/gojuukaze/YTask/tree/master/example/v2>`_
+
+
 server
 ----------
 
