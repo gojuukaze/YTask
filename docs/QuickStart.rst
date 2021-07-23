@@ -19,13 +19,15 @@ server
        "syscall"
    )
 
-   type User struct {
-       Id   int
-       Name string
-   }
+   // 定义两个任务，任务参数、返回值支持所有能被序列化为json的类型
 
    func add(a int, b int) int {
        return a + b
+   }
+
+   type User struct {
+       Id   int
+       Name string
    }
 
    func appendUser(user User, ids []int, names []string) []User {
@@ -38,10 +40,11 @@ server
    }
 
    func main() {
-       // clientPoolSize: Server端无需设置broker clientPoolSize
+       // RedisBroker最后一个参数是连接池大小， Server端无需设置
        broker := ytask.Broker.NewRedisBroker("127.0.0.1", "6379", "", 0, 0)
-       // poolSize: 如果backend poolSize<=0 会使用默认值，
-       //           对于server端backendPoolSize的默认值是 min(10, numWorkers)
+
+       // RedisBackend最后一个参数是连接池大小，对于server端 如果<=0 会使用默认值，
+       // 默认值是 min(10, numWorkers)
        backend := ytask.Backend.NewRedisBackend("127.0.0.1", "6379", "", 0, 0)
 
        ser := ytask.Server.NewServer(
@@ -52,9 +55,11 @@ server
            ytask.Config.ResultExpires(60*5),
        )
 
+       // 注册任务
        ser.Add("group1", "add", add)
        ser.Add("group1", "append_user", appendUser)
 
+       // 运行server，并发数3
        ser.Run("group1", 3)
 
        quit := make(chan os.Signal, 1)
@@ -87,10 +92,10 @@ client
    var client server.Client
 
    func main() {
-       // 对于client你需要设置broker clientPoolSize
+       // 对于client端你需要设置连接池大小
        broker := ytask.Broker.NewRedisBroker("127.0.0.1", "6379", "", 0, 5)
 
-       // 对于client端，如果backend poolSize<=0，poolSize会设为10
+       // 对于client端，如果连接池<=0，poolSize会默认为10
        backend := ytask.Backend.NewRedisBackend("127.0.0.1", "6379", "", 0, 5)
 
        ser := ytask.Server.NewServer(
@@ -103,11 +108,13 @@ client
 
        client = ser.GetClient()
 
-       // task add
+       // 提交任务
        taskId, _ := client.Send("group1", "add", 123, 44)
+       // 获取结果
        result, _ := client.GetResult(taskId, 2*time.Second, 300*time.Millisecond)
 
        if result.IsSuccess() {
+           // 有多种方法获取返回值，具体可以参考： https://doc.ikaze.cn/YTask/client.html#id4
            sum, _ := result.GetInt64(0)
            // or
            var sum2 int
@@ -116,7 +123,7 @@ client
            fmt.Println("add(123,44) =", int(sum))
        }
 
-       // task append user
+       // 提交结构体，slice等
        taskId, _ = client.Send("group1", "append_user", User{1, "aa"}, []int{322, 11}, []string{"bb", "cc"})
        result, _ = client.GetResult(taskId, 2*time.Second, 300*time.Millisecond)
        var users []User
