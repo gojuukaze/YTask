@@ -11,6 +11,6 @@ type BrokerInterface interface {
 	// 调用Activate后才真正建立连接
 	Activate()
 	SetPoolSize(int)
-	GetPoolSize()int
+	GetPoolSize() int
 	Clone() BrokerInterface
 }

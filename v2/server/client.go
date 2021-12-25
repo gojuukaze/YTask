@@ -1,11 +1,12 @@
 package server
 
 import (
+	"time"
+
 	"github.com/gojuukaze/YTask/v2/config"
 	"github.com/gojuukaze/YTask/v2/controller"
 	"github.com/gojuukaze/YTask/v2/message"
 	"github.com/gojuukaze/YTask/v2/yerrors"
-	"time"
 )
 
 type ctlKeyChoices struct {
@@ -129,42 +130,43 @@ func (c *Client) GetStatus(taskId string, timeout time.Duration, sleepTime time.
 	}
 }
 
-type Promise struct{
-	done chan struct{}
+type Promise struct {
+	done   chan struct{}
 	result interface{}
-	err error
+	err    error
 }
 
-type InvarParamFunc func(message.Result)(interface{},error)
-type VarParamFunc func(interface{})(interface{},error)
-func (c *Client) NewPromise(taskId string,handle InvarParamFunc,timeout time.Duration, sleepTime time.Duration) *Promise{
-	promise:=Promise{done:make(chan struct{})}
-	go func(){
+type InvarParamFunc func(message.Result) (interface{}, error)
+type VarParamFunc func(interface{}) (interface{}, error)
+
+func (c *Client) NewPromise(taskId string, handle InvarParamFunc, timeout time.Duration, sleepTime time.Duration) *Promise {
+	promise := Promise{done: make(chan struct{})}
+	go func() {
 		defer close(promise.done)
-		msg,err:=c.GetResult(taskId,timeout,sleepTime)
-		if err!=nil {
-			promise.result,promise.err=nil,err
+		msg, err := c.GetResult(taskId, timeout, sleepTime)
+		if err != nil {
+			promise.result, promise.err = nil, err
 			return
 		}
-		promise.result,promise.err=handle(msg)
+		promise.result, promise.err = handle(msg)
 	}()
 	return &promise
 }
 
-func (p *Promise) Then(handle VarParamFunc)*Promise{
-	promise:=Promise{done:make(chan struct{})}
-	go func(){
+func (p *Promise) Then(handle VarParamFunc) *Promise {
+	promise := Promise{done: make(chan struct{})}
+	go func() {
 		defer close(promise.done)
-		res,err:=p.Done()
-		if err!=nil {
-			promise.result,promise.err=nil,p.err
+		res, err := p.Done()
+		if err != nil {
+			promise.result, promise.err = nil, p.err
 		}
-		promise.result,promise.err=handle(res)
+		promise.result, promise.err = handle(res)
 	}()
 	return &promise
 }
 
-func (p *Promise) Done()(interface{},error){
+func (p *Promise) Done() (interface{}, error) {
 	<-p.done
-	return p.result,p.err
+	return p.result, p.err
 }

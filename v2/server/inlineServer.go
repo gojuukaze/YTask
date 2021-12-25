@@ -2,14 +2,15 @@ package server
 
 import (
 	"context"
+	"reflect"
+	"sync"
+
 	"github.com/gojuukaze/YTask/v2/config"
 	"github.com/gojuukaze/YTask/v2/log"
 	"github.com/gojuukaze/YTask/v2/message"
 	"github.com/gojuukaze/YTask/v2/util"
 	"github.com/gojuukaze/YTask/v2/worker"
 	"github.com/sirupsen/logrus"
-	"reflect"
-	"sync"
 )
 
 type InlineServer struct {
@@ -36,12 +37,12 @@ func NewInlineServer(groupName string, c config.Config) InlineServer {
 	}
 
 	return InlineServer{
-		groupName:    groupName,
-		workerMap:    wm,
-		serverUtils:  newServerUtils(c.Broker, c.Backend, c.StatusExpires, c.ResultExpires),
-		safeStopChan: make(chan struct{}),
+		groupName:                   groupName,
+		workerMap:                   wm,
+		serverUtils:                 newServerUtils(c.Broker, c.Backend, c.StatusExpires, c.ResultExpires),
+		safeStopChan:                make(chan struct{}),
 		getMessageGoroutineStopChan: make(chan struct{}),
-		workerGoroutineStopChan: make(chan struct{}),
+		workerGoroutineStopChan:     make(chan struct{}),
 	}
 }
 

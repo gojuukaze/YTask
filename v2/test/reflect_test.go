@@ -2,12 +2,13 @@ package test
 
 import (
 	"fmt"
+	"reflect"
+	"testing"
+
 	"github.com/gojuukaze/YTask/v2/controller"
 	"github.com/gojuukaze/YTask/v2/message"
 	"github.com/gojuukaze/YTask/v2/util"
 	"github.com/gojuukaze/YTask/v2/worker"
-	"reflect"
-	"testing"
 )
 
 type s1 struct {
@@ -39,12 +40,12 @@ var (
 	h string    = "TestJsonArgs"
 	i []int     = []int{123, 4456, 56756, 234, 123, 4, 5, 6, 7, 812, 123, 345, 756, 678, 7686, 7, 2, 23, 4}
 	j []int64   = []int64{259933429192721385, 219933429192721385, 4}
-	k []uint    = []uint{44, 56546, 2311, 567,}
+	k []uint    = []uint{44, 56546, 2311, 567}
 	l []uint64  = []uint64{18446744073709551615, 18446744073709551600, 184467440737095516}
 	m []float64 = []float64{445535.3321, 133.7976931348623}
 	n []string  = []string{"", "YTask", "is", "good", "!!", " "}
 	o           = s1{A: 12344, B: 4444444444444, C: 123789, D: 123.444456, G: []float64{677.4, 345.78221}}
-	p           = s3{S2: s2{345, "ggggggg"}, C: true, D: 344,}
+	p           = s3{S2: s2{345, "ggggggg"}, C: true, D: 344}
 )
 
 func TestGoVarToYJson(t *testing.T) {
@@ -65,7 +66,7 @@ func TestGoVarToYJson(t *testing.T) {
 		"[445535.3321,133.7976931348623]",
 		`["","YTask","is","good","!!"," "]`,
 		`{"A":12344,"B":4444444444444,"C":123789,"D":123.444456,"F":null,"G":[677.4,345.78221]}`,
-		`{"S2":{"A":345,"B":"ggggggg"},"C":true,"D":344}`,}
+		`{"S2":{"A":345,"B":"ggggggg"},"C":true,"D":344}`}
 	for i, v := range base {
 		if v != jsonSlice[i] {
 			t.Fatalf("%+v != %+v", v, jsonSlice[i])
@@ -75,7 +76,8 @@ func TestGoVarToYJson(t *testing.T) {
 }
 
 func TestGetCallInArgs(t *testing.T) {
-	testFunc := func(int, int64, uint, uint64, float32, float64, bool, string, []int, []int64, []uint64, []string, s1, s3) {}
+	testFunc := func(int, int64, uint, uint64, float32, float64, bool, string, []int, []int64, []uint64, []string, s1, s3) {
+	}
 
 	jsonSlice, _ := util.GoVarsToYJsonSlice(a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p)
 	inValues, _ := util.GetCallInArgs(reflect.ValueOf(testFunc), jsonSlice, 0)
@@ -135,7 +137,7 @@ func TestRunFunc(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	var base = []interface{}{int(45), a, b, c, d, e, f, g, h, j, l, m, n, o, p,}
+	var base = []interface{}{int(45), a, b, c, d, e, f, g, h, j, l, m, n, o, p}
 	var (
 		raa int
 		ra  int
@@ -154,7 +156,7 @@ func TestRunFunc(t *testing.T) {
 		rp  s3
 	)
 
-	var returnV = []interface{}{&raa, &ra, &rb, &rc, &rd, &re, &rf, &rg, &rh, &rj, &rl, &rm, &rn, &ro, &rp,}
+	var returnV = []interface{}{&raa, &ra, &rb, &rc, &rd, &re, &rf, &rg, &rh, &rj, &rl, &rm, &rn, &ro, &rp}
 	for i, v := range base {
 		temp := returnV[i]
 		err := result.Get(i, temp)
@@ -171,7 +173,7 @@ func TestRunFunc(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	returnV = []interface{}{raa, ra, rb, rc, rd, re, rf, rg, rh, rj, rl, rm, rn, ro, rp,}
+	returnV = []interface{}{raa, ra, rb, rc, rd, re, rf, rg, rh, rj, rl, rm, rn, ro, rp}
 	for i, v := range base {
 		if fmt.Sprintf("%v", v) != fmt.Sprintf("%v", returnV[i]) {
 			t.Fatalf("%v != %v", v, returnV[i])

@@ -2,8 +2,10 @@ package workers
 
 import (
 	"errors"
+
 	"github.com/gojuukaze/YTask/v2/controller"
 )
+
 type User struct {
 	Id   int
 	Name string

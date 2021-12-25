@@ -2,11 +2,12 @@ package test
 
 import (
 	"fmt"
+	"testing"
+	"time"
+
 	"github.com/gojuukaze/YTask/v2/backends"
 	"github.com/gojuukaze/YTask/v2/message"
 	"github.com/gojuukaze/YTask/v2/yerrors"
-	"testing"
-	"time"
 )
 
 func TestRedisBackend(t *testing.T) {
@@ -23,7 +24,7 @@ func TestRedisBackend(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if fmt.Sprintf("%v",r2) != fmt.Sprintf("%v",result)  {
+	if fmt.Sprintf("%v", r2) != fmt.Sprintf("%v", result) {
 		t.Fatalf("%v != %v", r2, result)
 	}
 

@@ -1,11 +1,12 @@
 package brokers
 
 import (
+	"time"
+
 	"github.com/gojuukaze/YTask/v2/drive"
 	"github.com/gojuukaze/YTask/v2/message"
 	"github.com/gojuukaze/YTask/v2/util/yjson"
 	"github.com/gojuukaze/YTask/v2/yerrors"
-	"time"
 )
 
 type RabbitMqBroker struct {
@@ -53,9 +54,9 @@ func (r *RabbitMqBroker) Next(queueName string) (message.Message, error) {
 			break
 		}
 		if err == drive.AMQPNil {
-			time.Sleep(100*time.Millisecond)
+			time.Sleep(100 * time.Millisecond)
 			continue
-		}else {
+		} else {
 			return msg, err
 		}
 	}

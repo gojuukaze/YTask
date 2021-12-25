@@ -82,7 +82,7 @@ func (c *RedisClient) BLPop(key string, timeout time.Duration) *redis.StringSlic
 func (c *RedisClient) Do(args ...interface{}) *redis.Cmd {
 	var ctx = context.Background()
 
-	return c.redisPool.Do(ctx,args)
+	return c.redisPool.Do(ctx, args)
 }
 
 func (c *RedisClient) Flush() error {

@@ -2,11 +2,12 @@ package log
 
 import (
 	"fmt"
-	"github.com/sirupsen/logrus"
 	"path"
 	"path/filepath"
 	"runtime"
 	"strings"
+
+	"github.com/sirupsen/logrus"
 )
 
 var YTaskLog *logrus.Logger
@@ -32,13 +33,13 @@ func (hook YTaskHook) Fire(entry *logrus.Entry) error {
 		goroutineName = fmt.Sprintf("|%s", goroutineName)
 
 	}
-	if !ok{
-		goroutineName=""
+	if !ok {
+		goroutineName = ""
 	}
 	delete(entry.Data, "goroutine")
 	delete(entry.Data, "server")
 
-	entry.Message = fmt.Sprintf("%s%s]: %s", s,goroutineName, entry.Message)
+	entry.Message = fmt.Sprintf("%s%s]: %s", s, goroutineName, entry.Message)
 
 	return nil
 }

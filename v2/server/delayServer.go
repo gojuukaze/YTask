@@ -2,10 +2,11 @@ package server
 
 import (
 	"context"
+	"sync"
+
 	"github.com/gojuukaze/YTask/v2/config"
 	"github.com/gojuukaze/YTask/v2/log"
 	"github.com/gojuukaze/YTask/v2/message"
-	"sync"
 )
 
 const readyMsgChanSize = 5
@@ -114,7 +115,7 @@ func (s *DelayServer) Shutdown(ctx context.Context) error {
 }
 
 func (s *DelayServer) LSendQueue() {
-	for i := s.queue.len-1; i >=0; i-- {
+	for i := s.queue.len - 1; i >= 0; i-- {
 		msg := s.queue.Get(i)
 		err := s.LSendMsg(s.delayGroupName, msg)
 		if err != nil {

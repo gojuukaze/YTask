@@ -6,6 +6,5 @@ import (
 
 type BrokerInterface interface {
 	Get(queryName string) (ymsg.Message, error)
-	Send(queryName string,msg ymsg.Message) error
-
+	Send(queryName string, msg ymsg.Message) error
 }

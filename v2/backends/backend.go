@@ -10,5 +10,4 @@ type BackendInterface interface {
 	SetPoolSize(int)
 	GetPoolSize() int
 	Clone() BackendInterface
-
 }

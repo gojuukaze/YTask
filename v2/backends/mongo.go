@@ -9,23 +9,23 @@ import (
 )
 
 type MongoBackend struct {
-	client   *drive.MongoClient
-	host     string
-	port     string
-	user string
-	password string
-	db string
+	client     *drive.MongoClient
+	host       string
+	port       string
+	user       string
+	password   string
+	db         string
 	collection string
 	//poolSize int
 }
 
-func NewMongoBackend(host, port , user, password, db, collection string) MongoBackend {
+func NewMongoBackend(host, port, user, password, db, collection string) MongoBackend {
 	return MongoBackend{
-		host:     host,
-		port:     port,
-		user: user,
-		password: password,
-		db: db,
+		host:       host,
+		port:       port,
+		user:       user,
+		password:   password,
+		db:         db,
 		collection: collection,
 		//poolSize: 0,
 	}
@@ -74,12 +74,12 @@ func (r *MongoBackend) GetResult(key string) (message.Result, error) {
 	return result, err
 }
 
-func (r MongoBackend) Clone() BackendInterface{
-	return  &MongoBackend{
-		host:     r.host,
-		port:     r.port,
-		password: r.password,
-		db:       r.db,
+func (r MongoBackend) Clone() BackendInterface {
+	return &MongoBackend{
+		host:       r.host,
+		port:       r.port,
+		password:   r.password,
+		db:         r.db,
 		collection: r.collection,
 	}
 }

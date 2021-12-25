@@ -13,7 +13,6 @@ func GetStrMd5(s string) string {
 	return hex.EncodeToString(md5Data)
 }
 
-
 func GetStrSha1(data string) string {
 	sha1 := sha1.New()
 	sha1.Write([]byte(data))

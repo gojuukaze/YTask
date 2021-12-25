@@ -6,5 +6,3 @@ type WorkerInterface interface {
 	Run(msg ymsg.Message) error
 	Name() string
 }
-
-

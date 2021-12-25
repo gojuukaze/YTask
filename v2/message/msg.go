@@ -1,10 +1,11 @@
 package message
 
 import (
+	"time"
+
 	"github.com/gojuukaze/YTask/v2/controller"
 	"github.com/gojuukaze/YTask/v2/util"
 	"github.com/google/uuid"
-	"time"
 )
 
 type Message struct {

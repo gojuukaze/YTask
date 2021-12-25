@@ -1,11 +1,12 @@
 package server
 
 import (
+	"sync"
+
 	"github.com/gojuukaze/YTask/v2/log"
 	"github.com/gojuukaze/YTask/v2/message"
 	"github.com/gojuukaze/YTask/v2/worker"
 	"github.com/gojuukaze/YTask/v2/yerrors"
-	"sync"
 )
 
 // get next message if worker is ready

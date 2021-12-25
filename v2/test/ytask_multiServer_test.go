@@ -7,15 +7,16 @@ package test
 
 import (
 	"context"
+	"io/ioutil"
+	"testing"
+	"time"
+
 	"github.com/gojuukaze/YTask/v2/backends"
 	"github.com/gojuukaze/YTask/v2/brokers"
 	"github.com/gojuukaze/YTask/v2/config"
 	"github.com/gojuukaze/YTask/v2/log"
 	"github.com/gojuukaze/YTask/v2/server"
 	"github.com/gojuukaze/YTask/v2/yerrors"
-	"io/ioutil"
-	"testing"
-	"time"
 )
 
 func multiWorker1() int {
@@ -82,8 +83,8 @@ func testMulti2(t *testing.T, client server.Client) {
 	if err != nil {
 		t.Fatal("err!=nil")
 	}
-	r,_:=result.GetInt64(0)
-	if r!=123{
+	r, _ := result.GetInt64(0)
+	if r != 123 {
 		t.Fatal("r!=123")
 
 	}

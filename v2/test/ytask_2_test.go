@@ -2,15 +2,16 @@ package test
 
 import (
 	"context"
+	"io/ioutil"
+	"testing"
+	"time"
+
 	"github.com/gojuukaze/YTask/v2/backends"
 	"github.com/gojuukaze/YTask/v2/brokers"
 	"github.com/gojuukaze/YTask/v2/config"
 	"github.com/gojuukaze/YTask/v2/log"
 	"github.com/gojuukaze/YTask/v2/message"
 	"github.com/gojuukaze/YTask/v2/server"
-	"io/ioutil"
-	"testing"
-	"time"
 )
 
 func workerTestStatusExpires() int {
@@ -39,19 +40,19 @@ func TestStatusExpires(t *testing.T) {
 	log.YTaskLog.Out = ioutil.Discard
 
 	ser.Add("test_g2", "workerTestStatusExpires", workerTestStatusExpires)
-	ser.Run("test_g2",1)
+	ser.Run("test_g2", 1)
 	client := ser.GetClient()
 	id, err := client.Send("test_g2", "workerTestStatusExpires")
 	if err != nil {
 		t.Fatal(err)
 	}
-	_, err = client.GetStatus(id,1*time.Second,300*time.Millisecond)
+	_, err = client.GetStatus(id, 1*time.Second, 300*time.Millisecond)
 	if err == nil {
 		t.Fatal("err==nill")
 	}
 
 	result, _ := client.GetResult(id, 3*time.Second, 300*time.Millisecond)
-	if !result.IsSuccess(){
+	if !result.IsSuccess() {
 		t.Fatal("!result.IsSuccess()")
 
 	}
@@ -79,24 +80,24 @@ func TestResultExpires(t *testing.T) {
 	log.YTaskLog.Out = ioutil.Discard
 
 	ser.Add("test_g2", "workerTestResultExpires", workerTestResultExpires)
-	ser.Run("test_g2",1)
+	ser.Run("test_g2", 1)
 
 	client := ser.GetClient()
 	id, err := client.Send("test_g2", "workerTestResultExpires")
 	if err != nil {
 		t.Fatal(err)
 	}
-	status, err := client.GetStatus(id,1*time.Second,100*time.Millisecond)
-	if err!=nil {
+	status, err := client.GetStatus(id, 1*time.Second, 100*time.Millisecond)
+	if err != nil {
 		t.Fatal(err)
 	}
-	if status!=message.ResultStatus.FirstRunning{
-		t.Fatal("r1.Status!=message.ResultStatus.FirstRunning",status)
+	if status != message.ResultStatus.FirstRunning {
+		t.Fatal("r1.Status!=message.ResultStatus.FirstRunning", status)
 
 	}
 
 	_, err = client.GetResult(id, 3*time.Second, 300*time.Millisecond)
-	if err==nil{
+	if err == nil {
 		t.Fatal("err==nil")
 
 	}

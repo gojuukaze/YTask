@@ -3,11 +3,12 @@ package worker
 import (
 	"errors"
 	"fmt"
+	"reflect"
+
 	"github.com/gojuukaze/YTask/v2/controller"
 	"github.com/gojuukaze/YTask/v2/log"
 	"github.com/gojuukaze/YTask/v2/message"
 	"github.com/gojuukaze/YTask/v2/util"
-	"reflect"
 )
 
 type WorkerInterface interface {

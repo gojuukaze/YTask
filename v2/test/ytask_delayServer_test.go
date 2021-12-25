@@ -7,16 +7,17 @@ package test
 
 import (
 	"context"
-	"github.com/gojuukaze/YTask/v2/brokers"
-	"github.com/gojuukaze/YTask/v2/config"
-	"github.com/gojuukaze/YTask/v2/log"
-	"github.com/gojuukaze/YTask/v2/message"
-	"github.com/gojuukaze/YTask/v2/server"
 	"io/ioutil"
 	"strconv"
 	"sync"
 	"testing"
 	"time"
+
+	"github.com/gojuukaze/YTask/v2/brokers"
+	"github.com/gojuukaze/YTask/v2/config"
+	"github.com/gojuukaze/YTask/v2/log"
+	"github.com/gojuukaze/YTask/v2/message"
+	"github.com/gojuukaze/YTask/v2/server"
 )
 
 func TestDelayServerSend(t *testing.T) {
@@ -89,7 +90,7 @@ func TestDelayServer(t *testing.T) {
 	b2 := b.Clone()
 	b2.Activate()
 	for true {
-		_, err := b2.Next("YTask:Query:Delay:testDelay" )
+		_, err := b2.Next("YTask:Query:Delay:testDelay")
 		if err != nil {
 			break
 		}
@@ -147,7 +148,7 @@ func TestDelayServer2(t *testing.T) {
 	}
 	//清空测试用的队列
 	for true {
-		_, err := b2.Next("YTask:Query:Delay:testDelay2" )
+		_, err := b2.Next("YTask:Query:Delay:testDelay2")
 		if err != nil {
 			break
 		}

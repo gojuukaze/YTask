@@ -9,6 +9,10 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"io/ioutil"
+	"testing"
+	"time"
+
 	"github.com/gojuukaze/YTask/v2/backends"
 	"github.com/gojuukaze/YTask/v2/brokers"
 	"github.com/gojuukaze/YTask/v2/config"
@@ -16,9 +20,6 @@ import (
 	"github.com/gojuukaze/YTask/v2/log"
 	"github.com/gojuukaze/YTask/v2/message"
 	"github.com/gojuukaze/YTask/v2/server"
-	"io/ioutil"
-	"testing"
-	"time"
 )
 
 type User struct {
@@ -106,27 +107,27 @@ func testWorker1(ser server.Server, t *testing.T) {
 	id, err = client.Send("test_g", "worker1")
 
 	var handle1 server.InvarParamFunc
-	handle1= func(result message.Result) (interface{}, error) {
+	handle1 = func(result message.Result) (interface{}, error) {
 		//do something
-		time.Sleep(time.Second*15)
-		fmt.Println("handle1: ",result)
-		return 10,nil
+		time.Sleep(time.Second * 15)
+		fmt.Println("handle1: ", result)
+		return 10, nil
 	}
 
 	var handle2 server.VarParamFunc
-	handle2= func(cnt interface{})(interface{},error){
-		count:=cnt.(int)
-		for i:=0;i<count;i++ {
-			fmt.Printf("%d\t",i)
+	handle2 = func(cnt interface{}) (interface{}, error) {
+		count := cnt.(int)
+		for i := 0; i < count; i++ {
+			fmt.Printf("%d\t", i)
 		}
-		return nil,nil
+		return nil, nil
 	}
 
-	p:=client.NewPromise(id,handle1,2*time.Second, 300*time.Millisecond).Then(handle2)
+	p := client.NewPromise(id, handle1, 2*time.Second, 300*time.Millisecond).Then(handle2)
 
-	for i:=0;i<10;i++{
+	for i := 0; i < 10; i++ {
 		fmt.Println("do something else")
-		time.Sleep(time.Second*1)
+		time.Sleep(time.Second * 1)
 	}
 	p.Done()
 }
@@ -183,7 +184,7 @@ func testWorker3(ser server.Server, t *testing.T) {
 	if !result.IsSuccess() {
 		t.Fatal("result is not success")
 	}
-	var base = []User{{1, "a"}, {233, "bb"}, {44, "cc"},}
+	var base = []User{{1, "a"}, {233, "bb"}, {44, "cc"}}
 	var r []User
 	err = result.Get(0, &r)
 

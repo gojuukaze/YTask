@@ -2,9 +2,10 @@ package main
 
 import (
 	"fmt"
-	"github.com/gojuukaze/YTask/v2"
-	"github.com/gojuukaze/YTask/v2/server"
 	"time"
+
+	ytask "github.com/gojuukaze/YTask/v2"
+	"github.com/gojuukaze/YTask/v2/server"
 )
 
 type User struct {
@@ -81,7 +82,7 @@ func retry() {
 	fmt.Println("retry times =", result.RetryCount)
 
 	// do not retry
-	tId,_=client.SetTaskCtl(client.RetryCount, 0).Send("group1", "retry", 123, 44)
+	tId, _ = client.SetTaskCtl(client.RetryCount, 0).Send("group1", "retry", 123, 44)
 	result, _ = client.GetResult(tId, 3*time.Second, 300*time.Millisecond)
 	fmt.Println("retry times =", result.RetryCount)
 

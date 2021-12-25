@@ -1,8 +1,9 @@
 package redisBroker
 
 import (
-	"github.com/gomodule/redigo/redis"
 	"time"
+
+	"github.com/gomodule/redigo/redis"
 )
 
 type RedisClient struct {

@@ -7,8 +7,6 @@ import (
 	"github.com/streadway/amqp"
 )
 
-
-
 type amqpErr string
 
 func (e amqpErr) Error() string { return string(e) }
@@ -58,12 +56,12 @@ func (c *RabbitMqClient) Get(queueName string) (string, error) {
 		return "", err
 	}
 	msg, ok, err := c.rabbitMqChan.Get(queueName, true)
-	if err!=nil{
+	if err != nil {
 		return "", err
 	}
 	if ok {
 		return string(msg.Body), nil
-	}else {
+	} else {
 		return "", AMQPNil
 	}
 }

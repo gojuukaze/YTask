@@ -7,15 +7,16 @@ package test
 
 import (
 	"context"
+	"io/ioutil"
+	"testing"
+	"time"
+
 	"github.com/gojuukaze/YTask/v2/backends"
 	"github.com/gojuukaze/YTask/v2/brokers"
 	"github.com/gojuukaze/YTask/v2/config"
 	"github.com/gojuukaze/YTask/v2/log"
 	"github.com/gojuukaze/YTask/v2/server"
 	"github.com/gojuukaze/YTask/v2/yerrors"
-	"io/ioutil"
-	"testing"
-	"time"
 )
 
 func delayWorker1() int {
@@ -100,7 +101,7 @@ func testMulti2_3(t *testing.T, client server.Client) {
 	}
 	_, err = client.GetResult(id2, 1*time.Second, 300*time.Millisecond)
 	if !yerrors.IsEqual(err, yerrors.ErrTypeTimeOut) {
-		t.Fatal("err!=yerrors.ErrTypeTimeOut ",err)
+		t.Fatal("err!=yerrors.ErrTypeTimeOut ", err)
 	}
 
 	time.Sleep(1 * time.Second)

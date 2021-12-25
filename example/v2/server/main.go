@@ -2,11 +2,12 @@ package main
 
 import (
 	"context"
-	workers2 "github.com/gojuukaze/YTask/example/v2/server/workers"
-	"github.com/gojuukaze/YTask/v2"
 	"os"
 	"os/signal"
 	"syscall"
+
+	workers2 "github.com/gojuukaze/YTask/example/v2/server/workers"
+	ytask "github.com/gojuukaze/YTask/v2"
 )
 
 func main() {
@@ -40,8 +41,7 @@ func main() {
 	// If you want to use delayServer, set enableDelayServer
 	// -------
 	// 如果你要使用延时任务，把enableDelayServer设为true
-	ser.Run("group2", 3,true)
-
+	ser.Run("group2", 3, true)
 
 	quit := make(chan os.Signal, 1)
 

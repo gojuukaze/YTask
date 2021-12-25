@@ -61,8 +61,8 @@ func (r *MemCacheBackend) GetResult(key string) (message.Result, error) {
 	return result, err
 }
 
-func (r MemCacheBackend) Clone() BackendInterface{
-	return  &MemCacheBackend{
+func (r MemCacheBackend) Clone() BackendInterface {
+	return &MemCacheBackend{
 		host:     r.host,
 		port:     r.port,
 		poolSize: r.poolSize,

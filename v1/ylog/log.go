@@ -2,10 +2,11 @@ package ylog
 
 import (
 	"fmt"
-	"github.com/sirupsen/logrus"
 	"path"
 	"runtime"
 	"strings"
+
+	"github.com/sirupsen/logrus"
 )
 
 var YTaskLog *logrus.Logger

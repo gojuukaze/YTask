@@ -1,12 +1,13 @@
 package backends
 
 import (
+	"time"
+
 	"github.com/go-redis/redis/v7"
 	"github.com/gojuukaze/YTask/v2/drive"
 	"github.com/gojuukaze/YTask/v2/message"
 	"github.com/gojuukaze/YTask/v2/util/yjson"
 	"github.com/gojuukaze/YTask/v2/yerrors"
-	"time"
 )
 
 type RedisBackend struct {
@@ -63,8 +64,8 @@ func (r *RedisBackend) GetResult(key string) (message.Result, error) {
 	return result, err
 }
 
-func (r RedisBackend) Clone() BackendInterface{
-	return  &RedisBackend{
+func (r RedisBackend) Clone() BackendInterface {
+	return &RedisBackend{
 		host:     r.host,
 		port:     r.port,
 		password: r.password,
