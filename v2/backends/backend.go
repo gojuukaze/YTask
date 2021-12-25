@@ -1,6 +1,6 @@
 package backends
 
-import "github.com/gojuukaze/YTask/v2/message"
+import "github.com/vua/YTask/v2/message"
 
 type BackendInterface interface {
 	SetResult(result message.Result, exTime int) error

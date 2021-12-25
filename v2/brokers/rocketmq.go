@@ -5,10 +5,10 @@ import (
 
 	"time"
 
-	"github.com/gojuukaze/YTask/v2/drive"
-	"github.com/gojuukaze/YTask/v2/message"
-	"github.com/gojuukaze/YTask/v2/util/yjson"
-	"github.com/gojuukaze/YTask/v2/yerrors"
+	"github.com/vua/YTask/v2/drive"
+	"github.com/vua/YTask/v2/message"
+	"github.com/vua/YTask/v2/util/yjson"
+	"github.com/vua/YTask/v2/yerrors"
 )
 
 type RocketMqBroker struct {

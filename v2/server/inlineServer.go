@@ -5,12 +5,12 @@ import (
 	"reflect"
 	"sync"
 
-	"github.com/gojuukaze/YTask/v2/config"
-	"github.com/gojuukaze/YTask/v2/log"
-	"github.com/gojuukaze/YTask/v2/message"
-	"github.com/gojuukaze/YTask/v2/util"
-	"github.com/gojuukaze/YTask/v2/worker"
 	"github.com/sirupsen/logrus"
+	"github.com/vua/YTask/v2/config"
+	"github.com/vua/YTask/v2/log"
+	"github.com/vua/YTask/v2/message"
+	"github.com/vua/YTask/v2/util"
+	"github.com/vua/YTask/v2/worker"
 )
 
 type InlineServer struct {

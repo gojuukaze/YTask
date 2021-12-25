@@ -13,11 +13,11 @@ import (
 	"testing"
 	"time"
 
-	"github.com/gojuukaze/YTask/v2/brokers"
-	"github.com/gojuukaze/YTask/v2/config"
-	"github.com/gojuukaze/YTask/v2/log"
-	"github.com/gojuukaze/YTask/v2/message"
-	"github.com/gojuukaze/YTask/v2/server"
+	"github.com/vua/YTask/v2/brokers"
+	"github.com/vua/YTask/v2/config"
+	"github.com/vua/YTask/v2/log"
+	"github.com/vua/YTask/v2/message"
+	"github.com/vua/YTask/v2/server"
 )
 
 func TestDelayServerSend(t *testing.T) {

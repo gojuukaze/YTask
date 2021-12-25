@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"time"
 
-	ytask "github.com/gojuukaze/YTask/v2"
-	"github.com/gojuukaze/YTask/v2/server"
+	ytask "github.com/vua/YTask/v2"
+	"github.com/vua/YTask/v2/server"
 )
 
 type User struct {

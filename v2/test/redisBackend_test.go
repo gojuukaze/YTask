@@ -5,9 +5,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/gojuukaze/YTask/v2/backends"
-	"github.com/gojuukaze/YTask/v2/message"
-	"github.com/gojuukaze/YTask/v2/yerrors"
+	"github.com/vua/YTask/v2/backends"
+	"github.com/vua/YTask/v2/message"
+	"github.com/vua/YTask/v2/yerrors"
 )
 
 func TestRedisBackend(t *testing.T) {

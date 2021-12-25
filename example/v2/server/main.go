@@ -6,8 +6,8 @@ import (
 	"os/signal"
 	"syscall"
 
-	workers2 "github.com/gojuukaze/YTask/example/v2/server/workers"
-	ytask "github.com/gojuukaze/YTask/v2"
+	workers2 "github.com/vua/YTask/example/v2/server/workers"
+	ytask "github.com/vua/YTask/v2"
 )
 
 func main() {

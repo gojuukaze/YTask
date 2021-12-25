@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/gojuukaze/YTask/v2/backends"
-	"github.com/gojuukaze/YTask/v2/message"
+	"github.com/vua/YTask/v2/backends"
+	"github.com/vua/YTask/v2/message"
 )
 
 func TestMongoBackend(t *testing.T) {

@@ -34,10 +34,10 @@ github.com/gobuffalo/packd v0.1.0/go.mod h1:M2Juc+hhDXf/PnmBANFCqx4DM3wRbgDvnVWe
 github.com/gobuffalo/packr/v2 v2.0.9/go.mod h1:emmyGweYTm6Kdper+iywB6YK5YzuKchGtJQZ0Odn4pQ=
 github.com/gobuffalo/packr/v2 v2.2.0/go.mod h1:CaAwI0GPIAv+5wKLtv8Afwl+Cm78K/I/VCm/3ptBN+0=
 github.com/gobuffalo/syncx v0.0.0-20190224160051-33c29581e754/go.mod h1:HhnNqWY95UYwwW3uSASeV7vtgYkT2t16hJgV3AEPUpw=
-github.com/gojuukaze/YTask/v2 v2.1.5-0.20200709094858-420cdb995e66 h1:RDZGuVCpVBKAp/k8VEaBvqmoL/TVu4ksy2UObac6WzA=
-github.com/gojuukaze/YTask/v2 v2.1.5-0.20200709094858-420cdb995e66/go.mod h1:X7+7cuuXwxvjeF2DUQCR1wSFlU2leNl7+k2BxXCvDn0=
-github.com/gojuukaze/YTask/v2 v2.2.0 h1:oPCWGO4pCMuUHev2D3pi2g+KBZtv8yvGkXNpuyUNOtg=
-github.com/gojuukaze/YTask/v2 v2.2.0/go.mod h1:X7+7cuuXwxvjeF2DUQCR1wSFlU2leNl7+k2BxXCvDn0=
+github.com/vua/YTask/v2 v2.1.5-0.20200709094858-420cdb995e66 h1:RDZGuVCpVBKAp/k8VEaBvqmoL/TVu4ksy2UObac6WzA=
+github.com/vua/YTask/v2 v2.1.5-0.20200709094858-420cdb995e66/go.mod h1:X7+7cuuXwxvjeF2DUQCR1wSFlU2leNl7+k2BxXCvDn0=
+github.com/vua/YTask/v2 v2.2.0 h1:oPCWGO4pCMuUHev2D3pi2g+KBZtv8yvGkXNpuyUNOtg=
+github.com/vua/YTask/v2 v2.2.0/go.mod h1:X7+7cuuXwxvjeF2DUQCR1wSFlU2leNl7+k2BxXCvDn0=
 github.com/golang/protobuf v1.2.0/go.mod h1:6lQm79b+lXiMfvg/cZm0SGofjICqVBUtrP5yJMmIC1U=
 github.com/golang/protobuf v1.3.2 h1:6nsPYzhq5kReh6QImI3k5qWzO4PEbvbIW2cwSfR/6xs=
 github.com/golang/protobuf v1.3.2/go.mod h1:6lQm79b+lXiMfvg/cZm0SGofjICqVBUtrP5yJMmIC1U=

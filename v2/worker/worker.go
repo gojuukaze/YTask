@@ -5,10 +5,10 @@ import (
 	"fmt"
 	"reflect"
 
-	"github.com/gojuukaze/YTask/v2/controller"
-	"github.com/gojuukaze/YTask/v2/log"
-	"github.com/gojuukaze/YTask/v2/message"
-	"github.com/gojuukaze/YTask/v2/util"
+	"github.com/vua/YTask/v2/controller"
+	"github.com/vua/YTask/v2/log"
+	"github.com/vua/YTask/v2/message"
+	"github.com/vua/YTask/v2/util"
 )
 
 type WorkerInterface interface {

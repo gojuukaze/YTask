@@ -3,7 +3,7 @@ package util
 import (
 	"reflect"
 
-	"github.com/gojuukaze/YTask/v2/util/yjson"
+	"github.com/vua/YTask/v2/util/yjson"
 )
 
 func GoVarToYJson(v interface{}) (string, error) {

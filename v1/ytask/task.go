@@ -7,13 +7,13 @@ import (
 	"reflect"
 	"sync"
 
-	"github.com/gojuukaze/YTask/v1/brokers"
-	"github.com/gojuukaze/YTask/v1/config"
-	"github.com/gojuukaze/YTask/v1/yerrors"
-	"github.com/gojuukaze/YTask/v1/ylog"
-	"github.com/gojuukaze/YTask/v1/ymsg"
-	"github.com/gojuukaze/YTask/v1/yworker"
 	"github.com/sirupsen/logrus"
+	"github.com/vua/YTask/v1/brokers"
+	"github.com/vua/YTask/v1/config"
+	"github.com/vua/YTask/v1/yerrors"
+	"github.com/vua/YTask/v1/ylog"
+	"github.com/vua/YTask/v1/ymsg"
+	"github.com/vua/YTask/v1/yworker"
 )
 
 // [workerName]woker

@@ -1,7 +1,7 @@
 package brokers
 
 import (
-	"github.com/gojuukaze/YTask/v2/message"
+	"github.com/vua/YTask/v2/message"
 )
 
 type BrokerInterface interface {

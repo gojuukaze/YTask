@@ -1,10 +1,10 @@
 package ytask
 
 import (
-	"github.com/gojuukaze/YTask/v2/backends"
-	"github.com/gojuukaze/YTask/v2/brokers"
-	"github.com/gojuukaze/YTask/v2/config"
-	"github.com/gojuukaze/YTask/v2/server"
+	"github.com/vua/YTask/v2/backends"
+	"github.com/vua/YTask/v2/brokers"
+	"github.com/vua/YTask/v2/config"
+	"github.com/vua/YTask/v2/server"
 )
 
 var (

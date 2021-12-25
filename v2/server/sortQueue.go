@@ -5,7 +5,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/gojuukaze/YTask/v2/message"
+	"github.com/vua/YTask/v2/message"
 )
 
 const maxLen = 20

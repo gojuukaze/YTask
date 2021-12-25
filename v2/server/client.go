@@ -3,10 +3,10 @@ package server
 import (
 	"time"
 
-	"github.com/gojuukaze/YTask/v2/config"
-	"github.com/gojuukaze/YTask/v2/controller"
-	"github.com/gojuukaze/YTask/v2/message"
-	"github.com/gojuukaze/YTask/v2/yerrors"
+	"github.com/vua/YTask/v2/config"
+	"github.com/vua/YTask/v2/controller"
+	"github.com/vua/YTask/v2/message"
+	"github.com/vua/YTask/v2/yerrors"
 )
 
 type ctlKeyChoices struct {

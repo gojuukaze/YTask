@@ -1,4 +1,4 @@
-module github.com/gojuukaze/YTask
+module github.com/vua/YTask
 
 go 1.12
 

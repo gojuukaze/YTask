@@ -6,9 +6,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/gojuukaze/YTask/v2/controller"
-	"github.com/gojuukaze/YTask/v2/message"
-	"github.com/gojuukaze/YTask/v2/server"
+	"github.com/vua/YTask/v2/controller"
+	"github.com/vua/YTask/v2/message"
+	"github.com/vua/YTask/v2/server"
 )
 
 func newMsg(t time.Time) message.Message {

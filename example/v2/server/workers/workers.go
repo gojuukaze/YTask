@@ -3,7 +3,7 @@ package workers
 import (
 	"errors"
 
-	"github.com/gojuukaze/YTask/v2/controller"
+	"github.com/vua/YTask/v2/controller"
 )
 
 type User struct {

@@ -4,10 +4,10 @@ import (
 	"time"
 
 	"github.com/go-redis/redis/v7"
-	"github.com/gojuukaze/YTask/v2/drive"
-	"github.com/gojuukaze/YTask/v2/message"
-	"github.com/gojuukaze/YTask/v2/util/yjson"
-	"github.com/gojuukaze/YTask/v2/yerrors"
+	"github.com/vua/YTask/v2/drive"
+	"github.com/vua/YTask/v2/message"
+	"github.com/vua/YTask/v2/util/yjson"
+	"github.com/vua/YTask/v2/yerrors"
 )
 
 type RedisBackend struct {

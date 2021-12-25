@@ -2,13 +2,13 @@
 YTask is an asynchronous task queue for handling distributed jobs in golang  
 golang异步任务/队列 框架  
 
-* [中文文档](https://github.com/gojuukaze/YTask/wiki/home-zh-cn) (中文文档更加全面，优先阅读中文文档)
-* [En Doc](https://github.com/gojuukaze/YTask/wiki)
-* [Github](https://github.com/gojuukaze/YTask)
+* [中文文档](https://github.com/vua/YTask/wiki/home-zh-cn) (中文文档更加全面，优先阅读中文文档)
+* [En Doc](https://github.com/vua/YTask/wiki)
+* [Github](https://github.com/vua/YTask)
 
 # install
 ```bash
-go get github.com/gojuukaze/YTask/v2
+go get github.com/vua/YTask/v2
 ```
 # 架构图
 <img src="./architecture_diagram.png" alt="architecture_diagram" width="80%">
@@ -28,7 +28,7 @@ package main
 
 import (
 	"context"
-	"github.com/gojuukaze/YTask/v2"
+	"github.com/vua/YTask/v2"
 	"os"
 	"os/signal"
 	"syscall"
@@ -89,8 +89,8 @@ package main
 
 import (
 	"fmt"
-	"github.com/gojuukaze/YTask/v2"
-	"github.com/gojuukaze/YTask/v2/server"
+	"github.com/vua/YTask/v2"
+	"github.com/vua/YTask/v2/server"
 	"time"
 )
 
@@ -148,7 +148,7 @@ func main() {
 ```
 
 # Example
-[example](https://github.com/gojuukaze/YTask/tree/master/example/v2) 目录下有更多的样例可供参考
+[example](https://github.com/vua/YTask/tree/master/example/v2) 目录下有更多的样例可供参考
 ```bash
 cd example/v2
 go run server/main.go 

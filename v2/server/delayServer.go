@@ -4,9 +4,9 @@ import (
 	"context"
 	"sync"
 
-	"github.com/gojuukaze/YTask/v2/config"
-	"github.com/gojuukaze/YTask/v2/log"
-	"github.com/gojuukaze/YTask/v2/message"
+	"github.com/vua/YTask/v2/config"
+	"github.com/vua/YTask/v2/log"
+	"github.com/vua/YTask/v2/message"
 )
 
 const readyMsgChanSize = 5

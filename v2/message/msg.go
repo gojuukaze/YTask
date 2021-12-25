@@ -3,9 +3,9 @@ package message
 import (
 	"time"
 
-	"github.com/gojuukaze/YTask/v2/controller"
-	"github.com/gojuukaze/YTask/v2/util"
 	"github.com/google/uuid"
+	"github.com/vua/YTask/v2/controller"
+	"github.com/vua/YTask/v2/util"
 )
 
 type Message struct {

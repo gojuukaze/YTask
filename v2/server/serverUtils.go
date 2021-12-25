@@ -1,11 +1,11 @@
 package server
 
 import (
-	"github.com/gojuukaze/YTask/v2/backends"
-	"github.com/gojuukaze/YTask/v2/brokers"
-	"github.com/gojuukaze/YTask/v2/controller"
-	"github.com/gojuukaze/YTask/v2/message"
-	"github.com/gojuukaze/YTask/v2/yerrors"
+	"github.com/vua/YTask/v2/backends"
+	"github.com/vua/YTask/v2/brokers"
+	"github.com/vua/YTask/v2/controller"
+	"github.com/vua/YTask/v2/message"
+	"github.com/vua/YTask/v2/yerrors"
 )
 
 // serverUtils用于把 delayServer，inlineServer，client 用到的方法抽离出来

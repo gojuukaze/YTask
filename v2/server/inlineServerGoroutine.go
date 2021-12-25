@@ -3,10 +3,10 @@ package server
 import (
 	"sync"
 
-	"github.com/gojuukaze/YTask/v2/log"
-	"github.com/gojuukaze/YTask/v2/message"
-	"github.com/gojuukaze/YTask/v2/worker"
-	"github.com/gojuukaze/YTask/v2/yerrors"
+	"github.com/vua/YTask/v2/log"
+	"github.com/vua/YTask/v2/message"
+	"github.com/vua/YTask/v2/worker"
+	"github.com/vua/YTask/v2/yerrors"
 )
 
 // get next message if worker is ready

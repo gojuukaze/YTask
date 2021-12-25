@@ -4,9 +4,9 @@ import (
 	"encoding/json"
 	"time"
 
-	"github.com/gojuukaze/YTask/v1/yerrors"
-	"github.com/gojuukaze/YTask/v1/ymsg"
 	"github.com/gomodule/redigo/redis"
+	"github.com/vua/YTask/v1/yerrors"
+	"github.com/vua/YTask/v1/ymsg"
 )
 
 type RedisBroker struct {

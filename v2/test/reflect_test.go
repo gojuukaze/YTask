@@ -5,10 +5,10 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/gojuukaze/YTask/v2/controller"
-	"github.com/gojuukaze/YTask/v2/message"
-	"github.com/gojuukaze/YTask/v2/util"
-	"github.com/gojuukaze/YTask/v2/worker"
+	"github.com/vua/YTask/v2/controller"
+	"github.com/vua/YTask/v2/message"
+	"github.com/vua/YTask/v2/util"
+	"github.com/vua/YTask/v2/worker"
 )
 
 type s1 struct {

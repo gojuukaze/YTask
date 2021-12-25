@@ -13,13 +13,13 @@ import (
 	"testing"
 	"time"
 
-	"github.com/gojuukaze/YTask/v2/backends"
-	"github.com/gojuukaze/YTask/v2/brokers"
-	"github.com/gojuukaze/YTask/v2/config"
-	"github.com/gojuukaze/YTask/v2/controller"
-	"github.com/gojuukaze/YTask/v2/log"
-	"github.com/gojuukaze/YTask/v2/message"
-	"github.com/gojuukaze/YTask/v2/server"
+	"github.com/vua/YTask/v2/backends"
+	"github.com/vua/YTask/v2/brokers"
+	"github.com/vua/YTask/v2/config"
+	"github.com/vua/YTask/v2/controller"
+	"github.com/vua/YTask/v2/log"
+	"github.com/vua/YTask/v2/message"
+	"github.com/vua/YTask/v2/server"
 )
 
 type User struct {
