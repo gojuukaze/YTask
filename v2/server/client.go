@@ -32,7 +32,7 @@ type Client struct {
 }
 
 func NewClient(c config.Config) Client {
-	su := newServerUtils(c.Broker, c.Backend, c.StatusExpires, c.ResultExpires)
+	su := newServerUtils(c.Broker, c.Backend, c.Logger, c.StatusExpires, c.ResultExpires)
 	client := Client{
 		sUtils:        &su,
 		ctl:           controller.NewTaskCtl(),

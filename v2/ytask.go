@@ -4,12 +4,14 @@ import (
 	"github.com/gojuukaze/YTask/v2/backends"
 	"github.com/gojuukaze/YTask/v2/brokers"
 	"github.com/gojuukaze/YTask/v2/config"
+	"github.com/gojuukaze/YTask/v2/log"
 	"github.com/gojuukaze/YTask/v2/server"
 )
 
 var (
 	Server  = iServer{}
 	Broker  = iBroker{}
+	Logger  = iLogger{}
 	Config  = iConfig{}
 	Backend = iBackend{}
 )
@@ -51,6 +53,11 @@ func (i iConfig) Broker(b brokers.BrokerInterface) config.SetConfigFunc {
 func (i iConfig) Backend(b backends.BackendInterface) config.SetConfigFunc {
 	return config.Backend(b)
 }
+
+func (i iConfig) Logger(l log.LoggerInterface) config.SetConfigFunc {
+	return config.Logger(l)
+}
+
 func (i iConfig) Debug(debug bool) config.SetConfigFunc {
 	return config.Debug(debug)
 }
@@ -93,4 +100,11 @@ func (i iBackend) NewMemCacheBackend(host, port string, poolSize int) backends.M
 
 func (i iBackend) NewMongoBackend(host, port, user, password, db, collection string) backends.MongoBackend {
 	return backends.NewMongoBackend(host, port, user, password, db, collection)
+}
+
+type iLogger struct {
+}
+
+func (i iLogger) NewYTaskLogger() log.LoggerInterface {
+	return log.NewYTaskLogger(log.YTaskLog)
 }

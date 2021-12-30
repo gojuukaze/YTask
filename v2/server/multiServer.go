@@ -3,8 +3,6 @@ package server
 import (
 	"context"
 	"github.com/gojuukaze/YTask/v2/config"
-	"github.com/gojuukaze/YTask/v2/log"
-	"github.com/sirupsen/logrus"
 	"golang.org/x/sync/errgroup"
 )
 
@@ -18,7 +16,8 @@ type Server struct {
 func NewServer(c config.Config) Server {
 
 	if c.Debug {
-		log.YTaskLog.SetLevel(logrus.DebugLevel)
+		//log.YTaskLog.SetLevel(logrus.DebugLevel)
+		c.Logger.SetLevel("debug")
 	}
 	return Server{
 		ServerMap:      make(map[string]*InlineServer),

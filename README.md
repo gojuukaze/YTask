@@ -61,9 +61,12 @@ func main() {
 	//           对于server端backend PoolSize的默认值是 min(10, numWorkers)	
 	backend := ytask.Backend.NewRedisBackend("127.0.0.1", "6379", "", 0, 0)
 
+	logger := ytask.Logger.NewYTaskLogger()  // need v2.5+
+	
 	ser := ytask.Server.NewServer(
 		ytask.Config.Broker(&broker),
 		ytask.Config.Backend(&backend),
+		ytask.Config.Logger(logger),    // need v2.5+, not required
 		ytask.Config.Debug(true),
 		ytask.Config.StatusExpires(60*5),
 		ytask.Config.ResultExpires(60*5),

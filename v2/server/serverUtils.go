@@ -4,6 +4,7 @@ import (
 	"github.com/gojuukaze/YTask/v2/backends"
 	"github.com/gojuukaze/YTask/v2/brokers"
 	"github.com/gojuukaze/YTask/v2/controller"
+	"github.com/gojuukaze/YTask/v2/log"
 	"github.com/gojuukaze/YTask/v2/message"
 	"github.com/gojuukaze/YTask/v2/yerrors"
 )
@@ -12,15 +13,17 @@ import (
 type serverUtils struct {
 	broker  brokers.BrokerInterface
 	backend backends.BackendInterface
+	logger log.LoggerInterface
 
 	// config
 	statusExpires int // second, -1:forever
 	resultExpires int // second, -1:forever
 }
 
-func newServerUtils(broker brokers.BrokerInterface, backend backends.BackendInterface, statusExpires int, resultExpires int) serverUtils {
-	return serverUtils{broker: broker, backend: backend, statusExpires: statusExpires, resultExpires: resultExpires}
+func newServerUtils(broker brokers.BrokerInterface, backend backends.BackendInterface, logger log.LoggerInterface, statusExpires int, resultExpires int) serverUtils {
+	return serverUtils{broker: broker, backend: backend, logger: logger, statusExpires: statusExpires, resultExpires: resultExpires}
 }
+
 func (b serverUtils) GetQueueName(groupName string) string {
 	// 这个key的名称拼错了，为了不影响已在运行的程序，只能这样了 = =
 	return "YTask:Query:" + groupName
