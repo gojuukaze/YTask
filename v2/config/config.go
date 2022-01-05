@@ -3,6 +3,7 @@ package config
 import (
 	"github.com/gojuukaze/YTask/v2/backends"
 	"github.com/gojuukaze/YTask/v2/brokers"
+	"github.com/gojuukaze/YTask/v2/log"
 )
 
 type Config struct {
@@ -11,6 +12,9 @@ type Config struct {
 
 	// require: false
 	Backend backends.BackendInterface
+
+	// require: false
+	Logger log.LoggerInterface
 
 	// require: false
 	// default:false
@@ -34,6 +38,7 @@ func (c Config) Clone() Config {
 	newC := Config{
 		Broker:               c.Broker.Clone(),
 		Backend:              nil,
+		Logger:               c.Logger.Clone(),
 		Debug:                c.Debug,
 		StatusExpires:        c.StatusExpires,
 		ResultExpires:        c.ResultExpires,
@@ -56,6 +61,7 @@ func NewConfig(setConfigFunc ...SetConfigFunc) Config {
 		StatusExpires:        60 * 60 * 24,
 		ResultExpires:        60 * 60 * 24,
 		DelayServerQueueSize: 20,
+		Logger: log.NewYTaskLogger(log.YTaskLog),
 	}
 	for _, f := range setConfigFunc {
 		f(&config)
@@ -71,6 +77,12 @@ func Broker(b brokers.BrokerInterface) SetConfigFunc {
 func Backend(b backends.BackendInterface) SetConfigFunc {
 	return func(config *Config) {
 		config.Backend = b
+	}
+}
+
+func Logger(l log.LoggerInterface) SetConfigFunc {
+	return func(config *Config) {
+		config.Logger = l
 	}
 }
 

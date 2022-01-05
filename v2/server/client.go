@@ -32,7 +32,7 @@ type Client struct {
 }
 
 func NewClient(c config.Config) Client {
-	su := newServerUtils(c.Broker, c.Backend, c.StatusExpires, c.ResultExpires)
+	su := newServerUtils(c.Broker, c.Backend, c.Logger, c.StatusExpires, c.ResultExpires)
 	client := Client{
 		sUtils:        &su,
 		ctl:           controller.NewTaskCtl(),
@@ -65,6 +65,7 @@ func (c *Client) Clone() *Client {
 		}
 	}
 }
+
 func (c *Client) SetTaskCtl(name int, value interface{}) *Client {
 	cloneC := c.Clone()
 	switch name {
@@ -77,7 +78,6 @@ func (c *Client) SetTaskCtl(name int, value interface{}) *Client {
 		cloneC.ctl.SetRunTime(value.(time.Time))
 	case ctlKey.ExpireTime:
 		cloneC.ctl.SetExpireTime(value.(time.Time))
-
 	}
 	return cloneC
 }

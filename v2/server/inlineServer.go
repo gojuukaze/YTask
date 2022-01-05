@@ -2,12 +2,11 @@ package server
 
 import (
 	"context"
+	"fmt"
 	"github.com/gojuukaze/YTask/v2/config"
-	"github.com/gojuukaze/YTask/v2/log"
 	"github.com/gojuukaze/YTask/v2/message"
 	"github.com/gojuukaze/YTask/v2/util"
 	"github.com/gojuukaze/YTask/v2/worker"
-	"github.com/sirupsen/logrus"
 	"reflect"
 	"sync"
 )
@@ -32,13 +31,14 @@ func NewInlineServer(groupName string, c config.Config) InlineServer {
 
 	wm := make(map[string]worker.WorkerInterface)
 	if c.Debug {
-		log.YTaskLog.SetLevel(logrus.DebugLevel)
+		//log.YTaskLog.SetLevel(logrus.DebugLevel)
+		c.Logger.SetLevel("debug")
 	}
 
 	return InlineServer{
 		groupName:                   groupName,
 		workerMap:                   wm,
-		serverUtils:                 newServerUtils(c.Broker, c.Backend, c.StatusExpires, c.ResultExpires),
+		serverUtils:                 newServerUtils(c.Broker, c.Backend, c.Logger, c.StatusExpires, c.ResultExpires),
 		safeStopChan:                make(chan struct{}),
 		getMessageGoroutineStopChan: make(chan struct{}),
 		workerGoroutineStopChan:     make(chan struct{}),
@@ -89,11 +89,15 @@ func (t *InlineServer) Run(numWorkers int) {
 		t.BackendActivate()
 	}
 
-	log.YTaskLog.WithField("server", t.groupName).Infof("Start server[%s] numWorkers=%d", t.groupName, numWorkers)
+	//log.YTaskLog.WithField("server", t.groupName).Infof("Start server[%s] numWorkers=%d", t.groupName, numWorkers)
+	t.logger.InfoWithField(fmt.Sprintf("Start server[%s] numWorkers=%d", t.groupName, numWorkers), "server", t.groupName)
 
-	log.YTaskLog.WithField("server", t.groupName).Info("group workers:")
+	//log.YTaskLog.WithField("server", t.groupName).Info("group workers:")
+	t.logger.InfoWithField("group workers:", "server", t.groupName)
+
 	for name := range t.workerMap {
-		log.YTaskLog.WithField("server", t.groupName).Info("  - " + name)
+		//log.YTaskLog.WithField("server", t.groupName).Info("  - " + name)
+		t.logger.InfoWithField("  - " + name, "server", t.groupName)
 	}
 
 	t.workerReadyChan = make(chan struct{}, numWorkers)
@@ -112,7 +116,8 @@ func (t *InlineServer) Run(numWorkers int) {
 }
 
 func (t *InlineServer) safeStop() {
-	log.YTaskLog.WithField("server", t.groupName).Info("waiting for incomplete tasks ")
+	//log.YTaskLog.WithField("server", t.groupName).Info("waiting for incomplete tasks ")
+	t.logger.InfoWithField("waiting for incomplete tasks ", "server", t.groupName)
 
 	// stop get message goroutine
 	close(t.workerReadyChan)
@@ -139,7 +144,8 @@ func (t *InlineServer) Shutdown(ctx context.Context) error {
 		return ctx.Err()
 	}
 
-	log.YTaskLog.WithField("server", t.groupName).Info("Shutdown!")
+	//log.YTaskLog.WithField("server", t.groupName).Info("Shutdown!")
+	t.logger.InfoWithField("Shutdown!", "server", t.groupName)
 	return nil
 }
 
@@ -158,14 +164,14 @@ func (t *InlineServer) Add(workerName string, w interface{}, callbackFunc ...int
 
 	wType := reflect.TypeOf(w).Kind().String()
 	if wType == "func" && cType == "func" {
-		funcWorker := worker.FuncWorker{
+		funcWorker := &worker.FuncWorker{
 			Name:         workerName,
 			Func:         w,
 			CallbackFunc: cFunc,
+			Logger:       t.logger,
 		}
 		t.workerMap[workerName] = funcWorker
 	} else {
 		panic("worker and callbackFunc must be func")
 	}
-
 }
