@@ -2,8 +2,8 @@ package server
 
 import (
 	"context"
+	"fmt"
 	"github.com/gojuukaze/YTask/v2/config"
-	"github.com/gojuukaze/YTask/v2/log"
 	"github.com/gojuukaze/YTask/v2/message"
 	"sync"
 )
@@ -31,7 +31,7 @@ type DelayServer struct {
 
 func NewDelayServer(groupName string, c config.Config, msgChan chan message.Message) DelayServer {
 	ds := DelayServer{
-		serverUtils:          newServerUtils(c.Broker, nil, 0, 0),
+		serverUtils:          newServerUtils(c.Broker, nil, c.Logger, 0, 0),
 		queue:                NewSortQueue(c.DelayServerQueueSize),
 		readyMsgChan:         make(chan message.Message, 5),
 		inlineServerMsgChan:  msgChan,
@@ -73,7 +73,8 @@ func (s *DelayServer) Run() {
 	s.SetBrokerPoolSize(11)
 	s.BrokerActivate()
 
-	log.YTaskLog.WithField("server", s.delayGroupName).Infof("Start delayServer[%s] ", s.delayGroupName)
+	//log.YTaskLog.WithField("server", s.delayGroupName).Infof("Start delayServer[%s] ", s.delayGroupName)
+	s.logger.InfoWithField(fmt.Sprintf("Start delayServer[%s] ", s.delayGroupName), "server", s.delayGroupName)
 
 	go s.GetDelayMsgGoroutine()
 	go s.GetReadyMsgGoroutine()
@@ -82,7 +83,8 @@ func (s *DelayServer) Run() {
 }
 
 func (s *DelayServer) safeStop() {
-	log.YTaskLog.WithField("server", s.delayGroupName).Info("waiting for incomplete goroutine ")
+	//log.YTaskLog.WithField("server", s.delayGroupName).Info("waiting for incomplete goroutine ")
+	s.logger.InfoWithField("waiting for incomplete goroutine ", "server", s.delayGroupName)
 
 	s.SetStop()
 	close(s.readyMsgChan)
@@ -108,7 +110,8 @@ func (s *DelayServer) Shutdown(ctx context.Context) error {
 		return ctx.Err()
 	}
 
-	log.YTaskLog.WithField("server", s.delayGroupName).Info("Shutdown!")
+	//log.YTaskLog.WithField("server", s.delayGroupName).Info("Shutdown!")
+	s.logger.InfoWithField("Shutdown!", "server", s.delayGroupName)
 	return nil
 }
 
@@ -117,7 +120,8 @@ func (s *DelayServer) LSendQueue() {
 		msg := s.queue.Get(i)
 		err := s.LSendMsg(s.delayGroupName, msg)
 		if err != nil {
-			log.YTaskLog.WithField("server", s.delayGroupName).Error("SendQueue msg error: ", err, " [msg=", msg, "]")
+			//log.YTaskLog.WithField("server", s.delayGroupName).Error("SendQueue msg error: ", err, " [msg=", msg, "]")
+			s.logger.ErrorWithField(fmt.Sprint("SendQueue msg error: ", err, " [msg=", msg, "]"), "server", s.delayGroupName)
 		}
 	}
 }

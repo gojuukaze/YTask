@@ -88,3 +88,101 @@ func init() {
 	YTaskLog.AddHook(&YTaskHook{})
 
 }
+
+type LoggerInterface interface {
+	Debug(string)
+	DebugWithField(string, string, interface{})
+	Info(string)
+	InfoWithField(string, string, interface{})
+	Warn(string)
+	WarnWithField(string, string, interface{})
+	Error(string)
+	ErrorWithField(string, string, interface{})
+	Fatal(string)
+	FatalWithField(string, string, interface{})
+	Panic(string)
+	PanicWithField(string, string, interface{})
+	SetLevel(string)
+	Clone() LoggerInterface
+}
+
+type YTaskLogger struct {
+	logger *logrus.Logger
+}
+
+func NewYTaskLogger(logger *logrus.Logger) *YTaskLogger {
+	return &YTaskLogger{
+		logger: logger,
+	}
+}
+
+func (yl *YTaskLogger) Debug(msg string) {
+	yl.logger.Debug(msg)
+}
+
+func (yl *YTaskLogger) DebugWithField(msg string, key string, val interface{}) {
+	yl.logger.WithField(key, val).Debug(msg)
+}
+
+func (yl *YTaskLogger) Info(msg string) {
+	yl.logger.Info(msg)
+}
+
+func (yl *YTaskLogger) InfoWithField(msg string, key string, val interface{}) {
+	yl.logger.WithField(key, val).Info(msg)
+}
+
+func (yl *YTaskLogger) Warn(msg string) {
+	yl.logger.Warn(msg)
+}
+
+func (yl *YTaskLogger) WarnWithField(msg string, key string, val interface{}) {
+	yl.logger.WithField(key, val).Warn(msg)
+}
+
+func (yl *YTaskLogger) Error(msg string) {
+	yl.logger.Error(msg)
+}
+
+func (yl *YTaskLogger) ErrorWithField(msg string, key string, val interface{}) {
+	yl.logger.WithField(key, val).Error(msg)
+}
+
+func (yl *YTaskLogger) Fatal(msg string) {
+	yl.logger.Fatal(msg)
+}
+
+func (yl *YTaskLogger) FatalWithField(msg string, key string, val interface{}) {
+	yl.logger.WithField(key, val).Fatal(msg)
+}
+
+func (yl *YTaskLogger) Panic(msg string) {
+	yl.logger.Panic(msg)
+}
+
+func (yl *YTaskLogger) PanicWithField(msg string, key string, val interface{}) {
+	yl.logger.WithField(key, val).Panic(msg)
+}
+
+func (yl *YTaskLogger) SetLevel(level string)  {
+	switch level {
+	case "debug":
+		yl.logger.SetLevel(logrus.DebugLevel)
+	case "info":
+		yl.logger.SetLevel(logrus.InfoLevel)
+	case "warn":
+		yl.logger.SetLevel(logrus.WarnLevel)
+	case "error":
+		yl.logger.SetLevel(logrus.ErrorLevel)
+	case "fatal":
+		yl.logger.SetLevel(logrus.FatalLevel)
+	case "panic":
+		yl.logger.SetLevel(logrus.PanicLevel)
+	default:
+		yl.logger.SetLevel(logrus.InfoLevel)
+	}
+}
+
+func (yl *YTaskLogger) Clone() LoggerInterface {
+	return yl
+}

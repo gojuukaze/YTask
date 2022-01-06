@@ -15,7 +15,7 @@ go get github.com/gojuukaze/YTask/v2
 
 # 特点
 - 简单无侵入  
-- 方便扩展broker，backend
+- 方便扩展broker，backend，logger
 - 支持所有能被序列化为json的类型
 - 支持任务重试，延时任务
 
@@ -60,9 +60,12 @@ func main() {
 	//           对于server端backendPoolSize的默认值是 min(10, numWorkers)
 	backend := ytask.Backend.NewRedisBackend("127.0.0.1", "6379", "", 0, 0)
 
+	logger := ytask.Logger.NewYTaskLogger()  // v2.5+支持
+	
 	ser := ytask.Server.NewServer(
 		ytask.Config.Broker(&broker),
 		ytask.Config.Backend(&backend),
+		ytask.Config.Logger(logger),		// 可以不设置 v2.5+支持
 		ytask.Config.Debug(true),
 		ytask.Config.StatusExpires(60*5),
 		ytask.Config.ResultExpires(60*5),

@@ -20,25 +20,27 @@ type FuncWorker struct {
 	Func         interface{} // 执行的函数
 	CallbackFunc interface{} // 回调函数
 	Name         string
+	Logger       log.LoggerInterface
 }
 
-func (f FuncWorker) Run(ctl *controller.TaskCtl, funcArgs []string, result *message.Result) error {
-	return runFunc(f.Func, ctl, funcArgs, result, false)
+func (f *FuncWorker) Run(ctl *controller.TaskCtl, funcArgs []string, result *message.Result) error {
+	return runFunc(f.Func, ctl, funcArgs, result, false, f.Logger)
 }
 
-func (f FuncWorker) After(ctl *controller.TaskCtl, funcArgs []string, result *message.Result) error {
+func (f *FuncWorker) After(ctl *controller.TaskCtl, funcArgs []string, result *message.Result) error {
 	if f.CallbackFunc != nil {
-		return runFunc(f.CallbackFunc, ctl, funcArgs, result, true)
+		return runFunc(f.CallbackFunc, ctl, funcArgs, result, true, f.Logger)
 
 	}
 	return nil
 }
-func (f FuncWorker) WorkerName() string {
+
+func (f *FuncWorker) WorkerName() string {
 	return f.Name
 }
 
 // isCallBack: 是否是回调函数
-func runFunc(f interface{}, ctl *controller.TaskCtl, funcArgs []string, result *message.Result, isCallBack bool) (err error) {
+func runFunc(f interface{}, ctl *controller.TaskCtl, funcArgs []string, result *message.Result, isCallBack bool, logger log.LoggerInterface) (err error) {
 	defer func() {
 		e := recover()
 		if e != nil {
@@ -89,7 +91,8 @@ func runFunc(f interface{}, ctl *controller.TaskCtl, funcArgs []string, result *
 		if len(funcOut) > 0 {
 			re, err2 := util.GoValuesToYJsonSlice(funcOut)
 			if err2 != nil {
-				log.YTaskLog.Error(err2)
+				//log.YTaskLog.Error(err2)
+				logger.Error(err2.Error())
 			} else {
 				result.FuncReturn = re
 			}

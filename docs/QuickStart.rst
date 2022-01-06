@@ -47,9 +47,12 @@ server
        // 默认值是 min(10, numWorkers)
        backend := ytask.Backend.NewRedisBackend("127.0.0.1", "6379", "", 0, 0)
 
+       logger := ytask.Logger.NewYTaskLogger()  // v2.5+支持
+
        ser := ytask.Server.NewServer(
            ytask.Config.Broker(&broker),
-           ytask.Config.Backend(&backend),
+           ytask.Config.Backend(&backend),  // 可不设置
+           ytask.Config.Logger(logger),  // 可不设置
            ytask.Config.Debug(true),
            ytask.Config.StatusExpires(60*5),
            ytask.Config.ResultExpires(60*5),
@@ -98,9 +101,12 @@ client
        // 对于client端，如果连接池<=0，poolSize会默认为10
        backend := ytask.Backend.NewRedisBackend("127.0.0.1", "6379", "", 0, 5)
 
+       logger := ytask.Logger.NewYTaskLogger()  // v2.5+支持
+
        ser := ytask.Server.NewServer(
            ytask.Config.Broker(&broker),
            ytask.Config.Backend(&backend),
+           ytask.Config.Logger(logger),
            ytask.Config.Debug(true),
            ytask.Config.StatusExpires(60*5),
            ytask.Config.ResultExpires(60*5),

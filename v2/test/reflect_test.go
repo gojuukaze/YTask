@@ -124,7 +124,7 @@ func TestRunFunc(t *testing.T) {
 		return aa + bb, a, b, c, d, e, f, g, h, j, l, m, n, o, p
 	}
 
-	w := worker.FuncWorker{
+	w := &worker.FuncWorker{
 		Func: fun,
 	}
 	s, _ := util.GoVarsToYJsonSlice(12, 33)
