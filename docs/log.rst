@@ -1,7 +1,7 @@
 Log
 =======
 
-v2.5+log.LoggerInterface
+log接口
 -----------------------------------------
 
 注意: v2.5+ 改用接口形式，只要实现 log.LoggerInterface 接口即可，默认已经实现一个基于 logrus 的 logger
