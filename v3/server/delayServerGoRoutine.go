@@ -1,9 +1,9 @@
 package server
 
 import (
-	"github.com/gojuukaze/YTask/v2/log"
-	"github.com/gojuukaze/YTask/v2/message"
-	"github.com/gojuukaze/YTask/v2/yerrors"
+	"github.com/gojuukaze/YTask/v3/log"
+	"github.com/gojuukaze/YTask/v3/message"
+	"github.com/gojuukaze/YTask/v3/yerrors"
 	"time"
 )
 

@@ -1,7 +1,7 @@
 package message
 
 import (
-	"github.com/gojuukaze/YTask/v2/util/yjson"
+	"github.com/gojuukaze/YTask/v3/util/yjson"
 )
 
 type resultStatusChoice struct {

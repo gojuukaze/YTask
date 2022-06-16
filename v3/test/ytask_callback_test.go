@@ -2,12 +2,12 @@ package test
 
 import (
 	"context"
-	"github.com/gojuukaze/YTask/v2/backends"
-	"github.com/gojuukaze/YTask/v2/brokers"
-	"github.com/gojuukaze/YTask/v2/config"
-	"github.com/gojuukaze/YTask/v2/log"
-	"github.com/gojuukaze/YTask/v2/message"
-	"github.com/gojuukaze/YTask/v2/server"
+	"github.com/gojuukaze/YTask/v3/backends"
+	"github.com/gojuukaze/YTask/v3/brokers"
+	"github.com/gojuukaze/YTask/v3/config"
+	"github.com/gojuukaze/YTask/v3/log"
+	"github.com/gojuukaze/YTask/v3/message"
+	"github.com/gojuukaze/YTask/v3/server"
 	"io/ioutil"
 	"testing"
 	"time"

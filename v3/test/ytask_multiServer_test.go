@@ -1,18 +1,18 @@
 package test
 
 //
-// cd v2
+// cd v3
 // go test -v -count=1 test/*
 //
 
 import (
 	"context"
-	"github.com/gojuukaze/YTask/v2/backends"
-	"github.com/gojuukaze/YTask/v2/brokers"
-	"github.com/gojuukaze/YTask/v2/config"
-	"github.com/gojuukaze/YTask/v2/log"
-	"github.com/gojuukaze/YTask/v2/server"
-	"github.com/gojuukaze/YTask/v2/yerrors"
+	"github.com/gojuukaze/YTask/v3/backends"
+	"github.com/gojuukaze/YTask/v3/brokers"
+	"github.com/gojuukaze/YTask/v3/config"
+	"github.com/gojuukaze/YTask/v3/log"
+	"github.com/gojuukaze/YTask/v3/server"
+	"github.com/gojuukaze/YTask/v3/yerrors"
 	"io/ioutil"
 	"testing"
 	"time"
@@ -82,8 +82,8 @@ func testMulti2(t *testing.T, client server.Client) {
 	if err != nil {
 		t.Fatal("err!=nil")
 	}
-	r,_:=result.GetInt64(0)
-	if r!=123{
+	r, _ := result.GetInt64(0)
+	if r != 123 {
 		t.Fatal("r!=123")
 
 	}

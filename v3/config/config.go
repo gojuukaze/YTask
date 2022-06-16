@@ -1,8 +1,8 @@
 package config
 
 import (
-	"github.com/gojuukaze/YTask/v2/backends"
-	"github.com/gojuukaze/YTask/v2/brokers"
+	"github.com/gojuukaze/YTask/v3/backends"
+	"github.com/gojuukaze/YTask/v3/brokers"
 )
 
 type Config struct {

@@ -2,8 +2,8 @@ package server
 
 import (
 	"context"
-	"github.com/gojuukaze/YTask/v2/config"
-	"github.com/gojuukaze/YTask/v2/log"
+	"github.com/gojuukaze/YTask/v3/config"
+	"github.com/gojuukaze/YTask/v3/log"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/sync/errgroup"
 )

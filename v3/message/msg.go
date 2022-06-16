@@ -1,8 +1,8 @@
 package message
 
 import (
-	"github.com/gojuukaze/YTask/v2/controller"
-	"github.com/gojuukaze/YTask/v2/util"
+	"github.com/gojuukaze/YTask/v3/controller"
+	"github.com/gojuukaze/YTask/v3/util"
 	"github.com/google/uuid"
 	"time"
 )

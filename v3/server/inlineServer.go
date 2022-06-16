@@ -2,11 +2,11 @@ package server
 
 import (
 	"context"
-	"github.com/gojuukaze/YTask/v2/config"
-	"github.com/gojuukaze/YTask/v2/log"
-	"github.com/gojuukaze/YTask/v2/message"
-	"github.com/gojuukaze/YTask/v2/util"
-	"github.com/gojuukaze/YTask/v2/worker"
+	"github.com/gojuukaze/YTask/v3/config"
+	"github.com/gojuukaze/YTask/v3/log"
+	"github.com/gojuukaze/YTask/v3/message"
+	"github.com/gojuukaze/YTask/v3/util"
+	"github.com/gojuukaze/YTask/v3/worker"
 	"github.com/sirupsen/logrus"
 	"reflect"
 	"sync"

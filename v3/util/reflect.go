@@ -1,7 +1,7 @@
 package util
 
 import (
-	"github.com/gojuukaze/YTask/v2/util/yjson"
+	"github.com/gojuukaze/YTask/v3/util/yjson"
 	"reflect"
 )
 
@@ -39,7 +39,7 @@ func GetCallInArgs(funcValue reflect.Value, funcArgs []string, inStart int) ([]r
 
 	var inArgs = make([]reflect.Value, funcValue.Type().NumIn()-inStart)
 	for i := inStart; i < funcValue.Type().NumIn(); i++ {
-		if i-inStart>=len(funcArgs){
+		if i-inStart >= len(funcArgs) {
 			break
 		}
 		inType := funcValue.Type().In(i)

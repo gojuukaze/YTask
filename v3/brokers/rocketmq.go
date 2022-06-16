@@ -3,35 +3,35 @@ package brokers
 import (
 	"fmt"
 
-	"github.com/gojuukaze/YTask/v2/drive"
-	"github.com/gojuukaze/YTask/v2/message"
-	"github.com/gojuukaze/YTask/v2/util/yjson"
-	"github.com/gojuukaze/YTask/v2/yerrors"
+	"github.com/gojuukaze/YTask/v3/drive"
+	"github.com/gojuukaze/YTask/v3/message"
+	"github.com/gojuukaze/YTask/v3/util/yjson"
+	"github.com/gojuukaze/YTask/v3/yerrors"
 	"time"
 )
 
 type RocketMqBroker struct {
-	client   *drive.RocketMqClient
+	client      *drive.RocketMqClient
 	namesrvAddr []string
-	brokerAddr []string
-	auto bool
+	brokerAddr  []string
+	auto        bool
 }
 
-func NewRocketMqBroker(namesrvAddr []string,brokerAddr... []string) RocketMqBroker {
-	 /*
-	    FIX：1、目前不能自动创建topic (mqadmin手动创建，并设置读写队列数为1)
-	    2、consumerOffset不能同步更新，所以任务执行时间更长
-	    (需要将队列中多余的message消费掉才能消费到当前taskId对应的消息)
-	    3、未支持RocketMqBroker.LSend
-	 */
+func NewRocketMqBroker(namesrvAddr []string, brokerAddr ...[]string) RocketMqBroker {
+	/*
+	   FIX：1、目前不能自动创建topic (mqadmin手动创建，并设置读写队列数为1)
+	   2、consumerOffset不能同步更新，所以任务执行时间更长
+	   (需要将队列中多余的message消费掉才能消费到当前taskId对应的消息)
+	   3、未支持RocketMqBroker.LSend
+	*/
 	var auto bool
-	if len(brokerAddr)>0 {
-		auto=true
+	if len(brokerAddr) > 0 {
+		auto = true
 	}
 	return RocketMqBroker{
 		namesrvAddr: namesrvAddr,
-		brokerAddr: brokerAddr[0],
-		auto: auto,
+		brokerAddr:  brokerAddr[0],
+		auto:        auto,
 	}
 }
 func (r *RocketMqBroker) Activate() {
@@ -56,15 +56,15 @@ func (r *RocketMqBroker) Next(topic string) (message.Message, error) {
 	var value string
 	var err error
 
-	queue,err:=r.client.Register(topic)
-	if err!=nil{
+	queue, err := r.client.Register(topic)
+	if err != nil {
 		return msg, err
 	}
 	select {
-	case value=<-queue:
+	case value = <-queue:
 
 	case <-time.After(5 * time.Second):
-		return msg,yerrors.ErrEmptyQuery{}
+		return msg, yerrors.ErrEmptyQuery{}
 	}
 
 	err = yjson.YJson.UnmarshalFromString(value, &msg)
@@ -97,27 +97,28 @@ func (r RocketMqBroker) Clone() BrokerInterface {
 
 	return &RocketMqBroker{
 		namesrvAddr: r.namesrvAddr,
-		brokerAddr: r.brokerAddr,
-		auto: r.auto,
+		brokerAddr:  r.brokerAddr,
+		auto:        r.auto,
 	}
 }
+
 //目前不做使用
-func (r RocketMqBroker)Shutdown(){
-	TRY1:
-	err:=r.client.Producer.Shutdown()
-	if err !=nil{
-		fmt.Println("YTask[RocketMQ]: producer shutdown err:",err)
+func (r RocketMqBroker) Shutdown() {
+TRY1:
+	err := r.client.Producer.Shutdown()
+	if err != nil {
+		fmt.Println("YTask[RocketMQ]: producer shutdown err:", err)
 		goto TRY1
 	}
-	for topic,consumer:=range r.client.ConsumerMap{
-		err:=consumer.Unsubscribe(topic)
-		if err!=nil {
-			fmt.Println("YTask[RocketMQ]: Unsubscribe err: ",err)
+	for topic, consumer := range r.client.ConsumerMap {
+		err := consumer.Unsubscribe(topic)
+		if err != nil {
+			fmt.Println("YTask[RocketMQ]: Unsubscribe err: ", err)
 		}
-		TRY2:
-		err=consumer.Shutdown()
-		if err !=nil{
-			fmt.Println(topic,"YTask[RocketMQ]: consumer shutdown err: ",err)
+	TRY2:
+		err = consumer.Shutdown()
+		if err != nil {
+			fmt.Println(topic, "YTask[RocketMQ]: consumer shutdown err: ", err)
 			goto TRY2
 		}
 		close(r.client.MsgChanMap[topic])

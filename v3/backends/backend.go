@@ -1,6 +1,6 @@
 package backends
 
-import "github.com/gojuukaze/YTask/v2/message"
+import "github.com/gojuukaze/YTask/v3/message"
 
 type BackendInterface interface {
 	SetResult(result message.Result, exTime int) error
@@ -10,5 +10,4 @@ type BackendInterface interface {
 	SetPoolSize(int)
 	GetPoolSize() int
 	Clone() BackendInterface
-
 }

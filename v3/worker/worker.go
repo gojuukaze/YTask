@@ -3,10 +3,10 @@ package worker
 import (
 	"errors"
 	"fmt"
-	"github.com/gojuukaze/YTask/v2/controller"
-	"github.com/gojuukaze/YTask/v2/log"
-	"github.com/gojuukaze/YTask/v2/message"
-	"github.com/gojuukaze/YTask/v2/util"
+	"github.com/gojuukaze/YTask/v3/controller"
+	"github.com/gojuukaze/YTask/v3/log"
+	"github.com/gojuukaze/YTask/v3/message"
+	"github.com/gojuukaze/YTask/v3/util"
 	"reflect"
 )
 
@@ -73,10 +73,9 @@ func runFunc(f interface{}, ctl *controller.TaskCtl, funcArgs []string, result *
 	}
 
 	if isCallBack {
-		inValue[len(inValue)-1]=reflect.ValueOf(result)
+		inValue[len(inValue)-1] = reflect.ValueOf(result)
 
 	}
-
 
 	funcOut := funcValue.Call(inValue)
 

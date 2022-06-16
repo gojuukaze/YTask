@@ -2,25 +2,23 @@ package server
 
 import (
 	"fmt"
-	"github.com/gojuukaze/YTask/v2/message"
+	"github.com/gojuukaze/YTask/v3/message"
 	"sync"
 	"time"
 )
 
-
-
 type SortQueue struct {
 	sync.Mutex
 
-	Queue []message.Message
-	len   int
+	Queue  []message.Message
+	len    int
 	MaxLen int
 }
 
 func NewSortQueue(maxLen int) SortQueue {
 	return SortQueue{
-		Queue:make([]message.Message,maxLen+1),
-		MaxLen:maxLen,
+		Queue:  make([]message.Message, maxLen+1),
+		MaxLen: maxLen,
 	}
 }
 
@@ -47,7 +45,7 @@ func (s *SortQueue) Insert(msg message.Message) *message.Message {
 
 	}
 
-	if s.len== s.MaxLen {
+	if s.len == s.MaxLen {
 		return &s.Queue[s.len]
 	} else {
 		s.len++
@@ -92,8 +90,8 @@ func (s *SortQueue) Get(i int) message.Message {
 }
 
 func (s *SortQueue) print() {
-	for i:=0;i<s.len;i++{
-		fmt.Print(s.Queue[i].WorkerName,",")
+	for i := 0; i < s.len; i++ {
+		fmt.Print(s.Queue[i].WorkerName, ",")
 	}
 	fmt.Println()
 

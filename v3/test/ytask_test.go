@@ -1,7 +1,7 @@
 package test
 
 //
-// cd v2
+// cd v3
 // go test -v -count=1 test/*
 //
 
@@ -9,12 +9,12 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/gojuukaze/YTask/v2/backends"
-	"github.com/gojuukaze/YTask/v2/brokers"
-	"github.com/gojuukaze/YTask/v2/config"
-	"github.com/gojuukaze/YTask/v2/controller"
-	"github.com/gojuukaze/YTask/v2/log"
-	"github.com/gojuukaze/YTask/v2/server"
+	"github.com/gojuukaze/YTask/v3/backends"
+	"github.com/gojuukaze/YTask/v3/brokers"
+	"github.com/gojuukaze/YTask/v3/config"
+	"github.com/gojuukaze/YTask/v3/controller"
+	"github.com/gojuukaze/YTask/v3/log"
+	"github.com/gojuukaze/YTask/v3/server"
 	"io/ioutil"
 	"testing"
 	"time"
@@ -156,7 +156,7 @@ func testWorker3(ser server.Server, t *testing.T) {
 	if !result.IsSuccess() {
 		t.Fatal("result is not success")
 	}
-	var base = []User{{1, "a"}, {233, "bb"}, {44, "cc"},}
+	var base = []User{{1, "a"}, {233, "bb"}, {44, "cc"}}
 	var r []User
 	err = result.Get(0, &r)
 

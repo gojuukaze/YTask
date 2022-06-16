@@ -2,10 +2,10 @@ package test
 
 import (
 	"fmt"
-	"github.com/gojuukaze/YTask/v2/brokers"
-	"github.com/gojuukaze/YTask/v2/controller"
-	"github.com/gojuukaze/YTask/v2/message"
-	"github.com/gojuukaze/YTask/v2/yerrors"
+	"github.com/gojuukaze/YTask/v3/brokers"
+	"github.com/gojuukaze/YTask/v3/controller"
+	"github.com/gojuukaze/YTask/v3/message"
+	"github.com/gojuukaze/YTask/v3/yerrors"
 	"testing"
 )
 

@@ -2,10 +2,10 @@ package backends
 
 import (
 	"github.com/bradfitz/gomemcache/memcache"
-	"github.com/gojuukaze/YTask/v2/drive"
-	"github.com/gojuukaze/YTask/v2/message"
-	"github.com/gojuukaze/YTask/v2/util/yjson"
-	"github.com/gojuukaze/YTask/v2/yerrors"
+	"github.com/gojuukaze/YTask/v3/drive"
+	"github.com/gojuukaze/YTask/v3/message"
+	"github.com/gojuukaze/YTask/v3/util/yjson"
+	"github.com/gojuukaze/YTask/v3/yerrors"
 )
 
 type MemCacheBackend struct {
@@ -61,8 +61,8 @@ func (r *MemCacheBackend) GetResult(key string) (message.Result, error) {
 	return result, err
 }
 
-func (r MemCacheBackend) Clone() BackendInterface{
-	return  &MemCacheBackend{
+func (r MemCacheBackend) Clone() BackendInterface {
+	return &MemCacheBackend{
 		host:     r.host,
 		port:     r.port,
 		poolSize: r.poolSize,

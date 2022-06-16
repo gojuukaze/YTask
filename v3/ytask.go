@@ -1,10 +1,10 @@
 package ytask
 
 import (
-	"github.com/gojuukaze/YTask/v2/backends"
-	"github.com/gojuukaze/YTask/v2/brokers"
-	"github.com/gojuukaze/YTask/v2/config"
-	"github.com/gojuukaze/YTask/v2/server"
+	"github.com/gojuukaze/YTask/v3/backends"
+	"github.com/gojuukaze/YTask/v3/brokers"
+	"github.com/gojuukaze/YTask/v3/config"
+	"github.com/gojuukaze/YTask/v3/server"
 )
 
 var (
@@ -37,8 +37,8 @@ func (i iBroker) NewRabbitMqBroker(host, port, user, password, vhost string) bro
 	return brokers.NewRabbitMqBroker(host, port, user, password, vhost)
 }
 
-func (i iBroker) NewRocketMqBroker(namesrvAddr []string,brokerAddr... []string) brokers.RocketMqBroker {
-	return brokers.NewRocketMqBroker(namesrvAddr,brokerAddr...)
+func (i iBroker) NewRocketMqBroker(namesrvAddr []string, brokerAddr ...[]string) brokers.RocketMqBroker {
+	return brokers.NewRocketMqBroker(namesrvAddr, brokerAddr...)
 }
 
 type iConfig struct {

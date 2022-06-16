@@ -1,6 +1,6 @@
-module github.com/gojuukaze/YTask/v2
+module github.com/gojuukaze/YTask/v3
 
-go 1.12
+go 1.18
 
 require (
 	github.com/apache/rocketmq-client-go/v2 v2.1.0-rc5.0.20201102074636-e1d9be806c18

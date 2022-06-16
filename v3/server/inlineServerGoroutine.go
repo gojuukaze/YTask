@@ -1,10 +1,10 @@
 package server
 
 import (
-	"github.com/gojuukaze/YTask/v2/log"
-	"github.com/gojuukaze/YTask/v2/message"
-	"github.com/gojuukaze/YTask/v2/worker"
-	"github.com/gojuukaze/YTask/v2/yerrors"
+	"github.com/gojuukaze/YTask/v3/log"
+	"github.com/gojuukaze/YTask/v3/message"
+	"github.com/gojuukaze/YTask/v3/worker"
+	"github.com/gojuukaze/YTask/v3/yerrors"
 	"sync"
 )
 
@@ -81,7 +81,7 @@ func (t *InlineServer) workerGoroutine_RunWorker(w worker.WorkerInterface, msg *
 
 RUN:
 
-	if ctl.IsExpired(){
+	if ctl.IsExpired() {
 		result.Status = message.ResultStatus.Expired
 		t.workerGoroutine_SaveResult(*result)
 		goto AFTER

@@ -2,10 +2,10 @@ package brokers
 
 import (
 	"github.com/go-redis/redis/v7"
-	"github.com/gojuukaze/YTask/v2/drive"
-	"github.com/gojuukaze/YTask/v2/message"
-	"github.com/gojuukaze/YTask/v2/util/yjson"
-	"github.com/gojuukaze/YTask/v2/yerrors"
+	"github.com/gojuukaze/YTask/v3/drive"
+	"github.com/gojuukaze/YTask/v3/message"
+	"github.com/gojuukaze/YTask/v3/util/yjson"
+	"github.com/gojuukaze/YTask/v3/yerrors"
 	"time"
 )
 
