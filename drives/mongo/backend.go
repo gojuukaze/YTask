@@ -1,6 +1,7 @@
-package backends
+package mongo
 
 import (
+	"github.com/gojuukaze/YTask/v3/backends"
 	"github.com/gojuukaze/YTask/v3/drive"
 	"github.com/gojuukaze/YTask/v3/message"
 	"github.com/gojuukaze/YTask/v3/util/yjson"
@@ -8,7 +9,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-type MongoBackend struct {
+type Backend struct {
 	client     *drive.MongoClient
 	host       string
 	port       string
@@ -19,8 +20,8 @@ type MongoBackend struct {
 	//poolSize int
 }
 
-func NewMongoBackend(host, port, user, password, db, collection string) MongoBackend {
-	return MongoBackend{
+func NewMongoBackend(host, port, user, password, db, collection string) Backend {
+	return Backend{
 		host:       host,
 		port:       port,
 		user:       user,
@@ -31,21 +32,21 @@ func NewMongoBackend(host, port, user, password, db, collection string) MongoBac
 	}
 }
 
-func (r *MongoBackend) Activate() {
+func (r *Backend) Activate() {
 	client := drive.NewMongoClient(r.host, r.port, r.user, r.password, r.db, r.collection)
 	r.client = &client
 }
 
-func (r *MongoBackend) SetPoolSize(n int) {
+func (r *Backend) SetPoolSize(n int) {
 	//r.poolSize = n
 }
 
-func (r *MongoBackend) GetPoolSize() int {
+func (r *Backend) GetPoolSize() int {
 	//return r.poolSize
 	return 0
 }
 
-func (r *MongoBackend) SetResult(result message.Result, exTime int) error {
+func (r *Backend) SetResult(result message.Result, exTime int) error {
 
 	b, err := yjson.YJson.Marshal(result)
 
@@ -58,7 +59,7 @@ func (r *MongoBackend) SetResult(result message.Result, exTime int) error {
 	return err
 }
 
-func (r *MongoBackend) GetResult(key string) (message.Result, error) {
+func (r *Backend) GetResult(key string) (message.Result, error) {
 	var result message.Result
 
 	b, err := r.client.Get(key)
@@ -74,8 +75,8 @@ func (r *MongoBackend) GetResult(key string) (message.Result, error) {
 	return result, err
 }
 
-func (r MongoBackend) Clone() BackendInterface {
-	return &MongoBackend{
+func (r Backend) Clone() backends.BackendInterface {
+	return &Backend{
 		host:       r.host,
 		port:       r.port,
 		password:   r.password,
