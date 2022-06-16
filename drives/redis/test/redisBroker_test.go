@@ -2,9 +2,9 @@ package test
 
 import (
 	"fmt"
-	"github.com/gojuukaze/YTask/v2/brokers"
-	"github.com/gojuukaze/YTask/v2/controller"
-	"github.com/gojuukaze/YTask/v2/message"
+	"github.com/gojuukaze/YTask/v3/brokers"
+	"github.com/gojuukaze/YTask/v3/controller"
+	"github.com/gojuukaze/YTask/v3/message"
 	"testing"
 )
 
@@ -46,9 +46,9 @@ func TestRedisBrokerLSend(t *testing.T) {
 	broker := brokers.NewRedisBroker("127.0.0.1", "6379", "", 0, 1)
 	broker.Activate()
 	msg := message.NewMessage(controller.NewTaskCtl())
-	msg.Id="1"
+	msg.Id = "1"
 	msg2 := message.NewMessage(controller.NewTaskCtl())
-	msg2.Id="2"
+	msg2.Id = "2"
 	err := broker.Send("test_redis", msg)
 	if err != nil {
 		t.Fatal(err)
@@ -62,7 +62,7 @@ func TestRedisBrokerLSend(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if m.Id!=msg2.Id {
+	if m.Id != msg2.Id {
 		t.Fatalf("%v != %v", m, msg2)
 	}
 
@@ -70,7 +70,7 @@ func TestRedisBrokerLSend(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if m2.Id!=msg.Id {
+	if m2.Id != msg.Id {
 		t.Fatalf("%v != %v", m2, msg)
 
 	}
