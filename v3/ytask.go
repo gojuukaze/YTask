@@ -25,14 +25,6 @@ func (i iServer) NewServer(setConfigFunc ...config.SetConfigFunc) server.Server 
 type iBroker struct {
 }
 
-//
-// clientPoolSize: Maximum number of idle connections in client pool.
-//                 If clientPoolSize<=0, clientPoolSize=10
-//
-func (i iBroker) NewRedisBroker(host string, port string, password string, db int, clientPoolSize int) brokers.RedisBroker {
-	return brokers.NewRedisBroker(host, port, password, db, clientPoolSize)
-}
-
 func (i iBroker) NewRabbitMqBroker(host, port, user, password, vhost string) brokers.RabbitMqBroker {
 	return brokers.NewRabbitMqBroker(host, port, user, password, vhost)
 }
@@ -76,15 +68,6 @@ func (i iConfig) ResultExpires(ex int) config.SetConfigFunc {
 }
 
 type iBackend struct {
-}
-
-//
-// poolSize: Maximum number of idle connections in the pool. If poolSize<=0 use default value
-//           default value is min(10, numWorkers) at server
-//           default value is 10 at client
-//
-func (i iBackend) NewRedisBackend(host string, port string, password string, db int, poolSize int) backends.RedisBackend {
-	return backends.NewRedisBackend(host, port, password, db, poolSize)
 }
 
 func (i iBackend) NewMemCacheBackend(host, port string, poolSize int) backends.MemCacheBackend {

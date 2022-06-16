@@ -11,7 +11,6 @@ import (
 
 var YTaskLog *logrus.Logger
 
-// 记录行号的hook
 type YTaskHook struct {
 }
 
@@ -32,26 +31,26 @@ func (hook YTaskHook) Fire(entry *logrus.Entry) error {
 		goroutineName = fmt.Sprintf("|%s", goroutineName)
 
 	}
-	if !ok{
-		goroutineName=""
+	if !ok {
+		goroutineName = ""
 	}
 	delete(entry.Data, "goroutine")
 	delete(entry.Data, "server")
 
-	entry.Message = fmt.Sprintf("%s%s]: %s", s,goroutineName, entry.Message)
+	entry.Message = fmt.Sprintf("%s%s]: %s", s, goroutineName, entry.Message)
 
 	return nil
 }
 
 // 记录行号的hook
-type lineNumHook struct {
+type LineNumHook struct {
 }
 
-func (hook lineNumHook) Levels() []logrus.Level {
+func (hook LineNumHook) Levels() []logrus.Level {
 	return logrus.AllLevels
 }
 
-func (hook lineNumHook) Fire(entry *logrus.Entry) error {
+func (hook LineNumHook) Fire(entry *logrus.Entry) error {
 	pc := make([]uintptr, 6, 6)
 	cnt := runtime.Callers(6, pc)
 	for i := 0; i < cnt; i++ {
@@ -85,6 +84,7 @@ func init() {
 	})
 
 	YTaskLog.SetLevel(logrus.InfoLevel)
+	YTaskLog.AddHook(&LineNumHook{})
 	YTaskLog.AddHook(&YTaskHook{})
 
 }

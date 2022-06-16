@@ -18,6 +18,11 @@ type Backend struct {
 	poolSize int
 }
 
+// NewRedisBackend
+//  - poolSize: Maximum number of idle connections in the pool. If poolSize<=0 use default value.
+//              default value is min(10, numWorkers) at SERVER
+//              default value is 10 at CLIENT
+//
 func NewRedisBackend(host string, port string, password string, db int, poolSize int) Backend {
 	return Backend{
 		host:     host,

@@ -4,6 +4,7 @@
 * example
 * 测试用的drives
 * 文档
+* 连接池默认值调整
 
 # YTask
 YTask is an asynchronous task queue for handling distributed jobs in golang  

@@ -3,7 +3,6 @@ package redis
 import (
 	"github.com/go-redis/redis/v8"
 	"github.com/gojuukaze/YTask/v3/brokers"
-	"github.com/gojuukaze/YTask/v3/drive"
 	"github.com/gojuukaze/YTask/v3/message"
 	"github.com/gojuukaze/YTask/v3/util/yjson"
 	"github.com/gojuukaze/YTask/v3/yerrors"
@@ -11,7 +10,7 @@ import (
 )
 
 type Broker struct {
-	client   *drive.RedisClient
+	client   *Client
 	host     string
 	port     string
 	password string
@@ -19,6 +18,9 @@ type Broker struct {
 	poolSize int
 }
 
+// NewRedisBroker
+//  - poolSize: Maximum number of idle connections in client pool.
+//              If clientPoolSize<=0, clientPoolSize=10
 func NewRedisBroker(host string, port string, password string, db int, poolSize int) Broker {
 	return Broker{
 		host:     host,
@@ -30,7 +32,7 @@ func NewRedisBroker(host string, port string, password string, db int, poolSize 
 }
 
 func (r *Broker) Activate() {
-	client := drive.NewRedisClient(r.host, r.port, r.password, r.db, r.poolSize)
+	client := NewRedisClient(r.host, r.port, r.password, r.db, r.poolSize)
 	r.client = &client
 }
 
