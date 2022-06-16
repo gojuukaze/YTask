@@ -134,3 +134,4 @@ v3/main.go
 .DS_Store
 
 go.work
+go.work.sum
