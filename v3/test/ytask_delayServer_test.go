@@ -21,7 +21,7 @@ import (
 
 func TestDelayServerSend(t *testing.T) {
 	// 测试client send
-	b := brokers.NewRedisBroker("127.0.0.1", "6379", "", 0, 0)
+	b := brokers.NewLocalBroker()
 	client := server.NewClient(config.NewConfig(
 		config.Broker(&b),
 		config.Debug(true),
@@ -50,7 +50,7 @@ func TestDelayServerSend(t *testing.T) {
 func TestDelayServer(t *testing.T) {
 	// 测试处理顺序是否正确
 
-	b := brokers.NewRedisBroker("127.0.0.1", "6379", "", 0, 0)
+	b := brokers.NewLocalBroker()
 	ch := make(chan message.Message, 5)
 	ds := server.NewDelayServer("testDelay", config.NewConfig(
 		config.Broker(&b),
@@ -99,7 +99,7 @@ func TestDelayServer(t *testing.T) {
 
 func TestDelayServer2(t *testing.T) {
 	// 测试服务关闭后，在本地队列中的任务是否能插入到broker中
-	b := brokers.NewRedisBroker("127.0.0.1", "6379", "", 0, 0)
+	b := brokers.NewLocalBroker()
 	ch := make(chan message.Message, 5)
 	ds := server.NewDelayServer("testDelay2", config.NewConfig(
 		config.Broker(&b),
@@ -159,7 +159,7 @@ func TestDelayServer3(t *testing.T) {
 	// 测试服务关闭后，在readyChan中的任务是否能插入到broker中
 	groupName := "testDelay3"
 
-	b := brokers.NewRedisBroker("127.0.0.1", "6379", "", 0, 0)
+	b := brokers.NewLocalBroker()
 	// 因为要模拟inlineServer处理任务的情况，这个chan不能有缓存
 	ch := make(chan message.Message)
 

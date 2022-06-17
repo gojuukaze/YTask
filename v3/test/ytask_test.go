@@ -57,8 +57,8 @@ func workerTestRetry2(ctl *controller.TaskCtl, a int) int {
 	return a + ctl.RetryCount
 }
 func TestYTask1(t *testing.T) {
-	b := brokers.NewRedisBroker("127.0.0.1", "6379", "", 0, 0)
-	b2 := backends.NewRedisBackend("127.0.0.1", "6379", "", 0, 0)
+	b := brokers.NewLocalBroker()
+	b2 := backends.NewLocalBackend()
 
 	ser := server.NewServer(
 		config.NewConfig(

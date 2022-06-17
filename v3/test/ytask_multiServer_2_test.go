@@ -23,8 +23,8 @@ func delayWorker1() int {
 }
 
 func TestMultit2(t *testing.T) {
-	b := brokers.NewRedisBroker("127.0.0.1", "6379", "", 0, 0)
-	b2 := backends.NewRedisBackend("127.0.0.1", "6379", "", 0, 0)
+	b := brokers.NewLocalBroker()
+	b2 := backends.NewLocalBackend()
 
 	ser := server.NewServer(
 		config.NewConfig(

@@ -44,8 +44,8 @@ func callbackTestCallback2(a int, s string, result *message.Result) {
 
 func TestCallback(t *testing.T) {
 	workerTestCallbackChan = make(chan workerTestCallbackResult, 2)
-	b := brokers.NewRedisBroker("127.0.0.1", "6379", "", 0, 0)
-	b2 := backends.NewRedisBackend("127.0.0.1", "6379", "", 0, 0)
+	b := brokers.NewLocalBroker()
+	b2 := backends.NewLocalBackend()
 
 	ser := server.NewServer(
 		config.NewConfig(
