@@ -2,17 +2,19 @@ package test
 
 import (
 	"fmt"
-	"github.com/gojuukaze/YTask/v3/backends"
+	"github.com/gojuukaze/YTask/drives/mongo2"
 	"github.com/gojuukaze/YTask/v3/message"
+	"github.com/gojuukaze/YTask/v3/yerrors"
 	"testing"
+	"time"
 )
 
 func TestMongoBackend(t *testing.T) {
-	b := backends.NewMongoBackend("127.0.0.1", "27017", "", "", "task", "task")
+	b := mongo2.NewMongoBackend("127.0.0.1", "27017", "", "", "test", "test", 2)
 	result := message.NewResult("xx123")
 	result.FuncReturn = nil
 	b.Activate()
-	err := b.SetResult(result, 2)
+	err := b.SetResult(result, 0)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -25,14 +27,12 @@ func TestMongoBackend(t *testing.T) {
 		t.Fatalf("%v != %v", r2, result)
 	}
 
-	// mongo不支持过期时间
+	time.Sleep(3 * time.Second)
 
-	//time.Sleep(2 * time.Second)
-	//
-	//_, err = b.GetResult(result.GetBackendKey())
-	//if !yerrors.IsEqual(err, yerrors.ErrTypeNilResult) {
-	//	t.Fatal("err != ErrNilResult")
-	//
-	//}
+	_, err = b.GetResult(result.GetBackendKey())
+	if !yerrors.IsEqual(err, yerrors.ErrTypeNilResult) {
+		t.Fatal("err != ErrNilResult")
+
+	}
 
 }

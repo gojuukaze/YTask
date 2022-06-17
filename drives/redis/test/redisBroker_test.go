@@ -2,6 +2,7 @@ package test
 
 import (
 	"fmt"
+	"github.com/gojuukaze/YTask/drives/redis"
 	"github.com/gojuukaze/YTask/v3/brokers"
 	"github.com/gojuukaze/YTask/v3/controller"
 	"github.com/gojuukaze/YTask/v3/message"
@@ -9,7 +10,7 @@ import (
 )
 
 func TestRedisBroker(t *testing.T) {
-	b := brokers.NewRedisBroker("127.0.0.1", "6379", "", 0, 1)
+	b := redis.NewRedisBroker("127.0.0.1", "6379", "", 0, 1)
 	var broker brokers.BrokerInterface = &b
 	broker.Activate()
 	msg := message.NewMessage(controller.NewTaskCtl())
@@ -43,7 +44,7 @@ func TestRedisBroker(t *testing.T) {
 }
 
 func TestRedisBrokerLSend(t *testing.T) {
-	broker := brokers.NewRedisBroker("127.0.0.1", "6379", "", 0, 1)
+	broker := redis.NewRedisBroker("127.0.0.1", "6379", "", 0, 1)
 	broker.Activate()
 	msg := message.NewMessage(controller.NewTaskCtl())
 	msg.Id = "1"

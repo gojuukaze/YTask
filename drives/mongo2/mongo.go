@@ -54,12 +54,16 @@ func (c *Client) Get(key string) (Result, error) {
 	defer client.Disconnect(ctx)
 	col := c.GetCollection(client)
 	err = col.FindOne(ctx, bson.D{{"_id", key}}).Decode(&result)
+	// 由于mongo不是立即清理过期数据，所以这里需要判断是否过期
+	if err == nil && c.Expires > 0 && result.CreateTime.Add(time.Duration(c.Expires)*time.Second).Before(time.Now()) {
+		err = mongo.ErrNoDocuments
+	}
 
 	return result, err
 
 }
 
-func (c *Client) Set(key string, value []byte, exTime int) error {
+func (c *Client) Set(key string, value []byte) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 	client, err := c.GetClient(ctx)

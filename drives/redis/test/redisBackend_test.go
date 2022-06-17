@@ -2,7 +2,7 @@ package test
 
 import (
 	"fmt"
-	"github.com/gojuukaze/YTask/v3/backends"
+	"github.com/gojuukaze/YTask/drives/redis"
 	"github.com/gojuukaze/YTask/v3/message"
 	"github.com/gojuukaze/YTask/v3/yerrors"
 	"testing"
@@ -10,7 +10,7 @@ import (
 )
 
 func TestRedisBackend(t *testing.T) {
-	b := backends.NewRedisBackend("127.0.0.1", "6379", "", 0, 1)
+	b := redis.NewRedisBackend("127.0.0.1", "6379", "", 0, 1)
 	result := message.NewResult("xx123")
 	result.FuncReturn = nil
 	b.Activate()
