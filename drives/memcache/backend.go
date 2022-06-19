@@ -1,15 +1,15 @@
-package backends
+package memcache
 
 import (
 	"github.com/bradfitz/gomemcache/memcache"
-	"github.com/gojuukaze/YTask/v3/drive"
+	"github.com/gojuukaze/YTask/v3/backends"
 	"github.com/gojuukaze/YTask/v3/message"
 	"github.com/gojuukaze/YTask/v3/util/yjson"
 	"github.com/gojuukaze/YTask/v3/yerrors"
 )
 
 type MemCacheBackend struct {
-	client   *drive.MemCacheClient
+	client   *Client
 	host     string
 	port     string
 	poolSize int
@@ -24,7 +24,7 @@ func NewMemCacheBackend(host, port string, poolSize int) MemCacheBackend {
 }
 
 func (r *MemCacheBackend) Activate() {
-	client := drive.NewMemCacheClient(r.host, r.port, r.poolSize)
+	client := NewMemCacheClient(r.host, r.port, r.poolSize)
 	r.client = &client
 }
 
@@ -57,11 +57,11 @@ func (r *MemCacheBackend) GetResult(key string) (message.Result, error) {
 		return result, err
 	}
 
-	err = yjson.YJson.Unmarshal([]byte(b), &result)
+	err = yjson.YJson.Unmarshal(b, &result)
 	return result, err
 }
 
-func (r MemCacheBackend) Clone() BackendInterface {
+func (r MemCacheBackend) Clone() backends.BackendInterface {
 	return &MemCacheBackend{
 		host:     r.host,
 		port:     r.port,

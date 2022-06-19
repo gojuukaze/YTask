@@ -2,15 +2,15 @@ package test
 
 import (
 	"fmt"
-	"github.com/gojuukaze/YTask/v3/backends"
+	"github.com/gojuukaze/YTask/v3/drives/memcache"
 	"github.com/gojuukaze/YTask/v3/message"
 	"github.com/gojuukaze/YTask/v3/yerrors"
 	"testing"
 	"time"
 )
 
-func TestMemcacheBackend(t *testing.T) {
-	b := backends.NewMemCacheBackend("127.0.0.1", "11211", 1)
+func TestMemcachedBackend(t *testing.T) {
+	b := memcache.NewMemCacheBackend("127.0.0.1", "11211", 1)
 	result := message.NewResult("xx123")
 	result.FuncReturn = nil
 	b.Activate()

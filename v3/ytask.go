@@ -69,11 +69,3 @@ func (i iConfig) ResultExpires(ex int) config.SetConfigFunc {
 
 type iBackend struct {
 }
-
-func (i iBackend) NewMemCacheBackend(host, port string, poolSize int) backends.MemCacheBackend {
-	return backends.NewMemCacheBackend(host, port, poolSize)
-}
-
-func (i iBackend) NewMongoBackend(host, port, user, password, db, collection string) backends.MongoBackend {
-	return backends.NewMongoBackend(host, port, user, password, db, collection)
-}
