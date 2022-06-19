@@ -2,15 +2,15 @@ package test
 
 import (
 	"fmt"
-	"github.com/gojuukaze/YTask/v3/brokers"
 	"github.com/gojuukaze/YTask/v3/controller"
+	"github.com/gojuukaze/YTask/v3/drives/rabbitmq"
 	"github.com/gojuukaze/YTask/v3/message"
 	"github.com/gojuukaze/YTask/v3/yerrors"
 	"testing"
 )
 
 func TestRabbitmqBroker(t *testing.T) {
-	broker := brokers.NewRabbitMqBroker("127.0.0.1", "5672", "guest", "guest", "")
+	broker := rabbitmq.NewRabbitMqBroker("127.0.0.1", "5672", "guest", "guest", "")
 	broker.Activate()
 	msg := message.NewMessage(controller.NewTaskCtl())
 	msg2 := message.NewMessage(controller.NewTaskCtl())
@@ -48,7 +48,7 @@ func TestRabbitmqBroker(t *testing.T) {
 }
 
 func TestRabbitmqBrokerLSend(t *testing.T) {
-	broker := brokers.NewRabbitMqBroker("127.0.0.1", "5672", "guest", "guest", "")
+	broker := rabbitmq.NewRabbitMqBroker("127.0.0.1", "5672", "guest", "guest", "")
 	broker.Activate()
 	msg := message.NewMessage(controller.NewTaskCtl())
 	msg.Id = "1"

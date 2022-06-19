@@ -9,6 +9,10 @@
 * test/ytask_multiServer_2_test.go
 * test/ytask_delayServer_test.go
 
+## 发包测试
+* 测试发v3后是否能安装v2
+* drives中go.mod不添加ytask是否能正常运行
+
 # YTask
 YTask is an asynchronous task queue for handling distributed jobs in golang  
 golang异步任务/队列 框架  
