@@ -1,9 +1,9 @@
-package brokers
+package rocketmq
 
 import (
 	"fmt"
+	"github.com/gojuukaze/YTask/v3/brokers"
 
-	"github.com/gojuukaze/YTask/v3/drive"
 	"github.com/gojuukaze/YTask/v3/message"
 	"github.com/gojuukaze/YTask/v3/util/yjson"
 	"github.com/gojuukaze/YTask/v3/yerrors"
@@ -11,7 +11,7 @@ import (
 )
 
 type RocketMqBroker struct {
-	client      *drive.RocketMqClient
+	client      *RocketMqClient
 	namesrvAddr []string
 	brokerAddr  []string
 	auto        bool
@@ -35,10 +35,10 @@ func NewRocketMqBroker(namesrvAddr []string, brokerAddr ...[]string) RocketMqBro
 	}
 }
 func (r *RocketMqBroker) Activate() {
-	client := drive.NewRocketMqClient(
-		drive.WithNameSrvAddr(r.namesrvAddr),
-		drive.WithBrokerAddr(r.brokerAddr),
-		drive.WithAutoCreateTopic(r.auto))
+	client := NewRocketMqClient(
+		WithNameSrvAddr(r.namesrvAddr),
+		WithBrokerAddr(r.brokerAddr),
+		WithAutoCreateTopic(r.auto))
 	r.client = &client
 
 }
@@ -93,7 +93,7 @@ func (r *RocketMqBroker) LSend(queueName string, msg message.Message) error {
 	return err
 }
 
-func (r RocketMqBroker) Clone() BrokerInterface {
+func (r RocketMqBroker) Clone() brokers.BrokerInterface {
 
 	return &RocketMqBroker{
 		namesrvAddr: r.namesrvAddr,

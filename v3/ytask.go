@@ -25,10 +25,6 @@ func (i iServer) NewServer(setConfigFunc ...config.SetConfigFunc) server.Server 
 type iBroker struct {
 }
 
-func (i iBroker) NewRocketMqBroker(namesrvAddr []string, brokerAddr ...[]string) brokers.RocketMqBroker {
-	return brokers.NewRocketMqBroker(namesrvAddr, brokerAddr...)
-}
-
 type iConfig struct {
 }
 

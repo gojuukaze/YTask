@@ -2,15 +2,15 @@ package test
 
 import (
 	"fmt"
-	"github.com/gojuukaze/YTask/v3/brokers"
 	"github.com/gojuukaze/YTask/v3/controller"
+	"github.com/gojuukaze/YTask/v3/drives/rocketmq"
 	"github.com/gojuukaze/YTask/v3/message"
 	"testing"
 )
 
 func TestRocketMqBroker(t *testing.T) {
 
-	broker := brokers.NewRocketMqBroker([]string{"127.0.0.1:9876"}, []string{"127.0.0.1:10911"})
+	broker := rocketmq.NewRocketMqBroker([]string{"127.0.0.1:9876"}, []string{"127.0.0.1:10911"})
 
 	broker.Activate()
 	//broker.Shutdown()主要是为了关闭consumer,同步offset到broker
@@ -47,7 +47,7 @@ func TestRocketMqBroker(t *testing.T) {
 }
 
 func TestRocketMqBrokerLSend(t *testing.T) {
-	broker := brokers.NewRocketMqBroker(
+	broker := rocketmq.NewRocketMqBroker(
 		[]string{"127.0.0.1:9876"},
 		[]string{"127.0.0.1:10911"})
 
