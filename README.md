@@ -8,6 +8,7 @@
 * active添加调用来源
 * test/ytask_multiServer_2_test.go
 * test/ytask_delayServer_test.go
+* server端broker保持链接
 
 ## 发包测试
 * 测试发v3后是否能安装v2
