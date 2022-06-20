@@ -49,6 +49,8 @@ func (c *Client) getSession(uri string) (*rabbitSession, error) {
 	}
 	return &rabbitSession{conn, channel}, nil
 }
+
+// 创建队列，如果队列已经存在，则忽略
 func (c *Client) queueDeclare(queueName string, session *rabbitSession) error {
 
 	_, ok := c.declareQueue[queueName]
