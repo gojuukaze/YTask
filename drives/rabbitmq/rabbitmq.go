@@ -39,6 +39,7 @@ func NewRabbitMqClient(host, port, user, password, vhost string) Client {
 
 func (c *Client) getSession(uri string) (*rabbitSession, error) {
 	conn, err := amqp.Dial(uri)
+	conn.IsClosed()
 	if err != nil {
 		return nil, err
 	}
