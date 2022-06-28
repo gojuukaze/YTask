@@ -1,4 +1,11 @@
 # YTask
+
+# Warning!!!
+## Brokers and Backends other than redis are unstable in the current version, so it is not recommended to use them. This issue will be fixed in v3.0. 
+## 在目前版本的除redis之外的broker与 backend不稳定的，不建议使用。这一问题会在v3.0修复
+
+-----------
+
 YTask is an asynchronous task queue for handling distributed jobs in golang  
 golang异步任务/队列 框架  
 
