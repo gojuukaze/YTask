@@ -2,7 +2,6 @@ package mongo
 
 import (
 	"github.com/gojuukaze/YTask/v3/backends"
-	"github.com/gojuukaze/YTask/v3/drive"
 	"github.com/gojuukaze/YTask/v3/message"
 	"github.com/gojuukaze/YTask/v3/util/yjson"
 	"github.com/gojuukaze/YTask/v3/yerrors"
@@ -10,7 +9,7 @@ import (
 )
 
 type Backend struct {
-	client     *drive.MongoClient
+	client     MongoClient
 	host       string
 	port       string
 	user       string
@@ -33,8 +32,8 @@ func NewMongoBackend(host, port, user, password, db, collection string) Backend 
 }
 
 func (r *Backend) Activate() {
-	client := drive.NewMongoClient(r.host, r.port, r.user, r.password, r.db, r.collection)
-	r.client = &client
+	client := NewMongoClient(r.host, r.port, r.user, r.password, r.db, r.collection)
+	r.client = client
 }
 
 func (r *Backend) SetPoolSize(n int) {

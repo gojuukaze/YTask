@@ -2,7 +2,7 @@ package test
 
 import (
 	"fmt"
-	"github.com/gojuukaze/YTask/drives/mongo"
+	"github.com/gojuukaze/YTask/v3/drives/mongo"
 	"github.com/gojuukaze/YTask/v3/message"
 	"testing"
 )
