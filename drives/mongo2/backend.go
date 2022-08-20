@@ -9,7 +9,7 @@ import (
 )
 
 type Backend struct {
-	client     Client
+	client     *Client
 	host       string
 	port       string
 	user       string

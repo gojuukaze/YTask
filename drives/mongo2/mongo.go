@@ -29,7 +29,7 @@ type Client struct {
 NewMongoClient
 经测试mongo-driver会自动断线重连，且自带连接池，但貌似设置连接池大小没有作用，因此就不需要poolSize选项了
 */
-func NewMongoClient(host, port, user, password, db, collection string, expires int) Client {
+func NewMongoClient(host, port, user, password, db, collection string, expires int) *Client {
 	var uri string
 	if user != "" {
 		uri = fmt.Sprintf("mongodb://%s:%s@%s:%s", user, password, host, port)
@@ -41,7 +41,7 @@ func NewMongoClient(host, port, user, password, db, collection string, expires i
 	if err != nil {
 		panic("YTask: init mongo error : " + err.Error())
 	}
-	return client
+	return &client
 }
 
 // =======================
