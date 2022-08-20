@@ -12,6 +12,11 @@ var (
 	ErrConnPoolGetTimeout = errors.New("ErrConnPoolGetTimeout")
 	ErrConnPoolClosed     = errors.New("ErrConnPoolClosed")
 	ErrNoIdleConn         = errors.New("NoIdleConn")
+
+	IdleTimeout      = 60
+	GetConnTimeout   = 60
+	GetConnSleepTime = 100 * time.Millisecond
+	ReDailTimes      = 2
 )
 
 type ConnInterface interface {
@@ -50,10 +55,10 @@ type ConnPool struct {
 func NewConnPoolConfig() ConnPoolConfig {
 	return ConnPoolConfig{
 		Size:             10,
-		IdleTimeout:      60,
-		GetConnTimeout:   60,
-		GetConnSleepTime: 100 * time.Millisecond,
-		ReDailTimes:      2,
+		IdleTimeout:      IdleTimeout,
+		GetConnTimeout:   GetConnTimeout,
+		GetConnSleepTime: GetConnSleepTime,
+		ReDailTimes:      ReDailTimes,
 	}
 }
 func NewConnPool(conn ConnInterface, conf ConnPoolConfig) ConnPool {
