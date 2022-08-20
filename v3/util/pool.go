@@ -109,6 +109,7 @@ func (p *ConnPool) get() (interface{}, error) {
 			p.CloseConn(conn)
 		}
 	}
+	// 走到这说明要创建新的链接
 	if p.NumOpen == p.Conf.Size {
 		return nil, ErrNoIdleConn
 	}
@@ -119,7 +120,7 @@ func (p *ConnPool) get() (interface{}, error) {
 func (p *ConnPool) IsConnTimeout(conn interface{}) bool {
 	_, t := p.DecodeId(conn.(ConnInterface).GetId())
 	// +1提前一秒过期
-	return time.Now().Unix()+1 > t+int64(p.Conf.IdleTimeout)
+	return time.Now().UnixMilli()+1000 > t+int64(p.Conf.IdleTimeout)*1000
 
 }
 
@@ -153,7 +154,7 @@ func (p *ConnPool) GenId(randomNum int) string {
 	if randomNum == -1 {
 		randomNum = p.NumOpen
 	}
-	return fmt.Sprintf("%v-%v", randomNum, time.Now().Unix())
+	return fmt.Sprintf("%v-%v", randomNum, time.Now().UnixMilli())
 
 }
 
