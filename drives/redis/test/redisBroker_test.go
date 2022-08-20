@@ -6,6 +6,9 @@ import (
 	"github.com/gojuukaze/YTask/v3/controller"
 	"github.com/gojuukaze/YTask/v3/drives/redis"
 	"github.com/gojuukaze/YTask/v3/message"
+	"os"
+	"os/signal"
+	"syscall"
 	"testing"
 )
 
@@ -44,6 +47,45 @@ func TestRedisBroker(t *testing.T) {
 }
 
 func TestRedisBrokerLSend(t *testing.T) {
+	broker := redis.NewRedisBroker("127.0.0.1", "6379", "", 0, 1)
+	broker.Activate()
+	msg := message.NewMessage(controller.NewTaskCtl())
+	msg.Id = "1"
+	msg2 := message.NewMessage(controller.NewTaskCtl())
+	msg2.Id = "2"
+	err := broker.Send("test_redis", msg)
+	if err != nil {
+		t.Fatal(err)
+	}
+	err = broker.LSend("test_redis", msg2)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	fmt.Printf("重启Redis后通过 \" kill -CONT %d \" 继续运行测试\n", os.Getpid())
+	quit := make(chan os.Signal, 1)
+	signal.Notify(quit, syscall.SIGCONT)
+	<-quit
+
+	m, err := broker.Next("test_redis")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if m.Id != msg2.Id {
+		t.Fatalf("%v != %v", m, msg2)
+	}
+
+	m2, err := broker.Next("test_redis")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if m2.Id != msg.Id {
+		t.Fatalf("%v != %v", m2, msg)
+
+	}
+}
+
+func TestRedisBroker2(t *testing.T) {
 	broker := redis.NewRedisBroker("127.0.0.1", "6379", "", 0, 1)
 	broker.Activate()
 	msg := message.NewMessage(controller.NewTaskCtl())
