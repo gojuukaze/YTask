@@ -8,26 +8,28 @@ import (
 )
 
 type Broker struct {
-	client   Client
+	client   *Client
 	host     string
 	port     string
 	user     string
 	password string
 	vhost    string
+	poolSize int
 }
 
-func NewRabbitMqBroker(host, port, user, password, vhost string) Broker {
+func NewRabbitMqBroker(host, port, user, password, vhost string, poolSize int) Broker {
 	return Broker{
 		host:     host,
 		port:     port,
 		password: password,
 		user:     user,
 		vhost:    vhost,
+		poolSize: poolSize,
 	}
 }
 
 func (r *Broker) Activate() {
-	r.client = NewRabbitMqClient(r.host, r.port, r.user, r.password, r.vhost)
+	r.client = NewRabbitMqClient(r.host, r.port, r.user, r.password, r.vhost, r.poolSize)
 }
 
 func (r *Broker) SetPoolSize(n int) {
@@ -79,5 +81,6 @@ func (r Broker) Clone() brokers.BrokerInterface {
 		password: r.password,
 		user:     r.user,
 		vhost:    r.vhost,
+		poolSize: r.poolSize,
 	}
 }

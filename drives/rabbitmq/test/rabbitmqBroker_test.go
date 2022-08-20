@@ -10,7 +10,7 @@ import (
 )
 
 func TestRabbitmqBroker(t *testing.T) {
-	broker := rabbitmq.NewRabbitMqBroker("127.0.0.1", "5672", "guest", "guest", "")
+	broker := rabbitmq.NewRabbitMqBroker("127.0.0.1", "5672", "guest", "guest", "", 2)
 	broker.Activate()
 	msg := message.NewMessage(controller.NewTaskCtl())
 	msg2 := message.NewMessage(controller.NewTaskCtl())
@@ -48,7 +48,7 @@ func TestRabbitmqBroker(t *testing.T) {
 }
 
 func TestRabbitmqBrokerLSend(t *testing.T) {
-	broker := rabbitmq.NewRabbitMqBroker("127.0.0.1", "5672", "guest", "guest", "")
+	broker := rabbitmq.NewRabbitMqBroker("127.0.0.1", "5672", "guest", "guest", "", 2)
 	broker.Activate()
 	msg := message.NewMessage(controller.NewTaskCtl())
 	msg.Id = "1"
