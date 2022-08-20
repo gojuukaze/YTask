@@ -1,33 +1,52 @@
 package memcache
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/bradfitz/gomemcache/memcache"
 )
 
 type Client struct {
+	Server       []string
+	PoolSize     int
 	memCacheConn *memcache.Client
 }
 
-func NewMemCacheClient(host, port string, poolSize int) Client {
-	client := memcache.New(fmt.Sprintf("%s:%s", host, port))
-	client.MaxIdleConns = poolSize
-	// 为什么默认的Timeout是100millisecond？？这么短就没必要用连接池了。所以这里改长一点。
-	// 写这个注释是因为不熟悉memcached，不知道设这么短是否有特殊的原因，后人看到有问题的话请反馈
-	client.Timeout = time.Second * 10
+// NewMemCacheClient
+//  - server: ["host:port"]
+func NewMemCacheClient(server []string, poolSize int) *Client {
+	client := Client{server, poolSize, nil}
+	client.Dail()
 	err := client.Ping()
 	if err != nil {
 		panic("YTask: connect memCached error : " + err.Error())
 	}
 
-	return Client{
-		memCacheConn: client,
+	return &client
+}
+
+func (c *Client) Dail() {
+	c.memCacheConn = memcache.New(c.Server...)
+	c.memCacheConn.MaxIdleConns = c.PoolSize
+	// 为什么默认的Timeout是100millisecond？？这么短就没必要用连接池了。所以这里改长一点。
+	// 写这个注释是因为不熟悉memcached，不知道设这么短是否有特殊的原因，后人看到有问题的话请反馈
+	c.memCacheConn.Timeout = time.Second * 10
+}
+
+func (c *Client) Check() error {
+	err := c.Ping()
+	if err != nil && err.Error() == "EOF" {
+		c.Dail()
+		return nil
 	}
+	return err
 }
 
 func (c *Client) Get(key string) ([]byte, error) {
+	err := c.Check()
+	if err != nil {
+		return nil, err
+	}
 	item, err := c.memCacheConn.Get(key)
 	if err != nil {
 		return nil, err
@@ -36,7 +55,11 @@ func (c *Client) Get(key string) ([]byte, error) {
 }
 
 func (c *Client) Set(key string, value []byte, exTime int) error {
-	err := c.memCacheConn.Set(&memcache.Item{Key: key, Value: value, Expiration: int32(exTime)})
+	err := c.Check()
+	if err != nil {
+		return err
+	}
+	err = c.memCacheConn.Set(&memcache.Item{Key: key, Value: value, Expiration: int32(exTime)})
 	if err != nil {
 		return err
 	}

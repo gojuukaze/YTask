@@ -10,22 +10,19 @@ import (
 
 type MemCacheBackend struct {
 	client   *Client
-	host     string
-	port     string
+	server   []string
 	poolSize int
 }
 
-func NewMemCacheBackend(host, port string, poolSize int) MemCacheBackend {
+func NewMemCacheBackend(server []string, poolSize int) MemCacheBackend {
 	return MemCacheBackend{
-		host:     host,
-		port:     port,
+		server:   server,
 		poolSize: poolSize,
 	}
 }
 
 func (r *MemCacheBackend) Activate() {
-	client := NewMemCacheClient(r.host, r.port, r.poolSize)
-	r.client = &client
+	r.client = NewMemCacheClient(r.server, r.poolSize)
 }
 
 func (r *MemCacheBackend) SetPoolSize(n int) {
@@ -63,8 +60,7 @@ func (r *MemCacheBackend) GetResult(key string) (message.Result, error) {
 
 func (r MemCacheBackend) Clone() backends.BackendInterface {
 	return &MemCacheBackend{
-		host:     r.host,
-		port:     r.port,
+		server:   r.server,
 		poolSize: r.poolSize,
 	}
 }
