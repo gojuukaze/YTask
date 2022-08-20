@@ -22,8 +22,13 @@ type Client struct {
 	DB         string
 	Collection string
 	Expires    int
+	cli        *mongo.Client
 }
 
+/*
+NewMongoClient
+经测试mongo-driver会自动断线重连，且自带连接池，但貌似设置连接池大小没有作用，因此就不需要poolSize选项了
+*/
 func NewMongoClient(host, port, user, password, db, collection string, expires int) Client {
 	var uri string
 	if user != "" {
@@ -31,7 +36,7 @@ func NewMongoClient(host, port, user, password, db, collection string, expires i
 	} else {
 		uri = fmt.Sprintf("mongodb://%s:%s", host, port)
 	}
-	client := Client{uri, db, collection, expires}
+	client := Client{uri, db, collection, expires, nil}
 	err := client.Init()
 	if err != nil {
 		panic("YTask: init mongo error : " + err.Error())
@@ -46,14 +51,9 @@ func (c *Client) Get(key string) (Result, error) {
 	var result Result
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
-	client, err := c.GetClient(ctx)
 
-	if err != nil {
-		return result, err
-	}
-	defer client.Disconnect(ctx)
-	col := c.GetCollection(client)
-	err = col.FindOne(ctx, bson.D{{"_id", key}}).Decode(&result)
+	col := c.GetCollection()
+	err := col.FindOne(ctx, bson.D{{"_id", key}}).Decode(&result)
 	// 由于mongo不是立即清理过期数据，所以这里需要判断是否过期
 	if err == nil && c.Expires > 0 && result.CreateTime.Add(time.Duration(c.Expires)*time.Second).Before(time.Now()) {
 		err = mongo.ErrNoDocuments
@@ -66,18 +66,11 @@ func (c *Client) Get(key string) (Result, error) {
 func (c *Client) Set(key string, value []byte) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
-	client, err := c.GetClient(ctx)
+	col := c.GetCollection()
 
-	if err != nil {
-		return err
-	}
-	defer client.Disconnect(ctx)
-
-	col := c.GetCollection(client)
 	// 这里有个问题，如果doc在find之后过期，则ReplaceOne会报错。不过一般不用担心，key没那么容易重复
-
 	filter := bson.D{{"_id", key}}
-	err = col.FindOne(ctx, filter).Err()
+	err := col.FindOne(ctx, filter).Err()
 	if err == mongo.ErrNoDocuments {
 		_, err = col.InsertOne(ctx, Result{key, value, time.Now()})
 		return err
@@ -96,26 +89,25 @@ func (c *Client) GetClient(ctx context.Context) (*mongo.Client, error) {
 	return client, err
 }
 
-func (c *Client) GetCollection(client *mongo.Client) *mongo.Collection {
-	return client.Database(c.DB).Collection(c.Collection)
+func (c *Client) GetCollection() *mongo.Collection {
+	return c.cli.Database(c.DB).Collection(c.Collection)
 }
 
 func (c *Client) Init() error {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
-
-	client, err := c.GetClient(ctx)
-	if err != nil {
-		return err
-	}
-	defer client.Disconnect(ctx)
-
-	err = client.Ping(ctx, readpref.Primary())
+	var err error
+	c.cli, err = c.GetClient(ctx)
 	if err != nil {
 		return err
 	}
 
-	col := c.GetCollection(client)
+	err = c.cli.Ping(ctx, readpref.Primary())
+	if err != nil {
+		return err
+	}
+
+	col := c.GetCollection()
 
 	if c.Expires > 0 {
 		err = c.InitIndex(ctx, col.Indexes())
