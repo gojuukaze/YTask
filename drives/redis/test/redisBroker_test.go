@@ -2,9 +2,9 @@ package test
 
 import (
 	"fmt"
-	"github.com/gojuukaze/YTask/drives/redis"
 	"github.com/gojuukaze/YTask/v3/brokers"
 	"github.com/gojuukaze/YTask/v3/controller"
+	"github.com/gojuukaze/YTask/v3/drives/redis"
 	"github.com/gojuukaze/YTask/v3/message"
 	"testing"
 )
