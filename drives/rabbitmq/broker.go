@@ -33,9 +33,10 @@ func (r *Broker) Activate() {
 }
 
 func (r *Broker) SetPoolSize(n int) {
+	r.poolSize = n
 }
 func (r *Broker) GetPoolSize() int {
-	return 0
+	return r.poolSize
 }
 
 func (r *Broker) Next(queueName string) (message.Message, error) {
