@@ -69,7 +69,8 @@ func (s *DelayServer) Run() {
 	}
 
 	s.Store("isRunning", struct{}{})
-	s.SetBrokerPoolSize(11)
+	// 这里应该一个就够了，不知道为啥之前设为了11 =。=
+	s.SetBrokerPoolSize(1)
 	s.BrokerActivate()
 
 	log.YTaskLog.WithField("server", s.delayGroupName).Infof("Start delayServer[%s] ", s.delayGroupName)

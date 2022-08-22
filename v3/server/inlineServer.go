@@ -79,7 +79,12 @@ func (t *InlineServer) Run(numWorkers int) {
 	}
 	t.SetRunning()
 
-	t.SetBrokerPoolSize(1)
+	// 初始化Broker, Backend
+	if t.GetBrokerPoolSize() <= 0 {
+		t.SetBrokerPoolSize(3)
+	} else {
+		t.SetBrokerPoolSize(t.GetBrokerPoolSize())
+	}
 	t.BrokerActivate()
 
 	if t.backend != nil {
@@ -96,6 +101,7 @@ func (t *InlineServer) Run(numWorkers int) {
 		log.YTaskLog.WithField("server", t.groupName).Info("  - " + name)
 	}
 
+	// 初始化chan，运行协程
 	t.workerReadyChan = make(chan struct{}, numWorkers)
 	t.msgChan = make(chan message.Message, numWorkers)
 
