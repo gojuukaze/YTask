@@ -11,6 +11,9 @@ const (
 	ErrTypeNilResult       = 4 // 任务结果为空
 	ErrTypeTimeOut         = 5 // broker，backend超时
 	ErrTypeServerStop      = 6 // 服务已停止
+
+	ErrTypeSendMsg = 7 // 通过broker发送消息失败，目前工作流发送下一个任务时会用到
+
 )
 
 func IsEqual(err error, errType int) bool {
@@ -93,5 +96,17 @@ func (e ErrServerStop) Error() string {
 }
 
 func (e ErrServerStop) Type() int {
+	return ErrTypeServerStop
+}
+
+type ErrSendMsg struct {
+	Msg string
+}
+
+func (e ErrSendMsg) Error() string {
+	return fmt.Sprintf("YTask: send msg error [%s]", e.Msg)
+}
+
+func (e ErrSendMsg) Type() int {
 	return ErrTypeServerStop
 }

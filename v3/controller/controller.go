@@ -4,11 +4,20 @@ import (
 	"time"
 )
 
+type TaskCtlWorkflowArgs struct {
+	GroupName  string
+	WorkerName string
+	RetryCount int
+	RunAfter   time.Duration
+	ExpireTime time.Time
+}
+
 type TaskCtl struct {
 	RetryCount int
 	RunTime    time.Time
 	ExpireTime time.Time
 	err        error
+	Workflow   []TaskCtlWorkflowArgs `json:"workflow"`
 }
 
 func NewTaskCtl() TaskCtl {
@@ -50,9 +59,13 @@ func (t *TaskCtl) IsZeroRunTime() bool {
 }
 
 func (t *TaskCtl) SetExpireTime(_t time.Time) {
-	t.ExpireTime= _t
+	t.ExpireTime = _t
 }
 
 func (t *TaskCtl) IsExpired() bool {
 	return !t.ExpireTime.IsZero() && time.Now().After(t.ExpireTime)
+}
+
+func (t *TaskCtl) AppendWorkflow(work TaskCtlWorkflowArgs) {
+	t.Workflow = append(t.Workflow, work)
 }

@@ -23,7 +23,7 @@ var ctlKey = ctlKeyChoices{
 }
 
 type Client struct {
-	sUtils  *serverUtils
+	sUtils  *ServerUtils
 	isClone bool
 	ctl     controller.TaskCtl
 
@@ -82,7 +82,7 @@ func (c *Client) SetTaskCtl(name int, value interface{}) *Client {
 	return cloneC
 }
 
-//
+// Send
 // return: taskId, err
 //
 func (c *Client) Send(groupName string, workerName string, args ...interface{}) (string, error) {
@@ -90,6 +90,15 @@ func (c *Client) Send(groupName string, workerName string, args ...interface{}) 
 		groupName = c.sUtils.GetDelayGroupName(groupName)
 	}
 	return c.sUtils.Send(groupName, workerName, c.ctl, args...)
+}
+
+// Workflow
+// start a workflow
+// return: taskId, err
+//
+func (c *Client) Workflow() *ClientWithWorkflow {
+	cloneC := c.Clone()
+	return &ClientWithWorkflow{client: cloneC}
 }
 
 // taskId:
@@ -130,4 +139,73 @@ func (c *Client) GetStatus(taskId string, timeout time.Duration, sleepTime time.
 		}
 		time.Sleep(sleepTime)
 	}
+}
+
+type ClientWithWorkflow struct {
+	client       *Client
+	WorkflowArgs controller.TaskCtlWorkflowArgs
+	args         []interface{}
+}
+
+func (c *ClientWithWorkflow) SetTaskCtl(name int, value interface{}) *ClientWithWorkflow {
+	switch name {
+	case ctlKey.RetryCount:
+		c.WorkflowArgs.RetryCount = value.(int)
+	case ctlKey.RunAfter:
+		c.WorkflowArgs.RunAfter = value.(time.Duration)
+	case ctlKey.ExpireTime:
+		c.WorkflowArgs.ExpireTime = value.(time.Time)
+
+	}
+	return c
+}
+
+// Send
+//  - args : 只有第一个任务才能填！！！后续任务的参数固定为第一个任务的返回值
+func (c *ClientWithWorkflow) Send(groupName string, workerName string, args ...interface{}) *ClientWithWorkflow {
+	if len(args) > 0 {
+		c.args = args
+	}
+	c.WorkflowArgs.GroupName = groupName
+	c.WorkflowArgs.WorkerName = workerName
+
+	c.client.ctl.AppendWorkflow(c.WorkflowArgs)
+	c.WorkflowArgs = controller.TaskCtlWorkflowArgs{}
+	return c
+
+}
+
+// SendWorkflow
+// return: taskId, err
+func (c *ClientWithWorkflow) Done() (string, error) {
+	first := c.client.ctl.Workflow[0]
+	c.client.SetTaskCtl(ctlKey.RetryCount, first.RetryCount)
+	if first.RunAfter != 0 {
+		c.client.SetTaskCtl(ctlKey.RunAfter, first.RunAfter)
+	}
+	if !first.ExpireTime.IsZero() {
+		c.client.SetTaskCtl(ctlKey.ExpireTime, first.ExpireTime)
+	}
+	return c.client.Send(first.GroupName, first.WorkerName, c.args...)
+
+}
+
+// Server 用的client
+// 任务函数的第二个参数
+type ServerClient struct {
+	Client
+}
+
+func NewServerClient(su *ServerUtils) *ServerClient {
+	return &ServerClient{
+		Client: Client{
+			sUtils:        su,
+			ctl:           controller.NewTaskCtl(),
+			ctlKeyChoices: ctlKey,
+		},
+	}
+}
+
+func (c *ServerClient) AbortWorkerFlow(groupName string, workerName string, args ...interface{}) (string, error) {
+	return c.Client.Send(groupName, workerName, args...)
 }

@@ -14,7 +14,7 @@ import (
 
 type InlineServer struct {
 	sync.Map
-	serverUtils
+	ServerUtils
 
 	groupName string
 	workerMap map[string]worker.WorkerInterface // [workerName]worker
@@ -38,7 +38,7 @@ func NewInlineServer(groupName string, c config.Config) InlineServer {
 	return InlineServer{
 		groupName:                   groupName,
 		workerMap:                   wm,
-		serverUtils:                 newServerUtils(c.Broker, c.Backend, c.StatusExpires, c.ResultExpires),
+		ServerUtils:                 newServerUtils(c.Broker, c.Backend, c.StatusExpires, c.ResultExpires),
 		safeStopChan:                make(chan struct{}),
 		getMessageGoroutineStopChan: make(chan struct{}),
 		workerGoroutineStopChan:     make(chan struct{}),

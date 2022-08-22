@@ -24,11 +24,41 @@ var ResultStatus = resultStatusChoice{
 	Expired:      6,
 }
 
+type workflowStatusChoice struct {
+	Waiting string
+	Running string
+	Success string
+	Failure string
+	Expired string
+	Abort   string
+}
+
+var WorkflowStatus = workflowStatusChoice{
+	Waiting: "waiting",
+	Running: "running",
+	Success: "success",
+	Failure: "failure",
+	Expired: "expired",
+	Abort:   "abort", // 任务中手动中断工作流
+}
+
+var StatusToWorkflowStatus = map[int]string{
+	ResultStatus.Sent:         WorkflowStatus.Waiting,
+	ResultStatus.FirstRunning: WorkflowStatus.Running,
+	ResultStatus.WaitingRetry: WorkflowStatus.Running,
+	ResultStatus.Running:      WorkflowStatus.Running,
+	ResultStatus.Success:      WorkflowStatus.Success,
+	ResultStatus.Failure:      WorkflowStatus.Failure,
+	ResultStatus.Expired:      WorkflowStatus.Expired,
+}
+
 type Result struct {
-	Id         string   `json:"id"`
-	Status     int      `json:"status"` // 0:sent , 1:first running , 2: waiting to retry , 3: running , 4: success , 5: Failure
-	FuncReturn []string `json:"func_return"`
-	RetryCount int      `json:"retry_count"`
+	Id         string      `json:"id"`
+	Status     int         `json:"status"` // 0:sent , 1:first running , 2: waiting to retry , 3: running , 4: success , 5: Failure
+	FuncReturn []string    `json:"func_return"`
+	RetryCount int         `json:"retry_count"`
+	Workflow   [][2]string `json:"workflow"` // [["workName","status"],] ;  status: waiting , running , success , failure , expired , abort
+	Err        error       `json:"err"`
 }
 
 func NewResult(id string) Result {
