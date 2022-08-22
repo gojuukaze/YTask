@@ -1,3 +1,19 @@
+# v3开发说明
+* 迁移drives，以便导入时不导入不必要的drive包
+* 级联任务
+* example
+* 测试用的drives
+* 文档
+* 连接池默认值调整
+* active添加调用来源
+* test/ytask_multiServer_2_test.go
+* test/ytask_delayServer_test.go
+* server端broker保持链接
+
+## 发包测试
+* 测试发v3后是否能安装v2
+* drives中go.mod不添加ytask是否能正常运行
+
 # YTask
 
 # Warning!!!
@@ -15,7 +31,7 @@ golang异步任务/队列 框架
 
 # install
 ```bash
-go get -u github.com/gojuukaze/YTask/v2
+go get -u github.com/gojuukaze/YTask/v3
 ```
 # architecture diagram
 <img src="./architecture_diagram.png" alt="architecture_diagram" width="80%">
@@ -31,7 +47,7 @@ package main
 
 import (
 	"context"
-	"github.com/gojuukaze/YTask/v2"
+	"github.com/gojuukaze/YTask/v3"
 	"os"
 	"os/signal"
 	"syscall"
@@ -100,8 +116,8 @@ package main
 
 import (
 	"fmt"
-	"github.com/gojuukaze/YTask/v2"
-	"github.com/gojuukaze/YTask/v2/server"
+	"github.com/gojuukaze/YTask/v3"
+	"github.com/gojuukaze/YTask/v3/server"
 	"time"
 )
 
@@ -163,7 +179,7 @@ func main() {
 Also take a look at [example](https://github.com/gojuukaze/YTask/tree/master/example/v2) directory.
 
 ```bash
-cd example/v2
+cd example/v3
 go run server/main.go 
 
 go run send/main.go

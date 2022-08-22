@@ -1,0 +1,71 @@
+package controller
+
+import (
+	"time"
+)
+
+type TaskCtlWorkflowArgs struct {
+	GroupName  string
+	WorkerName string
+	RetryCount int
+	RunAfter   time.Duration
+	ExpireTime time.Time
+}
+
+type TaskCtl struct {
+	RetryCount int
+	RunTime    time.Time
+	ExpireTime time.Time
+	err        error
+	Workflow   []TaskCtlWorkflowArgs `json:"workflow"`
+}
+
+func NewTaskCtl() TaskCtl {
+	return TaskCtl{
+		RetryCount: 3,
+	}
+}
+
+func (t *TaskCtl) Retry(err error) {
+	t.err = err
+}
+
+func (t *TaskCtl) SetRetryCount(c int) {
+	t.RetryCount = c
+}
+
+func (t TaskCtl) CanRetry() bool {
+	return t.RetryCount > 0
+}
+
+func (t TaskCtl) GetError() error {
+	return t.err
+}
+
+func (t *TaskCtl) SetError(err error) {
+	t.err = err
+}
+
+func (t *TaskCtl) SetRunTime(_t time.Time) {
+	t.RunTime = _t
+}
+
+func (t *TaskCtl) GetRunTime() time.Time {
+	return t.RunTime
+}
+
+func (t *TaskCtl) IsZeroRunTime() bool {
+	return t.RunTime.IsZero()
+}
+
+func (t *TaskCtl) SetExpireTime(_t time.Time) {
+	t.ExpireTime = _t
+}
+
+func (t *TaskCtl) IsExpired() bool {
+	return !t.ExpireTime.IsZero() && time.Now().After(t.ExpireTime)
+}
+
+func (t *TaskCtl) AppendWorkflow(work TaskCtlWorkflowArgs) {
+	t.Workflow = append(t.Workflow, work)
+}
