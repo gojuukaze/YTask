@@ -38,7 +38,6 @@ func (hook YTaskHook) Fire(entry *logrus.Entry) error {
 	delete(entry.Data, "server")
 
 	entry.Message = fmt.Sprintf("%s%s]: %s", s, goroutineName, entry.Message)
-
 	return nil
 }
 
@@ -164,7 +163,7 @@ func (yl *YTaskLogger) PanicWithField(msg string, key string, val interface{}) {
 	yl.logger.WithField(key, val).Panic(msg)
 }
 
-func (yl *YTaskLogger) SetLevel(level string)  {
+func (yl *YTaskLogger) SetLevel(level string) {
 	switch level {
 	case "debug":
 		yl.logger.SetLevel(logrus.DebugLevel)

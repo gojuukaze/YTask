@@ -2,13 +2,7 @@ package server
 
 import (
 	"context"
-<<<<<<< HEAD:v2/server/multiServer.go
-	"github.com/gojuukaze/YTask/v2/config"
-=======
 	"github.com/gojuukaze/YTask/v3/config"
-	"github.com/gojuukaze/YTask/v3/log"
-	"github.com/sirupsen/logrus"
->>>>>>> dev3.0:v3/server/multiServer.go
 	"golang.org/x/sync/errgroup"
 )
 
