@@ -56,3 +56,19 @@ func testWorkflow1(ser server.Server, t *testing.T) {
 		t.Fatalf("a is %d , !=3", a)
 	}
 }
+
+// todo 测试延时任务执行
+func testWorkflow2(ser server.Server, t *testing.T) {
+	client := ser.GetClient()
+	id, _ := client.Workflow().
+		Send("test_g", "workflow1", 1, 2).
+		Send("test_g", "workflow2").
+		Done()
+
+	result, _ := client.GetResult(id, time.Second*2, time.Millisecond*300)
+
+	a, _ := result.GetInt64(0)
+	if a != 9 {
+		t.Fatalf("a is %d , !=3", a)
+	}
+}
