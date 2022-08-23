@@ -31,15 +31,15 @@ func TestDelayServerSend(t *testing.T) {
 	client.SetTaskCtl(client.RunAt, runTime).Send("TestDelayServer_Send", "1")
 	runTime2 := time.Now().Add(5 * time.Second)
 	client.SetTaskCtl(client.RunAfter, 5*time.Second).Send("TestDelayServer_Send", "2")
-
-	b2 := b.Clone()
-	b2.Activate()
-	msg, _ := b2.Next("YTask:Query:Delay:TestDelayServer_Send")
+	// 由于更换为了LocalBroker，这里不能运行Activate，否则队列会被清空
+	//b2 := b.Clone()
+	//b2.Activate()
+	msg, _ := b.Next("YTask:Query:Delay:TestDelayServer_Send")
 	if msg.TaskCtl.GetRunTime() != runTime {
 		t.Fatal(msg.TaskCtl.GetRunTime(), "!=", runTime)
 	}
 
-	msg, _ = b2.Next("YTask:Query:Delay:TestDelayServer_Send")
+	msg, _ = b.Next("YTask:Query:Delay:TestDelayServer_Send")
 	if msg.TaskCtl.GetRunTime().Sub(runTime2).Milliseconds() > 300 {
 		t.Fatal(msg.TaskCtl.GetRunTime().Sub(runTime2), ">300 ms")
 
@@ -139,15 +139,15 @@ func TestDelayServer2(t *testing.T) {
 	close(ch)
 	ds.Shutdown(context.TODO())
 
-	b2 := b.Clone()
-	b2.Activate()
-	msg, _ = b2.Next("YTask:Query:Delay:testDelay2")
+	//b2 := b.Clone()
+	//b2.Activate()
+	msg, _ = b.Next("YTask:Query:Delay:testDelay2")
 	if msg.WorkerName != "3" {
 		t.Fatal(msg.WorkerName, "!=3")
 	}
 	//清空测试用的队列
 	for true {
-		_, err := b2.Next("YTask:Query:Delay:testDelay2")
+		_, err := b.Next("YTask:Query:Delay:testDelay2")
 		if err != nil {
 			break
 		}
@@ -193,12 +193,12 @@ func TestDelayServer3(t *testing.T) {
 
 	ds.Shutdown(context.TODO())
 
-	b2 := b.Clone()
-	b2.Activate()
+	//b2 := b.Clone()
+	//b2.Activate()
 	var names = map[string]string{"1": "", "2": ""}
 
 	for true {
-		msg, err := b2.Next("YTask:Query:Delay:" + groupName)
+		msg, err := b.Next("YTask:Query:Delay:" + groupName)
 		if err != nil {
 			break
 		}
