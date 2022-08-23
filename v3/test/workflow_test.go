@@ -38,17 +38,18 @@ func TestWorkflow(t *testing.T) {
 
 	ser.Add("test_g", "workflow1", workflow1)
 	ser.Add("test_g", "workflow2", workflow2)
+
+	client := ser.GetClient()
 	ser.Run("test_g", 2, true)
 
-	testWorkflow1(ser, t)
-	testWorkflow2(ser, t)
-	testWorkflow3(ser, t)
+	testWorkflow1(client, t)
+	testWorkflow2(client, t)
+	testWorkflow3(client, t)
 	ser.Shutdown(context.TODO())
 
 }
 
-func testWorkflow1(ser server.Server, t *testing.T) {
-	client := ser.GetClient()
+func testWorkflow1(client server.Client, t *testing.T) {
 	id, _ := client.Workflow().
 		Send("test_g", "workflow1", 1, 2).
 		Send("test_g", "workflow2").
@@ -63,8 +64,7 @@ func testWorkflow1(ser server.Server, t *testing.T) {
 }
 
 // 测试延时任务执行
-func testWorkflow2(ser server.Server, t *testing.T) {
-	client := ser.GetClient()
+func testWorkflow2(client server.Client, t *testing.T) {
 	id, _ := client.Workflow().
 		SetTaskCtl(client.RunAfter, 3*time.Second).
 		Send("test_g", "workflow1", 1, 2).
@@ -90,8 +90,7 @@ func testWorkflow2(ser server.Server, t *testing.T) {
 }
 
 // 测试任务过期
-func testWorkflow3(ser server.Server, t *testing.T) {
-	client := ser.GetClient()
+func testWorkflow3(client server.Client, t *testing.T) {
 	id, _ := client.Workflow().
 		SetTaskCtl(client.RunAfter, 2*time.Second).
 		SetTaskCtl(client.ExpireTime, time.Now()).

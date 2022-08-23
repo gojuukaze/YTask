@@ -38,9 +38,9 @@ func TestMultit2(t *testing.T) {
 
 	ser.Add("TestMulti2Group", "delayWorker1", delayWorker1)
 
-	ser.Run("TestMulti2Group", 2)
-
 	client := ser.GetClient()
+
+	ser.Run("TestMulti2Group", 2)
 
 	testMulti2_1(t, client)
 	testMulti2_2(t, client)
@@ -56,12 +56,12 @@ func testMulti2_1(t *testing.T, client server.Client) {
 	id, _ := client.Send("TestMulti2Group", "delayWorker1")
 	id2, _ := client.SetTaskCtl(client.RunAfter, 100*time.Millisecond).Send("TestMulti2Group", "delayWorker1")
 
-	_, err := client.GetStatus(id, 1*time.Second, 300*time.Millisecond)
+	_, err := client.GetStatus(id, 1*time.Second, 100*time.Millisecond)
 	if err != nil {
 		t.Fatal("err=", err)
 	}
 
-	_, err = client.GetResult(id2, 1*time.Second, 300*time.Millisecond)
+	_, err = client.GetResult(id2, 2*time.Second, 100*time.Millisecond)
 	if err != nil {
 		t.Fatal("err=", err)
 	}

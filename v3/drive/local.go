@@ -163,7 +163,8 @@ func (d LocalDrive) lPop(queueName string) ([]byte, error) {
 }
 
 func (d LocalDrive) LPop(queueName string) ([]byte, error) {
-	ctx, _ := context.WithTimeout(context.Background(), time.Second*5)
+	// 由于会有多个协程执行这个操作，这里超时时间短一点，尽快让出锁
+	ctx, _ := context.WithTimeout(context.Background(), time.Millisecond*300)
 	for {
 		b, err := d.lPop(queueName)
 		if err == nil {
