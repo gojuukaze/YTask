@@ -84,7 +84,6 @@ func (c *Client) SetTaskCtl(name int, value interface{}) *Client {
 
 // Send
 // return: taskId, err
-//
 func (c *Client) Send(groupName string, workerName string, args ...interface{}) (string, error) {
 	if !c.ctl.IsZeroRunTime() {
 		groupName = c.sUtils.GetDelayGroupName(groupName)
@@ -94,16 +93,17 @@ func (c *Client) Send(groupName string, workerName string, args ...interface{}) 
 
 // Workflow
 // start a workflow
-// return: taskId, err
-//
 func (c *Client) Workflow() *ClientWithWorkflow {
 	cloneC := c.Clone()
 	return &ClientWithWorkflow{client: cloneC}
 }
 
-// taskId:
-// timeout:
-// sleepDuration:
+// GetResult
+// Only return the result when the task is over
+// 只有任务结束才返回结果（任务失败也算结束）
+//  - taskId:
+//  - timeout:
+//  - sleepDuration:
 func (c *Client) GetResult(taskId string, timeout time.Duration, sleepTime time.Duration) (message.Result, error) {
 	if c.sUtils.backend == nil {
 		return message.Result{}, yerrors.ErrNilResult{}
@@ -115,6 +115,26 @@ func (c *Client) GetResult(taskId string, timeout time.Duration, sleepTime time.
 		}
 		r, err := c.sUtils.GetResult(taskId)
 		if err == nil && r.IsFinish() {
+			return r, nil
+		}
+		time.Sleep(sleepTime)
+	}
+}
+
+// GetResult2
+//  Return the result whether the task is finished or not
+//  无论任务是否结束都返回结果（此结果只要任务开始运行就有）
+func (c *Client) GetResult2(taskId string, timeout time.Duration, sleepTime time.Duration) (message.Result, error) {
+	if c.sUtils.backend == nil {
+		return message.Result{}, yerrors.ErrNilResult{}
+	}
+	n := time.Now()
+	for {
+		if time.Now().Sub(n) >= timeout {
+			return message.Result{}, yerrors.ErrTimeOut{}
+		}
+		r, err := c.sUtils.GetResult(taskId)
+		if err == nil {
 			return r, nil
 		}
 		time.Sleep(sleepTime)

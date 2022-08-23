@@ -137,6 +137,13 @@ func (r Result) IsSuccess() bool {
 	return r.Status == ResultStatus.Success
 }
 
+func (r Result) IsFailure() bool {
+	if r.Status == ResultStatus.Failure || r.Status == ResultStatus.Expired {
+		return true
+	}
+	return false
+}
+
 func (r Result) IsFinish() bool {
 	if r.Status == ResultStatus.Success || r.Status == ResultStatus.Failure || r.Status == ResultStatus.Expired {
 		return true

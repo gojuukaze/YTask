@@ -172,7 +172,7 @@ func (d LocalDrive) LPop(queueName string) ([]byte, error) {
 		select {
 		case <-ctx.Done():
 			return nil, EmptyQueueError
-		case <-time.After(time.Millisecond * 300):
+		case <-time.After(time.Millisecond * 100):
 		}
 	}
 
