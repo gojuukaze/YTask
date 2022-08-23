@@ -144,8 +144,10 @@ RUN:
 
 AFTER:
 	// 为了逻辑更简单，工作流和回调暂不兼容
-	if workflowIndex >= 0 && workflowIndex+1 < len(ctl.Workflow) {
-		t.workerGoroutine_NextWorkflow(workflowIndex+1, *msg, *result)
+	if workflowIndex >= 0 {
+		if !result.IsFailure() && workflowIndex+1 < len(ctl.Workflow) {
+			t.workerGoroutine_NextWorkflow(workflowIndex+1, *msg, *result)
+		}
 	} else {
 		err = w.After(&ctl, msg.FuncArgs, result)
 		if err != nil {
@@ -155,10 +157,14 @@ AFTER:
 }
 
 func (t *InlineServer) workerGoroutine_UpdateResultStatus(status int, workflowIndex int, result *message.Result) {
-	result.Status = status
 	if workflowIndex >= 0 {
 		result.Workflow[workflowIndex][1] = message.StatusToWorkflowStatus[status]
+		// 还有剩余任务时，result.Status不能设为Success
+		if workflowIndex+1 < len(result.Workflow) && status == message.ResultStatus.Success {
+			return
+		}
 	}
+	result.Status = status
 
 }
 
