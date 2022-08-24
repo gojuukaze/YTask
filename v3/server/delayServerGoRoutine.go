@@ -23,7 +23,7 @@ func (s *DelayServer) GetDelayMsgGoroutine() {
 		msg, err := s.Next(s.delayGroupName)
 
 		if err != nil {
-			if !yerrors.IsEqual(err, yerrors.ErrTypeEmptyQuery) {
+			if !yerrors.IsEqual(err, yerrors.ErrTypeEmptyQueue) {
 				//log.YTaskLog.WithField("server", s.delayGroupName).WithField("goroutine", "get_delay_message").Error("get msg error, ", err)
 				s.logger.ErrorWithField(fmt.Sprint("goroutine get_delay_message get msg error, ", err), "server", s.delayGroupName)
 			}

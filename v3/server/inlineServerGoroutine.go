@@ -22,7 +22,7 @@ func (t *InlineServer) GetNextMessageGoroutine() {
 
 		if err != nil {
 			go t.MakeWorkerReady()
-			if !yerrors.IsEqual(err, yerrors.ErrTypeEmptyQuery) {
+			if !yerrors.IsEqual(err, yerrors.ErrTypeEmptyQueue) {
 				//log.YTaskLog.WithField("server", t.groupName).WithField("goroutine", "get_next_message").Error("get msg error, ", err)
 				t.logger.ErrorWithField(fmt.Sprint("goroutine get_next_message get msg error, ", err), "server", t.groupName)
 			}

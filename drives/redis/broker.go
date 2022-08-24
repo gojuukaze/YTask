@@ -48,7 +48,7 @@ func (r *Broker) Next(queueName string) (message.Message, error) {
 	values, err := r.client.BLPop(queueName, 2*time.Second).Result()
 	if err != nil {
 		if err == redis.Nil {
-			return msg, yerrors.ErrEmptyQuery{}
+			return msg, yerrors.ErrEmptyQueue{}
 		}
 		return msg, err
 	}

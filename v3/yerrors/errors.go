@@ -5,7 +5,8 @@ import (
 )
 
 const (
-	ErrTypeEmptyQuery      = 1 // 队列为空， broker获取任务时用到
+	ErrTypeEmptyQuery      = 1 // 这个之前拼错了，为了兼容保留下来
+	ErrTypeEmptyQueue      = 1 // 队列为空， broker获取任务时用到
 	ErrTypeUnsupportedType = 2 // 不支持此参数类型
 	ErrTypeOutOfRange      = 3 // 暂时没用
 	ErrTypeNilResult       = 4 // 任务结果为空
@@ -34,15 +35,15 @@ type YTaskError interface {
 	Type() int
 }
 
-type ErrEmptyQuery struct {
+type ErrEmptyQueue struct {
 }
 
-func (e ErrEmptyQuery) Error() string {
-	return "YTask: empty query"
+func (e ErrEmptyQueue) Error() string {
+	return "YTask: empty queue"
 }
 
-func (e ErrEmptyQuery) Type() int {
-	return ErrTypeEmptyQuery
+func (e ErrEmptyQueue) Type() int {
+	return ErrTypeEmptyQueue
 }
 
 type ErrUnsupportedType struct {

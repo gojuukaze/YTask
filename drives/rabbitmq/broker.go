@@ -45,7 +45,7 @@ func (r *Broker) Next(queueName string) (message.Message, error) {
 	b, err := r.client.Get(queueName)
 	if err != nil {
 		if err == AMQPNil {
-			err = yerrors.ErrEmptyQuery{}
+			err = yerrors.ErrEmptyQueue{}
 		}
 		return msg, err
 	}

@@ -16,7 +16,7 @@ func TestRabbitmqBroker(t *testing.T) {
 	msg2 := message.NewMessage(taskMessage.NewTaskCtl())
 
 	_, err := broker.Next("test_amqp")
-	if !yerrors.IsEqual(err, yerrors.ErrTypeEmptyQuery) {
+	if !yerrors.IsEqual(err, yerrors.ErrTypeEmptyQueue) {
 		t.Fatal(err)
 	}
 

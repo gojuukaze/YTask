@@ -25,7 +25,7 @@ func (l *LocalBroker) Next(queueName string) (message.Message, error) {
 	b, err := l.client.LPop(queueName)
 	if err != nil {
 		if err == drive.EmptyQueueError {
-			return msg, yerrors.ErrEmptyQuery{}
+			return msg, yerrors.ErrEmptyQueue{}
 		}
 		return msg, err
 	}
