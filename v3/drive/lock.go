@@ -19,7 +19,7 @@ func (l UnsafeFileLock) Init() {
 	os.Remove(l.filePath)
 }
 func (l UnsafeFileLock) Lock() error {
-	ctx, _ := context.WithTimeout(context.Background(), time.Second*3)
+	ctx, _ := context.WithTimeout(context.Background(), time.Millisecond*400)
 	for {
 		f, err := os.OpenFile(l.filePath, os.O_CREATE|os.O_EXCL, os.FileMode(0600))
 		if err == nil {
@@ -29,7 +29,7 @@ func (l UnsafeFileLock) Lock() error {
 		select {
 		case <-ctx.Done():
 			return errors.New("lock timeout")
-		case <-time.After(300 * time.Millisecond):
+		case <-time.After(100 * time.Millisecond):
 		}
 	}
 }

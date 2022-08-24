@@ -62,7 +62,7 @@ type Result struct {
 	FuncReturn []string    `json:"func_return"`
 	RetryCount int         `json:"retry_count"`
 	Workflow   [][2]string `json:"workflow"` // [["workName","status"],] ;  status: waiting , running , success , failure , expired , abort
-	Err        error       `json:"err"`
+	Err        string      `json:"err"`
 }
 
 func NewResult(id string) Result {
@@ -142,14 +142,14 @@ func (r Result) IsSuccess() bool {
 }
 
 func (r Result) IsFailure() bool {
-	if r.Status == ResultStatus.Failure || r.Status == ResultStatus.Expired {
+	if r.Status == ResultStatus.Failure || r.Status == ResultStatus.Expired || r.Status == ResultStatus.Abort {
 		return true
 	}
 	return false
 }
 
 func (r Result) IsFinish() bool {
-	if r.Status == ResultStatus.Success || r.Status == ResultStatus.Failure || r.Status == ResultStatus.Expired {
+	if r.Status == ResultStatus.Success || r.IsFailure() {
 		return true
 	}
 	return false

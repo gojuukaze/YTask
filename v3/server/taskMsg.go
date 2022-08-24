@@ -98,9 +98,17 @@ func (t *TaskCtl) Abort(msg string) {
 	t.RetryCount = 0
 }
 
-func (t *TaskCtl) IsAbort() error {
+func (t *TaskCtl) IsAbort() (bool, error) {
 	if t.su == nil {
-		return errors.New("IsAbort() can only be called on the server side")
+		return false, errors.New("IsAbort() can only be called on the server side")
 	}
 	return t.su.IsAbort(t.id)
+}
+
+func (t *TaskCtl) SetServerUtil(su *ServerUtils) {
+	t.su = su
+}
+
+func (t *TaskCtl) SetTaskId(id string) {
+	t.id = id
 }

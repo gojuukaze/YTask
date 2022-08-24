@@ -160,15 +160,18 @@ func (b *ServerUtils) AbortTask(id string, exTime int) error {
 	return b.backend.SetResult(message.NewAbortResult(id), exTime)
 }
 
-func (b *ServerUtils) IsAbort(id string) error {
+func (b *ServerUtils) IsAbort(id string) (bool, error) {
 	if b.backend == nil {
-		return yerrors.ErrNilBackend{}
+		return false, yerrors.ErrNilBackend{}
 	}
 	_, err := b.backend.GetResult(message.NewAbortResult(id).GetBackendKey())
-	if yerrors.IsEqual(err, yerrors.ErrTypeNilBackend) {
-		return nil
+	if err == nil {
+		return true, err
 	}
-	return err
+	if yerrors.IsEqual(err, yerrors.ErrTypeNilResult) {
+		return false, nil
+	}
+	return false, err
 }
 
 // MessageArgs与TaskCtl相互转换

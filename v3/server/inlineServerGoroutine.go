@@ -100,12 +100,19 @@ func (t *InlineServer) workerGoroutine_RunWorker(w WorkerInterface, taskMsg *Tas
 
 	var err error
 	ctl := taskMsg.Ctl
+	ctl.SetServerUtil(&t.ServerUtils)
+	ctl.SetTaskId(taskMsg.Id)
 	workflowIndex := -1
 	if len(ctl.Workflow) > 0 {
 		workflowIndex = t.workerGoroutine_UpdateWorkflowResult(taskMsg, result)
 	}
 
 RUN:
+	if f, _ := ctl.IsAbort(); f {
+		t.workerGoroutine_UpdateResultStatus(message.ResultStatus.Abort, workflowIndex, result)
+		t.workerGoroutine_SaveResult(*result)
+		goto AFTER
+	}
 
 	if ctl.IsExpired() {
 		t.workerGoroutine_UpdateResultStatus(message.ResultStatus.Expired, workflowIndex, result)
@@ -137,7 +144,12 @@ RUN:
 
 		goto RUN
 	} else {
-		t.workerGoroutine_UpdateResultStatus(message.ResultStatus.Failure, workflowIndex, result)
+		result.Err = err.Error()
+		status := message.ResultStatus.Failure
+		if yerrors.IsEqual(err, yerrors.ErrTypeAbortTask) {
+			status = message.ResultStatus.Abort
+		}
+		t.workerGoroutine_UpdateResultStatus(status, workflowIndex, result)
 		t.workerGoroutine_SaveResult(*result)
 	}
 
@@ -201,7 +213,7 @@ func (t *InlineServer) workerGoroutine_NextWorkflow(nextIndex int, taskMsg TaskM
 
 	if err != nil {
 		t.logger.ErrorWithField(fmt.Sprintf("send next workflow error %s [id=%s]", err, taskMsg.Id), "server", t.groupName)
-		result.Err = yerrors.ErrSendMsg{Msg: err.Error()}
+		result.Err = yerrors.ErrSendMsg{Msg: err.Error()}.Error()
 		t.workerGoroutine_UpdateResultStatus(message.ResultStatus.Failure, nextIndex, &result)
 	} else {
 		t.workerGoroutine_UpdateResultStatus(message.ResultStatus.Sent, nextIndex, &result)

@@ -2,9 +2,9 @@ package test
 
 import (
 	"fmt"
-	"github.com/gojuukaze/YTask/v3/controller"
 	"github.com/gojuukaze/YTask/v3/drives/rabbitmq"
 	"github.com/gojuukaze/YTask/v3/message"
+	"github.com/gojuukaze/YTask/v3/taskMessage"
 	"github.com/gojuukaze/YTask/v3/yerrors"
 	"testing"
 )
@@ -12,8 +12,8 @@ import (
 func TestRabbitmqBroker(t *testing.T) {
 	broker := rabbitmq.NewRabbitMqBroker("127.0.0.1", "5672", "guest", "guest", "", 2)
 	broker.Activate()
-	msg := message.NewMessage(controller.NewTaskCtl())
-	msg2 := message.NewMessage(controller.NewTaskCtl())
+	msg := message.NewMessage(taskMessage.NewTaskCtl())
+	msg2 := message.NewMessage(taskMessage.NewTaskCtl())
 
 	_, err := broker.Next("test_amqp")
 	if !yerrors.IsEqual(err, yerrors.ErrTypeEmptyQuery) {
@@ -50,9 +50,9 @@ func TestRabbitmqBroker(t *testing.T) {
 func TestRabbitmqBrokerLSend(t *testing.T) {
 	broker := rabbitmq.NewRabbitMqBroker("127.0.0.1", "5672", "guest", "guest", "", 2)
 	broker.Activate()
-	msg := message.NewMessage(controller.NewTaskCtl())
+	msg := message.NewMessage(taskMessage.NewTaskCtl())
 	msg.Id = "1"
-	msg2 := message.NewMessage(controller.NewTaskCtl())
+	msg2 := message.NewMessage(taskMessage.NewTaskCtl())
 	msg2.Id = "2"
 	err := broker.Send("test_amqp", msg)
 	if err != nil {
