@@ -12,8 +12,10 @@ const (
 	ErrTypeTimeOut         = 5 // broker，backend超时
 	ErrTypeServerStop      = 6 // 服务已停止
 
-	ErrTypeSendMsg = 7 // 通过broker发送消息失败，目前工作流发送下一个任务时会用到
+	ErrTypeSendMsg    = 7 // 通过broker发送消息失败，目前工作流发送下一个任务时会用到
+	ErrTypeNilBackend = 8
 
+	ErrTypeAbortTask = 9
 )
 
 func IsEqual(err error, errType int) bool {
@@ -108,5 +110,28 @@ func (e ErrSendMsg) Error() string {
 }
 
 func (e ErrSendMsg) Type() int {
-	return ErrTypeServerStop
+	return ErrTypeSendMsg
+}
+
+type ErrNilBackend struct {
+}
+
+func (e ErrNilBackend) Error() string {
+	return "YTask: Nil Backend"
+}
+
+func (e ErrNilBackend) Type() int {
+	return ErrTypeNilBackend
+}
+
+type ErrAbortTask struct {
+	Msg string
+}
+
+func (e ErrAbortTask) Error() string {
+	return fmt.Sprintf("YTask: abort task [%s]", e.Msg)
+}
+
+func (e ErrAbortTask) Type() int {
+	return ErrTypeAbortTask
 }

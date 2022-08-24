@@ -1,6 +1,9 @@
 package controller
 
 import (
+	"errors"
+	"github.com/gojuukaze/YTask/v3/server"
+	"github.com/gojuukaze/YTask/v3/yerrors"
 	"time"
 )
 
@@ -18,12 +21,18 @@ type TaskCtl struct {
 	ExpireTime time.Time
 	err        error
 	Workflow   []TaskCtlWorkflowArgs `json:"workflow"`
+	id         string
+	su         *server.ServerUtils
 }
 
 func NewTaskCtl() TaskCtl {
 	return TaskCtl{
 		RetryCount: 3,
 	}
+}
+
+func (t *TaskCtl) GetTaskId() string {
+	return t.id
 }
 
 func (t *TaskCtl) Retry(err error) {
@@ -68,4 +77,16 @@ func (t *TaskCtl) IsExpired() bool {
 
 func (t *TaskCtl) AppendWorkflow(work TaskCtlWorkflowArgs) {
 	t.Workflow = append(t.Workflow, work)
+}
+
+func (t *TaskCtl) Abort(msg string) {
+	t.err = yerrors.ErrAbortTask{msg}
+	t.RetryCount = 0
+}
+
+func (t *TaskCtl) IsAbort() error {
+	if t.su == nil {
+		return errors.New("IsAbort() can only be called on the server side")
+	}
+	return t.su.IsAbort(t.id)
 }

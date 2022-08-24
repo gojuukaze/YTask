@@ -1,6 +1,7 @@
 package message
 
 import (
+	"fmt"
 	"github.com/gojuukaze/YTask/v3/util/yjson"
 )
 
@@ -12,6 +13,7 @@ type resultStatusChoice struct {
 	Success      int
 	Failure      int
 	Expired      int
+	Abort        int // 手动中止任务
 }
 
 var ResultStatus = resultStatusChoice{
@@ -22,6 +24,7 @@ var ResultStatus = resultStatusChoice{
 	Success:      4,
 	Failure:      5,
 	Expired:      6,
+	Abort:        7, // 手动中止任务
 }
 
 type workflowStatusChoice struct {
@@ -39,7 +42,7 @@ var WorkflowStatus = workflowStatusChoice{
 	Success: "success",
 	Failure: "failure",
 	Expired: "expired",
-	Abort:   "abort", // 任务中手动中断工作流
+	Abort:   "abort", // 手动中止任务
 }
 
 var StatusToWorkflowStatus = map[int]string{
@@ -50,6 +53,7 @@ var StatusToWorkflowStatus = map[int]string{
 	ResultStatus.Success:      WorkflowStatus.Success,
 	ResultStatus.Failure:      WorkflowStatus.Failure,
 	ResultStatus.Expired:      WorkflowStatus.Expired,
+	ResultStatus.Abort:        WorkflowStatus.Abort,
 }
 
 type Result struct {
@@ -149,4 +153,16 @@ func (r Result) IsFinish() bool {
 		return true
 	}
 	return false
+}
+
+// 结束任务标志
+func GetAbortKey(id string) string {
+	return fmt.Sprintf("Abort:%s", id)
+
+}
+
+func NewAbortResult(id string) Result {
+	return Result{
+		Id: GetAbortKey(id),
+	}
 }

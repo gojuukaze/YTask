@@ -161,6 +161,12 @@ func (c *Client) GetStatus(taskId string, timeout time.Duration, sleepTime time.
 	}
 }
 
+// AbortTask
+//  <exTime>: 过期时间，秒。<=0表示不过期
+func (c *Client) AbortTask(taskID string, exTime int) error {
+	return c.sUtils.AbortTask(taskID, exTime)
+}
+
 type ClientWithWorkflow struct {
 	client       *Client
 	WorkflowArgs controller.TaskCtlWorkflowArgs
@@ -208,24 +214,4 @@ func (c *ClientWithWorkflow) Done() (string, error) {
 	}
 	return c.client.Send(first.GroupName, first.WorkerName, c.args...)
 
-}
-
-// Server 用的client
-// 任务函数的第二个参数
-type ServerClient struct {
-	Client
-}
-
-func NewServerClient(su *ServerUtils) *ServerClient {
-	return &ServerClient{
-		Client: Client{
-			sUtils:        su,
-			ctl:           controller.NewTaskCtl(),
-			ctlKeyChoices: ctlKey,
-		},
-	}
-}
-
-func (c *ServerClient) AbortWorkerFlow(groupName string, workerName string, args ...interface{}) (string, error) {
-	return c.Client.Send(groupName, workerName, args...)
 }

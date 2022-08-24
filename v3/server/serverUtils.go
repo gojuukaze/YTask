@@ -135,3 +135,22 @@ func (b *ServerUtils) GetResult(id string) (message.Result, error) {
 	result := message.NewResult(id)
 	return b.backend.GetResult(result.GetBackendKey())
 }
+
+// - exTime : 过期时间，秒
+func (b *ServerUtils) AbortTask(id string, exTime int) error {
+	if b.backend == nil {
+		return yerrors.ErrNilBackend{}
+	}
+	return b.backend.SetResult(message.NewAbortResult(id), exTime)
+}
+
+func (b *ServerUtils) IsAbort(id string) error {
+	if b.backend == nil {
+		return yerrors.ErrNilBackend{}
+	}
+	_, err := b.backend.GetResult(message.NewAbortResult(id).GetBackendKey())
+	if yerrors.IsEqual(err, yerrors.ErrTypeNilBackend) {
+		return nil
+	}
+	return err
+}
