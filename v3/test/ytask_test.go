@@ -12,7 +12,6 @@ import (
 	"github.com/gojuukaze/YTask/v3/backends"
 	"github.com/gojuukaze/YTask/v3/brokers"
 	"github.com/gojuukaze/YTask/v3/config"
-	"github.com/gojuukaze/YTask/v3/controller"
 	"github.com/gojuukaze/YTask/v3/log"
 	"github.com/gojuukaze/YTask/v3/server"
 	"io/ioutil"
@@ -47,7 +46,7 @@ func workerTestRetry1() {
 	panic("test retry")
 }
 
-func workerTestRetry2(ctl *controller.TaskCtl, a int) int {
+func workerTestRetry2(ctl *server.TaskCtl, a int) int {
 	if ctl.RetryCount == 3 {
 		panic("test retry")
 	} else if ctl.RetryCount == 2 {

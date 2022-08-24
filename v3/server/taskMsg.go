@@ -1,12 +1,30 @@
-package controller
+package server
 
 import (
 	"errors"
-	"github.com/gojuukaze/YTask/v3/server"
 	"github.com/gojuukaze/YTask/v3/yerrors"
 	"time"
 )
 
+/*
+Message 与 TaskMessage 是差不多的（TaskCtl中的参数有细微差别），之所以又写了个TaskMessage是为了解决循环引用问题
+
+因为任务函数中可以使用TaskCtl控制一些东西，但TaskCtl会用到broker,backend等，broker,backend中又用到了message这样就造成了循环引用
+（这里必须fuck一下go的循环引用！！！）
+
+
+ - Message用于client端send时，只保存任务参数；
+ - server端获取Message后会转为TaskMessage
+
+ Message中为了便于区分，task_ctl改名为MsgArgs
+*/
+
+type TaskMessage struct {
+	Id         string   `json:"id"`
+	WorkerName string   `json:"worker_name"`
+	FuncArgs   []string `json:"func_args"` //yjson string slice
+	Ctl        TaskCtl  `json:"task_ctl"`
+}
 type TaskCtlWorkflowArgs struct {
 	GroupName  string
 	WorkerName string
@@ -22,7 +40,7 @@ type TaskCtl struct {
 	err        error
 	Workflow   []TaskCtlWorkflowArgs `json:"workflow"`
 	id         string
-	su         *server.ServerUtils
+	su         *ServerUtils
 }
 
 func NewTaskCtl() TaskCtl {
@@ -73,10 +91,6 @@ func (t *TaskCtl) SetExpireTime(_t time.Time) {
 
 func (t *TaskCtl) IsExpired() bool {
 	return !t.ExpireTime.IsZero() && time.Now().After(t.ExpireTime)
-}
-
-func (t *TaskCtl) AppendWorkflow(work TaskCtlWorkflowArgs) {
-	t.Workflow = append(t.Workflow, work)
 }
 
 func (t *TaskCtl) Abort(msg string) {

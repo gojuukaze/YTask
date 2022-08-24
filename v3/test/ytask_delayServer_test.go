@@ -35,13 +35,13 @@ func TestDelayServerSend(t *testing.T) {
 	//b2 := b.Clone()
 	//b2.Activate()
 	msg, _ := b.Next("YTask:Query:Delay:TestDelayServer_Send")
-	if msg.TaskCtl.GetRunTime() != runTime {
-		t.Fatal(msg.TaskCtl.GetRunTime(), "!=", runTime)
+	if msg.MsgArgs.GetRunTime() != runTime {
+		t.Fatal(msg.MsgArgs.GetRunTime(), "!=", runTime)
 	}
 
 	msg, _ = b.Next("YTask:Query:Delay:TestDelayServer_Send")
-	if msg.TaskCtl.GetRunTime().Sub(runTime2).Milliseconds() > 300 {
-		t.Fatal(msg.TaskCtl.GetRunTime().Sub(runTime2), ">300 ms")
+	if msg.MsgArgs.GetRunTime().Sub(runTime2).Milliseconds() > 300 {
+		t.Fatal(msg.MsgArgs.GetRunTime().Sub(runTime2), ">300 ms")
 
 	}
 

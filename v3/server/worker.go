@@ -1,9 +1,8 @@
-package worker
+package server
 
 import (
 	"errors"
 	"fmt"
-	"github.com/gojuukaze/YTask/v3/controller"
 	"github.com/gojuukaze/YTask/v3/log"
 	"github.com/gojuukaze/YTask/v3/message"
 	"github.com/gojuukaze/YTask/v3/util"
@@ -11,9 +10,9 @@ import (
 )
 
 type WorkerInterface interface {
-	Run(ctl *controller.TaskCtl, funcArgs []string, result *message.Result) error
+	Run(ctl *TaskCtl, funcArgs []string, result *message.Result) error
 	WorkerName() string
-	After(ctl *controller.TaskCtl, funcArgs []string, result *message.Result) error
+	After(ctl *TaskCtl, funcArgs []string, result *message.Result) error
 }
 
 type FuncWorker struct {
@@ -23,11 +22,11 @@ type FuncWorker struct {
 	Logger       log.LoggerInterface
 }
 
-func (f *FuncWorker) Run(ctl *controller.TaskCtl, funcArgs []string, result *message.Result) error {
+func (f *FuncWorker) Run(ctl *TaskCtl, funcArgs []string, result *message.Result) error {
 	return runFunc(f.Func, ctl, funcArgs, result, false, f.Logger)
 }
 
-func (f *FuncWorker) After(ctl *controller.TaskCtl, funcArgs []string, result *message.Result) error {
+func (f *FuncWorker) After(ctl *TaskCtl, funcArgs []string, result *message.Result) error {
 	if f.CallbackFunc != nil {
 		return runFunc(f.CallbackFunc, ctl, funcArgs, result, true, f.Logger)
 
@@ -40,7 +39,7 @@ func (f *FuncWorker) WorkerName() string {
 }
 
 // isCallBack: 是否是回调函数
-func runFunc(f interface{}, ctl *controller.TaskCtl, funcArgs []string, result *message.Result, isCallBack bool, logger log.LoggerInterface) (err error) {
+func runFunc(f interface{}, ctl *TaskCtl, funcArgs []string, result *message.Result, isCallBack bool, logger log.LoggerInterface) (err error) {
 	defer func() {
 		e := recover()
 		if e != nil {
@@ -60,7 +59,7 @@ func runFunc(f interface{}, ctl *controller.TaskCtl, funcArgs []string, result *
 	funcType := reflect.TypeOf(f)
 	var inStart = 0
 	var inValue []reflect.Value
-	if funcType.NumIn() > 0 && funcType.In(0) == reflect.TypeOf(&controller.TaskCtl{}) {
+	if funcType.NumIn() > 0 && funcType.In(0) == reflect.TypeOf(&TaskCtl{}) {
 		inStart = 1
 	}
 

@@ -3,7 +3,6 @@ package server
 import (
 	"fmt"
 	"github.com/gojuukaze/YTask/v3/message"
-	"github.com/gojuukaze/YTask/v3/worker"
 	"github.com/gojuukaze/YTask/v3/yerrors"
 	"sync"
 	"time"
@@ -69,8 +68,8 @@ func (t *InlineServer) WorkerGoroutine() {
 			defer waitWorkerWG.Done()
 
 			result := message.NewResult(msg.Id)
-
-			t.workerGoroutine_RunWorker(w, &msg, &result)
+			taskMsg := t.Message2TaskMsg(msg)
+			t.workerGoroutine_RunWorker(w, &taskMsg, &result)
 
 		}(msg)
 	}
@@ -82,10 +81,10 @@ func (t *InlineServer) WorkerGoroutine() {
 }
 
 // return : current Workflow index
-func (t *InlineServer) workerGoroutine_UpdateWorkflowResult(msg *message.Message, result *message.Result) int {
+func (t *InlineServer) workerGoroutine_UpdateWorkflowResult(msg *TaskMessage, result *message.Result) int {
 	workflowIndex := 0
-	result.Workflow = make([][2]string, len(msg.TaskCtl.Workflow))
-	for i, w := range msg.TaskCtl.Workflow {
+	result.Workflow = make([][2]string, len(msg.Ctl.Workflow))
+	for i, w := range msg.Ctl.Workflow {
 		if w.WorkerName == msg.WorkerName {
 			workflowIndex = i
 		}
@@ -97,13 +96,13 @@ func (t *InlineServer) workerGoroutine_UpdateWorkflowResult(msg *message.Message
 	return workflowIndex
 }
 
-func (t *InlineServer) workerGoroutine_RunWorker(w worker.WorkerInterface, msg *message.Message, result *message.Result) {
+func (t *InlineServer) workerGoroutine_RunWorker(w WorkerInterface, taskMsg *TaskMessage, result *message.Result) {
 
 	var err error
-	ctl := msg.TaskCtl
+	ctl := taskMsg.Ctl
 	workflowIndex := -1
 	if len(ctl.Workflow) > 0 {
-		workflowIndex = t.workerGoroutine_UpdateWorkflowResult(msg, result)
+		workflowIndex = t.workerGoroutine_UpdateWorkflowResult(taskMsg, result)
 	}
 
 RUN:
@@ -118,22 +117,22 @@ RUN:
 	t.workerGoroutine_UpdateResultStatus(result.Status, workflowIndex, result)
 	t.workerGoroutine_SaveResult(*result)
 
-	err = w.Run(&ctl, msg.FuncArgs, result)
+	err = w.Run(&ctl, taskMsg.FuncArgs, result)
 
 	if err == nil {
 		t.workerGoroutine_UpdateResultStatus(message.ResultStatus.Success, workflowIndex, result)
 		t.workerGoroutine_SaveResult(*result)
 		goto AFTER
 	}
-	//log.YTaskLog.WithField("server", t.groupName).WithField("goroutine", "worker").Errorf("run worker[%s] error %s", msg.WorkerName, err)
-	t.logger.ErrorWithField(fmt.Sprintf("goroutine worker run worker[%s] error %s", msg.WorkerName, err), "server", t.groupName)
+	//log.YTaskLog.WithField("server", t.groupName).WithField("goroutine", "worker").Errorf("run worker[%s] error %s", taskMsg.WorkerName, err)
+	t.logger.ErrorWithField(fmt.Sprintf("goroutine worker run worker[%s] error %s", taskMsg.WorkerName, err), "server", t.groupName)
 
 	if ctl.CanRetry() {
 		result.Status = message.ResultStatus.WaitingRetry
 		ctl.RetryCount -= 1
-		msg.TaskCtl = ctl
-		//log.YTaskLog.WithField("server", t.groupName).WithField("goroutine", "worker").Infof("retry task %s", msg)
-		t.logger.InfoWithField(fmt.Sprintf("goroutine worker retry task %s", msg), "server", t.groupName)
+		taskMsg.Ctl = ctl
+		//log.YTaskLog.WithField("server", t.groupName).WithField("goroutine", "worker").Infof("retry task %s", taskMsg)
+		t.logger.InfoWithField(fmt.Sprintf("goroutine worker retry task %s", taskMsg), "server", t.groupName)
 		ctl.SetError(nil)
 
 		goto RUN
@@ -146,12 +145,12 @@ AFTER:
 	// 为了逻辑更简单，工作流和回调暂不兼容
 	if workflowIndex >= 0 {
 		if !result.IsFailure() && workflowIndex+1 < len(ctl.Workflow) {
-			t.workerGoroutine_NextWorkflow(workflowIndex+1, *msg, *result)
+			t.workerGoroutine_NextWorkflow(workflowIndex+1, *taskMsg, *result)
 		}
 	} else {
-		err = w.After(&ctl, msg.FuncArgs, result)
+		err = w.After(&ctl, taskMsg.FuncArgs, result)
 		if err != nil {
-			t.logger.ErrorWithField(fmt.Sprintf("goroutine worker run worker[%s] callback error %s", msg.WorkerName, err), "server", t.groupName)
+			t.logger.ErrorWithField(fmt.Sprintf("goroutine worker run worker[%s] callback error %s", taskMsg.WorkerName, err), "server", t.groupName)
 		}
 	}
 }
@@ -179,29 +178,29 @@ func (t *InlineServer) workerGoroutine_SaveResult(result message.Result) {
 	}
 }
 
-func (t *InlineServer) workerGoroutine_NextWorkflow(nextIndex int, msg message.Message, result message.Result) {
+func (t *InlineServer) workerGoroutine_NextWorkflow(nextIndex int, taskMsg TaskMessage, result message.Result) {
 
-	next := msg.TaskCtl.Workflow[nextIndex]
-	t.logger.DebugWithField(fmt.Sprintf("goroutine worker send next workflow [id=%s, next=%s]", msg.Id, next.WorkerName), "server", t.groupName)
+	next := taskMsg.Ctl.Workflow[nextIndex]
+	t.logger.DebugWithField(fmt.Sprintf("goroutine worker send next workflow [id=%s, next=%s]", taskMsg.Id, next.WorkerName), "server", t.groupName)
 
-	msg.FuncArgs = result.FuncReturn
-	msg.TaskCtl.SetRetryCount(next.RetryCount)
+	taskMsg.FuncArgs = result.FuncReturn
+	taskMsg.Ctl.SetRetryCount(next.RetryCount)
 	if next.RunAfter != 0 {
 		n := time.Now()
-		msg.TaskCtl.SetRunTime(n.Add(next.RunAfter))
+		taskMsg.Ctl.SetRunTime(n.Add(next.RunAfter))
 	}
 	if !next.ExpireTime.IsZero() {
-		msg.TaskCtl.SetExpireTime(next.ExpireTime)
+		taskMsg.Ctl.SetExpireTime(next.ExpireTime)
 	}
 	groupName := next.GroupName
-	if !msg.TaskCtl.IsZeroRunTime() {
+	if !taskMsg.Ctl.IsZeroRunTime() {
 		groupName = t.GetDelayGroupName(groupName)
 	}
-	msg.WorkerName = next.WorkerName
-	err := t.SendMsg(groupName, msg)
+	taskMsg.WorkerName = next.WorkerName
+	err := t.SendMsg(groupName, t.TaskMsg2Message(taskMsg))
 
 	if err != nil {
-		t.logger.ErrorWithField(fmt.Sprintf("send next workflow error %s [id=%s]", err, msg.Id), "server", t.groupName)
+		t.logger.ErrorWithField(fmt.Sprintf("send next workflow error %s [id=%s]", err, taskMsg.Id), "server", t.groupName)
 		result.Err = yerrors.ErrSendMsg{Msg: err.Error()}
 		t.workerGoroutine_UpdateResultStatus(message.ResultStatus.Failure, nextIndex, &result)
 	} else {

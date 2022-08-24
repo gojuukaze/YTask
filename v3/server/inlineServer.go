@@ -6,7 +6,6 @@ import (
 	"github.com/gojuukaze/YTask/v3/config"
 	"github.com/gojuukaze/YTask/v3/message"
 	"github.com/gojuukaze/YTask/v3/util"
-	"github.com/gojuukaze/YTask/v3/worker"
 	"reflect"
 	"sync"
 )
@@ -16,7 +15,7 @@ type InlineServer struct {
 	ServerUtils
 
 	groupName string
-	workerMap map[string]worker.WorkerInterface // [workerName]worker
+	workerMap map[string]WorkerInterface // [workerName]worker
 
 	workerReadyChan chan struct{}
 	msgChan         chan message.Message
@@ -29,7 +28,7 @@ type InlineServer struct {
 
 func NewInlineServer(groupName string, c config.Config) InlineServer {
 
-	wm := make(map[string]worker.WorkerInterface)
+	wm := make(map[string]WorkerInterface)
 	if c.Debug {
 		//log.YTaskLog.SetLevel(logrus.DebugLevel)
 		c.Logger.SetLevel("debug")
@@ -170,7 +169,7 @@ func (t *InlineServer) Add(workerName string, w interface{}, callbackFunc ...int
 
 	wType := reflect.TypeOf(w).Kind().String()
 	if wType == "func" && cType == "func" {
-		funcWorker := &worker.FuncWorker{
+		funcWorker := &FuncWorker{
 			Name:         workerName,
 			Func:         w,
 			CallbackFunc: cFunc,

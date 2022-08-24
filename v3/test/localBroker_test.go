@@ -3,7 +3,6 @@ package test
 import (
 	"fmt"
 	"github.com/gojuukaze/YTask/v3/brokers"
-	"github.com/gojuukaze/YTask/v3/controller"
 	"github.com/gojuukaze/YTask/v3/message"
 	"testing"
 )
@@ -11,8 +10,8 @@ import (
 func TestRedisBroker(t *testing.T) {
 	broker := brokers.NewLocalBroker()
 	broker.Activate()
-	msg := message.NewMessage(controller.NewTaskCtl())
-	msg2 := message.NewMessage(controller.NewTaskCtl())
+	msg := message.NewMessage(message.NewMsgArgs())
+	msg2 := message.NewMessage(message.NewMsgArgs())
 
 	err := broker.Send("test_redis", msg)
 	if err != nil {
@@ -44,9 +43,9 @@ func TestRedisBroker(t *testing.T) {
 func TestRedisBrokerLSend(t *testing.T) {
 	broker := brokers.NewLocalBroker()
 	broker.Activate()
-	msg := message.NewMessage(controller.NewTaskCtl())
+	msg := message.NewMessage(message.NewMsgArgs())
 	msg.Id = "1"
-	msg2 := message.NewMessage(controller.NewTaskCtl())
+	msg2 := message.NewMessage(message.NewMsgArgs())
 	msg2.Id = "2"
 	err := broker.Send("test_redis", msg)
 	if err != nil {

@@ -2,7 +2,6 @@ package server
 
 import (
 	"github.com/gojuukaze/YTask/v3/config"
-	"github.com/gojuukaze/YTask/v3/controller"
 	"github.com/gojuukaze/YTask/v3/message"
 	"github.com/gojuukaze/YTask/v3/yerrors"
 	"time"
@@ -25,9 +24,9 @@ var ctlKey = ctlKeyChoices{
 type Client struct {
 	sUtils  *ServerUtils
 	isClone bool
-	ctl     controller.TaskCtl
+	msgArgs message.MessageArgs
 
-	// ctl name
+	// msgArgs name
 	ctlKeyChoices
 }
 
@@ -35,7 +34,7 @@ func NewClient(c config.Config) Client {
 	su := newServerUtils(c.Broker, c.Backend, c.Logger, c.StatusExpires, c.ResultExpires)
 	client := Client{
 		sUtils:        &su,
-		ctl:           controller.NewTaskCtl(),
+		msgArgs:       message.NewMsgArgs(),
 		ctlKeyChoices: ctlKey,
 	}
 
@@ -60,7 +59,7 @@ func (c *Client) Clone() *Client {
 		return &Client{
 			sUtils:        c.sUtils,
 			isClone:       true,
-			ctl:           c.ctl,
+			msgArgs:       c.msgArgs,
 			ctlKeyChoices: ctlKey,
 		}
 	}
@@ -70,14 +69,14 @@ func (c *Client) SetTaskCtl(name int, value interface{}) *Client {
 	cloneC := c.Clone()
 	switch name {
 	case ctlKey.RetryCount:
-		cloneC.ctl.RetryCount = value.(int)
+		cloneC.msgArgs.RetryCount = value.(int)
 	case ctlKey.RunAfter:
 		n := time.Now()
-		cloneC.ctl.SetRunTime(n.Add(value.(time.Duration)))
+		cloneC.msgArgs.RunTime = n.Add(value.(time.Duration))
 	case ctlKey.RunAt:
-		cloneC.ctl.SetRunTime(value.(time.Time))
+		cloneC.msgArgs.RunTime = value.(time.Time)
 	case ctlKey.ExpireTime:
-		cloneC.ctl.SetExpireTime(value.(time.Time))
+		cloneC.msgArgs.ExpireTime = value.(time.Time)
 	}
 	return cloneC
 }
@@ -85,10 +84,10 @@ func (c *Client) SetTaskCtl(name int, value interface{}) *Client {
 // Send
 // return: taskId, err
 func (c *Client) Send(groupName string, workerName string, args ...interface{}) (string, error) {
-	if !c.ctl.IsZeroRunTime() {
+	if c.msgArgs.IsDelayMessage() {
 		groupName = c.sUtils.GetDelayGroupName(groupName)
 	}
-	return c.sUtils.Send(groupName, workerName, c.ctl, args...)
+	return c.sUtils.Send(groupName, workerName, c.msgArgs, args...)
 }
 
 // Workflow
@@ -169,7 +168,7 @@ func (c *Client) AbortTask(taskID string, exTime int) error {
 
 type ClientWithWorkflow struct {
 	client       *Client
-	WorkflowArgs controller.TaskCtlWorkflowArgs
+	WorkflowArgs message.MessageWorkflowArgs
 	args         []interface{}
 }
 
@@ -195,8 +194,8 @@ func (c *ClientWithWorkflow) Send(groupName string, workerName string, args ...i
 	c.WorkflowArgs.GroupName = groupName
 	c.WorkflowArgs.WorkerName = workerName
 
-	c.client.ctl.AppendWorkflow(c.WorkflowArgs)
-	c.WorkflowArgs = controller.TaskCtlWorkflowArgs{}
+	c.client.msgArgs.AppendWorkflow(c.WorkflowArgs)
+	c.WorkflowArgs = message.MessageWorkflowArgs{}
 	return c
 
 }
@@ -204,7 +203,7 @@ func (c *ClientWithWorkflow) Send(groupName string, workerName string, args ...i
 // SendWorkflow
 // return: taskId, err
 func (c *ClientWithWorkflow) Done() (string, error) {
-	first := c.client.ctl.Workflow[0]
+	first := c.client.msgArgs.Workflow[0]
 	c.client.SetTaskCtl(ctlKey.RetryCount, first.RetryCount)
 	if first.RunAfter != 0 {
 		c.client.SetTaskCtl(ctlKey.RunAfter, first.RunAfter)

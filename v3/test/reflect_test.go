@@ -2,10 +2,10 @@ package test
 
 import (
 	"fmt"
-	"github.com/gojuukaze/YTask/v3/controller"
 	"github.com/gojuukaze/YTask/v3/message"
+	"github.com/gojuukaze/YTask/v3/server"
 	"github.com/gojuukaze/YTask/v3/util"
-	"github.com/gojuukaze/YTask/v3/worker"
+	"github.com/gojuukaze/YTask/v3/util/yjson"
 	"reflect"
 	"testing"
 )
@@ -120,19 +120,35 @@ func TestGetCallInArgs2(t *testing.T) {
 
 }
 
+func swapMessageArgs_TaskCtl(old interface{}) interface{} {
+	oldB, _ := yjson.YJson.Marshal(old)
+	switch old.(type) {
+	case message.MessageArgs:
+		var newObj = server.TaskCtl{}
+		yjson.YJson.Unmarshal(oldB, &newObj)
+		return newObj
+	case server.TaskCtl:
+		var newObj = message.MessageArgs{}
+		yjson.YJson.Unmarshal(oldB, &newObj)
+		return newObj
+	}
+	return nil
+}
 func TestRunFunc(t *testing.T) {
 	fun := func(aa, bb int) (int, int, int64, uint, uint64, float32, float64, bool, string, []int64, []uint64, []float64, []string, s1, s3) {
 		return aa + bb, a, b, c, d, e, f, g, h, j, l, m, n, o, p
 	}
 
-	w := &worker.FuncWorker{
+	w := &server.FuncWorker{
 		Func: fun,
 	}
 	s, _ := util.GoVarsToYJsonSlice(12, 33)
-	msg := message.NewMessage(controller.NewTaskCtl())
+	msg := message.NewMessage(message.NewMsgArgs())
 	msg.FuncArgs = s
 	result := message.Result{}
-	err := w.Run(&msg.TaskCtl, msg.FuncArgs, &result)
+	su := server.ServerUtils{}
+	ctl := su.MessageArgs2TaskCtl(msg.MsgArgs)
+	err := w.Run(&ctl, msg.FuncArgs, &result)
 	if err != nil {
 		t.Fatal(err)
 	}

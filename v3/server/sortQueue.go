@@ -33,7 +33,7 @@ func (s *SortQueue) Insert(msg message.Message) *message.Message {
 		s.Queue[0] = msg
 
 	} else {
-		t := msg.TaskCtl.GetRunTime()
+		t := msg.MsgArgs.GetRunTime()
 		if s.Queue[s.len-1].RunTimeBeforeOrEqual(t) {
 			s.Queue[s.len] = msg
 

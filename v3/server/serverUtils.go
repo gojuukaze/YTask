@@ -3,9 +3,9 @@ package server
 import (
 	"github.com/gojuukaze/YTask/v3/backends"
 	"github.com/gojuukaze/YTask/v3/brokers"
-	"github.com/gojuukaze/YTask/v3/controller"
 	"github.com/gojuukaze/YTask/v3/log"
 	"github.com/gojuukaze/YTask/v3/message"
+	"github.com/gojuukaze/YTask/v3/util/yjson"
 	"github.com/gojuukaze/YTask/v3/yerrors"
 	"time"
 )
@@ -53,8 +53,24 @@ func (b *ServerUtils) Next(groupName string) (message.Message, error) {
 // send msg to Queue
 // t.Send("groupName", "workerName" , 1,"hi",1.2)
 //
-func (b *ServerUtils) Send(groupName string, workerName string, ctl controller.TaskCtl, args ...interface{}) (string, error) {
-	var msg = message.NewMessage(ctl)
+func (b *ServerUtils) Send(groupName string, workerName string, msgArgs message.MessageArgs, args ...interface{}) (string, error) {
+	var msg = message.NewMessage(msgArgs)
+	msg.WorkerName = workerName
+	err := msg.SetArgs(args...)
+	if err != nil {
+		return "", err
+	}
+
+	return msg.Id, b.SendMsg(groupName, msg)
+
+}
+
+// send msg to Queue
+// t.Send("groupName", "workerName" , 1,"hi",1.2)
+//
+func (b *ServerUtils) SendWithTaskCtl(groupName string, workerName string, ctl TaskCtl, args ...interface{}) (string, error) {
+
+	var msg = message.NewMessage(b.TaskCtl2MessageArgs(ctl))
 	msg.WorkerName = workerName
 	err := msg.SetArgs(args...)
 	if err != nil {
@@ -153,4 +169,52 @@ func (b *ServerUtils) IsAbort(id string) error {
 		return nil
 	}
 	return err
+}
+
+// MessageArgs与TaskCtl相互转换
+// 这里通过json来转换，方便一点
+func (b *ServerUtils) SwapMessageArgs_TaskCtl(old interface{}) interface{} {
+	oldB, _ := yjson.YJson.Marshal(old)
+	switch old.(type) {
+	case message.MessageArgs:
+		var newObj = TaskCtl{}
+		yjson.YJson.Unmarshal(oldB, &newObj)
+		return newObj
+	case TaskCtl:
+		var newObj = message.MessageArgs{}
+		yjson.YJson.Unmarshal(oldB, &newObj)
+		return newObj
+	}
+	return nil
+}
+func (b *ServerUtils) TaskCtl2MessageArgs(ctl TaskCtl) message.MessageArgs {
+
+	return b.SwapMessageArgs_TaskCtl(ctl).(message.MessageArgs)
+
+}
+
+func (b *ServerUtils) MessageArgs2TaskCtl(msgArgs message.MessageArgs) TaskCtl {
+	return b.SwapMessageArgs_TaskCtl(msgArgs).(TaskCtl)
+
+}
+
+func (b *ServerUtils) TaskMsg2Message(tm TaskMessage) message.Message {
+
+	return message.Message{
+		Id:         tm.Id,
+		WorkerName: tm.WorkerName,
+		FuncArgs:   tm.FuncArgs,
+		MsgArgs:    b.TaskCtl2MessageArgs(tm.Ctl),
+	}
+
+}
+
+func (b *ServerUtils) Message2TaskMsg(msg message.Message) TaskMessage {
+	return TaskMessage{
+		Id:         msg.Id,
+		WorkerName: msg.WorkerName,
+		FuncArgs:   msg.FuncArgs,
+		Ctl:        b.MessageArgs2TaskCtl(msg.MsgArgs),
+	}
+
 }
