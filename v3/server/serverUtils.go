@@ -27,7 +27,6 @@ func newServerUtils(broker brokers.BrokerInterface, backend backends.BackendInte
 }
 
 func (b ServerUtils) GetQueueName(groupName string) string {
-	// 这个key的名称拼错了，为了不影响已在运行的程序，只能这样了 = =
 	if consts.UserV2Name {
 		return "YTask:Query:" + groupName
 	} else {
