@@ -7,11 +7,11 @@ import (
 )
 
 type Message struct {
-	Id         string   `json:"id"`
-	WorkerName string   `json:"worker_name"`
-	FuncArgs   []string `json:"func_args"` //yjson string slice
-
-	MsgArgs MessageArgs `v2JsonName:"task_ctl"` // 这里面的参数client端send时可通过setTaskArgs修改，因此单独放在一个结构体里
+	Id         string      `json:"id"`
+	WorkerName string      `json:"worker_name"`
+	FuncArgs   []string    `json:"func_args"`
+	MsgArgs    MessageArgs `v2JsonName:"TaskCtl"` // 为了方便client端send时通过SetTaskCtl修改相关参数
+	// 因此单独放把这些参数放一个结构体里
 
 }
 

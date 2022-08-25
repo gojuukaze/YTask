@@ -4,8 +4,11 @@ import (
 	"github.com/gojuukaze/YTask/v3/backends"
 	"github.com/gojuukaze/YTask/v3/brokers"
 	"github.com/gojuukaze/YTask/v3/config"
+	"github.com/gojuukaze/YTask/v3/consts"
 	"github.com/gojuukaze/YTask/v3/log"
 	"github.com/gojuukaze/YTask/v3/server"
+	"github.com/gojuukaze/YTask/v3/util/yjson"
+	jsoniter "github.com/json-iterator/go"
 )
 
 var (
@@ -61,4 +64,13 @@ type iLogger struct {
 
 func (i iLogger) NewYTaskLogger() log.LoggerInterface {
 	return log.NewYTaskLogger(log.YTaskLog)
+}
+
+func UseV2Name() {
+	consts.UserV2Name = true
+	yjson.YJson = jsoniter.Config{
+		EscapeHTML:             true,
+		ValidateJsonRawMessage: true,
+		TagKey:                 "v2JsonName",
+	}.Froze()
 }
