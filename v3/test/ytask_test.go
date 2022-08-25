@@ -47,13 +47,13 @@ func workerTestRetry1() {
 }
 
 func workerTestRetry2(ctl *server.TaskCtl, a int) int {
-	if ctl.RetryCount == 3 {
+	if ctl.GetRetryCount() == 3 {
 		panic("test retry")
-	} else if ctl.RetryCount == 2 {
+	} else if ctl.GetRetryCount() == 2 {
 		ctl.Retry(errors.New("test retry 2"))
 		return 0
 	}
-	return a + ctl.RetryCount
+	return a + ctl.GetRetryCount()
 }
 func TestYTask1(t *testing.T) {
 	b := brokers.NewLocalBroker()

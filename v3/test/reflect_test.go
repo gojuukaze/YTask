@@ -146,8 +146,8 @@ func TestRunFunc(t *testing.T) {
 	msg := message.NewMessage(message.NewMsgArgs())
 	msg.FuncArgs = s
 	result := message.Result{}
-	su := server.ServerUtils{}
-	ctl := su.MessageArgs2TaskCtl(msg.MsgArgs)
+	ctl := server.NewTaskCtl(msg)
+
 	err := w.Run(&ctl, msg.FuncArgs, &result)
 	if err != nil {
 		t.Fatal(err)

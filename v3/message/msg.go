@@ -11,11 +11,15 @@ type Message struct {
 	WorkerName string   `json:"worker_name"`
 	FuncArgs   []string `json:"func_args"` //yjson string slice
 
-	//MsgArgs    taskMessage.TaskCtl `json:"task_ctl"`
-	MsgArgs MessageArgs `json:"task_ctl"` // 这个MsgArgs就是之前的task_ctl，之所以改了个类型为了解决循环引用问题。
-	// 具体说明见 server/taskMsg.go 中的注释
-	//
+	MsgArgs MessageArgs `v2JsonName:"task_ctl"` // 这里面的参数client端send时可通过setTaskArgs修改，因此单独放在一个结构体里
 
+}
+
+type MessageArgs struct {
+	RetryCount int
+	RunTime    time.Time
+	ExpireTime time.Time
+	Workflow   []MessageWorkflowArgs `json:"workflow"`
 }
 
 type MessageWorkflowArgs struct {
@@ -24,13 +28,6 @@ type MessageWorkflowArgs struct {
 	RetryCount int
 	RunAfter   time.Duration
 	ExpireTime time.Time
-}
-
-type MessageArgs struct {
-	RetryCount int
-	RunTime    time.Time
-	ExpireTime time.Time
-	Workflow   []MessageWorkflowArgs `json:"workflow"`
 }
 
 func NewMsgArgs() MessageArgs {
@@ -51,10 +48,6 @@ func (m *Message) SetArgs(args ...interface{}) error {
 	}
 	m.FuncArgs = r
 	return nil
-}
-
-func (m Message) IsDelayMessage() bool {
-	return m.MsgArgs.RunTime.IsZero()
 }
 
 func (m Message) IsRunTime() bool {

@@ -34,12 +34,12 @@ func TestDelayServerSend(t *testing.T) {
 	// 由于更换为了LocalBroker，这里不能运行Activate，否则队列会被清空
 	//b2 := b.Clone()
 	//b2.Activate()
-	msg, _ := b.Next("YTask:Query:Delay:TestDelayServer_Send")
+	msg, _ := b.Next("YTask:Queue:Delay:TestDelayServer_Send")
 	if msg.MsgArgs.GetRunTime() != runTime {
 		t.Fatal(msg.MsgArgs.GetRunTime(), "!=", runTime)
 	}
 
-	msg, _ = b.Next("YTask:Query:Delay:TestDelayServer_Send")
+	msg, _ = b.Next("YTask:Queue:Delay:TestDelayServer_Send")
 	if msg.MsgArgs.GetRunTime().Sub(runTime2).Milliseconds() > 300 {
 		t.Fatal(msg.MsgArgs.GetRunTime().Sub(runTime2), ">300 ms")
 
@@ -89,7 +89,7 @@ func TestDelayServer(t *testing.T) {
 	b2 := b.Clone()
 	b2.Activate()
 	for true {
-		_, err := b2.Next("YTask:Query:Delay:testDelay")
+		_, err := b2.Next("YTask:Queue:Delay:testDelay")
 		if err != nil {
 			break
 		}
@@ -141,13 +141,13 @@ func TestDelayServer2(t *testing.T) {
 
 	//b2 := b.Clone()
 	//b2.Activate()
-	msg, _ = b.Next("YTask:Query:Delay:testDelay2")
+	msg, _ = b.Next("YTask:Queue:Delay:testDelay2")
 	if msg.WorkerName != "3" {
 		t.Fatal(msg.WorkerName, "!=3")
 	}
 	//清空测试用的队列
 	for true {
-		_, err := b.Next("YTask:Query:Delay:testDelay2")
+		_, err := b.Next("YTask:Queue:Delay:testDelay2")
 		if err != nil {
 			break
 		}
@@ -198,7 +198,7 @@ func TestDelayServer3(t *testing.T) {
 	var names = map[string]string{"1": "", "2": ""}
 
 	for true {
-		msg, err := b.Next("YTask:Query:Delay:" + groupName)
+		msg, err := b.Next("YTask:Queue:Delay:" + groupName)
 		if err != nil {
 			break
 		}
@@ -209,7 +209,6 @@ func TestDelayServer3(t *testing.T) {
 	}
 	if len(names) != 0 {
 		t.Fatal("not found ", names)
-
 	}
 
 }

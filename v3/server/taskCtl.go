@@ -2,6 +2,7 @@ package server
 
 import (
 	"errors"
+	"github.com/gojuukaze/YTask/v3/message"
 	"github.com/gojuukaze/YTask/v3/yerrors"
 	"time"
 )
@@ -34,35 +35,32 @@ type TaskCtlWorkflowArgs struct {
 }
 
 type TaskCtl struct {
-	RetryCount int
-	RunTime    time.Time
-	ExpireTime time.Time
-	err        error
-	Workflow   []TaskCtlWorkflowArgs `json:"workflow"`
-	id         string
-	su         *ServerUtils
+	message.Message
+	err error
+	su  *ServerUtils
 }
 
-func NewTaskCtl() TaskCtl {
-	return TaskCtl{
-		RetryCount: 3,
-	}
+func NewTaskCtl(msg message.Message) TaskCtl {
+	return TaskCtl{Message: msg}
 }
 
 func (t *TaskCtl) GetTaskId() string {
-	return t.id
+	return t.Id
 }
 
 func (t *TaskCtl) Retry(err error) {
 	t.err = err
 }
 
+func (t *TaskCtl) GetRetryCount() int {
+	return t.MsgArgs.RetryCount
+}
 func (t *TaskCtl) SetRetryCount(c int) {
-	t.RetryCount = c
+	t.MsgArgs.RetryCount = c
 }
 
 func (t TaskCtl) CanRetry() bool {
-	return t.RetryCount > 0
+	return t.MsgArgs.RetryCount > 0
 }
 
 func (t TaskCtl) GetError() error {
@@ -74,41 +72,37 @@ func (t *TaskCtl) SetError(err error) {
 }
 
 func (t *TaskCtl) SetRunTime(_t time.Time) {
-	t.RunTime = _t
+	t.MsgArgs.RunTime = _t
 }
 
 func (t *TaskCtl) GetRunTime() time.Time {
-	return t.RunTime
+	return t.MsgArgs.RunTime
 }
 
 func (t *TaskCtl) IsZeroRunTime() bool {
-	return t.RunTime.IsZero()
+	return t.MsgArgs.RunTime.IsZero()
 }
 
 func (t *TaskCtl) SetExpireTime(_t time.Time) {
-	t.ExpireTime = _t
+	t.MsgArgs.ExpireTime = _t
 }
 
 func (t *TaskCtl) IsExpired() bool {
-	return !t.ExpireTime.IsZero() && time.Now().After(t.ExpireTime)
+	return !t.MsgArgs.ExpireTime.IsZero() && time.Now().After(t.MsgArgs.ExpireTime)
 }
 
 func (t *TaskCtl) Abort(msg string) {
 	t.err = yerrors.ErrAbortTask{msg}
-	t.RetryCount = 0
+	t.MsgArgs.RetryCount = 0
 }
 
 func (t *TaskCtl) IsAbort() (bool, error) {
 	if t.su == nil {
 		return false, errors.New("IsAbort() can only be called on the server side")
 	}
-	return t.su.IsAbort(t.id)
+	return t.su.IsAbort(t.GetTaskId())
 }
 
 func (t *TaskCtl) SetServerUtil(su *ServerUtils) {
 	t.su = su
-}
-
-func (t *TaskCtl) SetTaskId(id string) {
-	t.id = id
 }
