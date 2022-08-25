@@ -7,5 +7,6 @@ use (
 	./drives/mongo
 	./drives/redis
 	./v3
-	./demo
+	./example/server
+	./example/send
 )

@@ -14,6 +14,11 @@
 * 测试发v3后是否能安装v2
 * drives中go.mod不添加ytask是否能正常运行
 
+# v2升级改动
+1.msg json
+2.taskCtl包,以及获取RetryCount方法
+3.队列名
+
 # YTask
 
 # Warning!!!
