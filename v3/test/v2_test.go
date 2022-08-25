@@ -2,9 +2,11 @@ package test
 
 import (
 	ytask "github.com/gojuukaze/YTask/v3"
+	"github.com/gojuukaze/YTask/v3/consts"
 	"github.com/gojuukaze/YTask/v3/message"
 	"github.com/gojuukaze/YTask/v3/server"
 	"github.com/gojuukaze/YTask/v3/util/yjson"
+	jsoniter "github.com/json-iterator/go"
 	"strings"
 	"testing"
 )
@@ -28,6 +30,15 @@ func TestV2(t *testing.T) {
 
 	// 改为v2版本名字
 	ytask.UseV2Name()
+	// 测试完后改回去，否则运行多个测试时会影响后面测试
+	defer func() {
+		consts.UserV2Name = false
+		yjson.YJson = jsoniter.Config{
+			EscapeHTML:             true,
+			ValidateJsonRawMessage: true,
+			TagKey:                 "yjson",
+		}.Froze()
+	}()
 	s, _ = yjson.YJson.MarshalToString(message.NewMessage(message.NewMsgArgs()))
 	i = strings.Index(s, "TaskCtl")
 	if i == -1 {
