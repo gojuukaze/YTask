@@ -2,7 +2,7 @@ package test
 
 import (
 	"fmt"
-	"github.com/gojuukaze/YTask/v3/drives/rabbitmq"
+	"github.com/gojuukaze/YTask/drives/rabbitmq/v3"
 	"os"
 	"os/signal"
 	"syscall"

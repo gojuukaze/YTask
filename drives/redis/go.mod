@@ -1,4 +1,4 @@
-module github.com/gojuukaze/YTask/v3/drives/redis
+module github.com/gojuukaze/YTask/drives/redis/v3
 
 go 1.18
 

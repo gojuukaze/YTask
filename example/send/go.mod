@@ -1,4 +1,4 @@
-module github.com/gojuukaze/YTask/v3/example/send
+module send
 
 go 1.18
 

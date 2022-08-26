@@ -3,7 +3,7 @@
 ## Installation
 
 ```shell
-go get -u github.com/gojuukaze/YTask/core/drives/rabbitmq
+go get -u github.com/gojuukaze/YTask/drives/rabbitmq/v3
 ```
 
 ## Broker
@@ -12,7 +12,7 @@ go get -u github.com/gojuukaze/YTask/core/drives/rabbitmq
 package main
 
 import (
-    "github.com/gojuukaze/YTask/v3/drives/rabbitmq"
+    "github.com/gojuukaze/YTask/drives/rabbitmq/v3"
 )
 
 func main() {

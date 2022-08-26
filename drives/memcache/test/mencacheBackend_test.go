@@ -2,9 +2,9 @@ package test
 
 import (
 	"fmt"
-	"github.com/gojuukaze/YTask/v3/core/message"
-	"github.com/gojuukaze/YTask/v3/core/yerrors"
-	"github.com/gojuukaze/YTask/v3/drives/memcache"
+	"github.com/gojuukaze/YTask/drives/memcache/v3"
+	"github.com/gojuukaze/YTask/v3/message"
+	"github.com/gojuukaze/YTask/v3/yerrors"
 	"os"
 	"os/signal"
 	"syscall"

@@ -36,7 +36,7 @@ golang异步任务/队列 框架
 
 # install
 ```bash
-go get -u github.com/gojuukaze/YTask/v3/core
+go get -u github.com/gojuukaze/YTask/v3
 ```
 # architecture diagram
 <img src="./architecture_diagram.png" alt="architecture_diagram" width="80%">
@@ -122,7 +122,7 @@ package main
 import (
 	"fmt"
 	"github.com/gojuukaze/YTask/v3"
-	"github.com/gojuukaze/YTask/v3/core/server"
+	"github.com/gojuukaze/YTask/v3/server"
 	"time"
 )
 

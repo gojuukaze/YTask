@@ -1,10 +1,10 @@
 package mongo
 
 import (
-	"github.com/gojuukaze/YTask/v3/core/backends"
-	"github.com/gojuukaze/YTask/v3/core/message"
-	"github.com/gojuukaze/YTask/v3/core/util/yjson"
-	"github.com/gojuukaze/YTask/v3/core/yerrors"
+	"github.com/gojuukaze/YTask/v3/backends"
+	"github.com/gojuukaze/YTask/v3/message"
+	"github.com/gojuukaze/YTask/v3/util/yjson"
+	"github.com/gojuukaze/YTask/v3/yerrors"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 

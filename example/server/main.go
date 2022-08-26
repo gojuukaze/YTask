@@ -2,11 +2,11 @@ package main
 
 import (
 	"context"
-	"github.com/gojuukaze/YTask/v3/core"
-	"github.com/gojuukaze/YTask/v3/drives/redis"
-	"github.com/gojuukaze/YTask/v3/example/server/workers"
+	"github.com/gojuukaze/YTask/drives/redis/v3"
+	"github.com/gojuukaze/YTask/v3"
 	"os"
 	"os/signal"
+	"server/workers"
 	"syscall"
 )
 

@@ -5,7 +5,7 @@
 ## Installation
 
 ```shell
-go get -u github.com/gojuukaze/YTask/core/drives/mongo2
+go get -u github.com/gojuukaze/YTask/drives/mongo2/v3
 ```
 
 ## Backend
@@ -14,7 +14,7 @@ go get -u github.com/gojuukaze/YTask/core/drives/mongo2
 package main
 
 import (
-    "github.com/gojuukaze/YTask/v3/drives/mongo2"
+    "github.com/gojuukaze/YTask/drives/mongo2/v3"
 )
 
 func main() {

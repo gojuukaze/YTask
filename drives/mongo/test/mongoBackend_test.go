@@ -2,8 +2,8 @@ package test
 
 import (
 	"fmt"
-	"github.com/gojuukaze/YTask/v3/core/message"
-	"github.com/gojuukaze/YTask/v3/drives/mongo"
+	"github.com/gojuukaze/YTask/drives/mongo/v3"
+	"github.com/gojuukaze/YTask/v3/message"
 	"testing"
 )
 

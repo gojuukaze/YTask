@@ -3,7 +3,7 @@
 ## Installation
 
 ```shell
-go get -u github.com/gojuukaze/YTask/core/drives/redis
+go get -u github.com/gojuukaze/YTask/drives/redis/v3
 ```
 
 ## Broker
@@ -12,7 +12,7 @@ go get -u github.com/gojuukaze/YTask/core/drives/redis
 package main
 
 import (
-    "github.com/gojuukaze/YTask/v3/drives/redis"
+    "github.com/gojuukaze/YTask/drives/redis/v3"
 )
 
 func main() {
@@ -28,7 +28,7 @@ func main() {
 package main
 
 import (
-    "github.com/gojuukaze/YTask/v3/drives/redis"
+    "github.com/gojuukaze/YTask/drives/redis/v3"
 )
 
 func main() {

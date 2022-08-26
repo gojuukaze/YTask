@@ -1,4 +1,4 @@
-module github.com/gojuukaze/YTask/v3/drives/mongo
+module github.com/gojuukaze/YTask/drives/mongo/v3
 
 go 1.18
 

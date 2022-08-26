@@ -1,4 +1,4 @@
-module github.com/gojuukaze/YTask/v3/example/server
+module server
 
 go 1.18
 

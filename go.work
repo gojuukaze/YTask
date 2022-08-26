@@ -6,7 +6,7 @@ use (
 	./drives/mongo2
 	./drives/mongo
 	./drives/redis
-	./core
+	./v3
 	./example/server
 	./example/send
 )

@@ -1,11 +1,11 @@
 // Package mongo
-// Deprecated !! Use github.com/gojuukaze/YTask/drives/mongo2
+// Deprecated !! Use github.com/gojuukaze/YTask/drives/mongo/v32
 package mongo
 
 import (
 	"context"
 	"fmt"
-	"github.com/gojuukaze/YTask/v3/core/log"
+	"github.com/gojuukaze/YTask/v3/log"
 	"go.mongodb.org/mongo-driver/x/bsonx"
 	"time"
 
