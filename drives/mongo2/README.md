@@ -5,7 +5,7 @@
 ## Installation
 
 ```shell
-go get -u github.com/gojuukaze/YTask/v3/drives/mongo2
+go get -u github.com/gojuukaze/YTask/core/drives/mongo2
 ```
 
 ## Backend

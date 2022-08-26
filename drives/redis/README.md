@@ -3,7 +3,7 @@
 ## Installation
 
 ```shell
-go get -u github.com/gojuukaze/YTask/v3/drives/redis
+go get -u github.com/gojuukaze/YTask/core/drives/redis
 ```
 
 ## Broker
@@ -16,7 +16,7 @@ import (
 )
 
 func main() {
-	broker := redis.NewRedisBroker("127.0.0.1", "6379", "", 0, 1)
+	broker := redis.NewRedisBroker("127.0.0.1", "6379", "", 0, 3)
 	// ...
 }
 ```
@@ -32,7 +32,7 @@ import (
 )
 
 func main() {
-	backend := redis.NewRedisBackend("127.0.0.1", "6379", "", 0, 2)
+	backend := redis.NewRedisBackend("127.0.0.1", "6379", "", 0, 10)
 	// ...
 }
 ```

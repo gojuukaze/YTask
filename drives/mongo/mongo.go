@@ -5,7 +5,7 @@ package mongo
 import (
 	"context"
 	"fmt"
-	"github.com/gojuukaze/YTask/v3/log"
+	"github.com/gojuukaze/YTask/v3/core/log"
 	"go.mongodb.org/mongo-driver/x/bsonx"
 	"time"
 

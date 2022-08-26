@@ -2,9 +2,9 @@ package test
 
 import (
 	"fmt"
+	"github.com/gojuukaze/YTask/v3/core/message"
+	"github.com/gojuukaze/YTask/v3/core/yerrors"
 	"github.com/gojuukaze/YTask/v3/drives/redis"
-	"github.com/gojuukaze/YTask/v3/message"
-	"github.com/gojuukaze/YTask/v3/yerrors"
 	"testing"
 	"time"
 )

@@ -8,5 +8,5 @@
 ## Installation
 
 ```shell
-go get -u github.com/gojuukaze/YTask/v3/drives/mongo
+go get -u github.com/gojuukaze/YTask/core/drives/mongo
 ```

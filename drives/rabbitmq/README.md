@@ -3,7 +3,7 @@
 ## Installation
 
 ```shell
-go get -u github.com/gojuukaze/YTask/v3/drives/rabbitmq
+go get -u github.com/gojuukaze/YTask/core/drives/rabbitmq
 ```
 
 ## Broker

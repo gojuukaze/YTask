@@ -2,10 +2,10 @@ package redis
 
 import (
 	"github.com/go-redis/redis/v8"
-	"github.com/gojuukaze/YTask/v3/backends"
-	"github.com/gojuukaze/YTask/v3/message"
-	"github.com/gojuukaze/YTask/v3/util/yjson"
-	"github.com/gojuukaze/YTask/v3/yerrors"
+	"github.com/gojuukaze/YTask/v3/core/backends"
+	"github.com/gojuukaze/YTask/v3/core/message"
+	"github.com/gojuukaze/YTask/v3/core/util/yjson"
+	"github.com/gojuukaze/YTask/v3/core/yerrors"
 	"time"
 )
 

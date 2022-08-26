@@ -2,7 +2,7 @@ package workers
 
 import (
 	"errors"
-	"github.com/gojuukaze/YTask/v3/server"
+	"github.com/gojuukaze/YTask/v3/core/server"
 )
 
 type User struct {

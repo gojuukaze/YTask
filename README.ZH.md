@@ -8,7 +8,7 @@ golang异步任务/队列 框架
 
 # install
 ```bash
-go get github.com/gojuukaze/YTask/v3
+go get github.com/gojuukaze/YTask/v3/core
 ```
 # 架构图
 <img src="./architecture_diagram.png" alt="architecture_diagram" width="80%">
@@ -93,7 +93,7 @@ package main
 import (
 	"fmt"
 	"github.com/gojuukaze/YTask/v3"
-	"github.com/gojuukaze/YTask/v3/server"
+	"github.com/gojuukaze/YTask/v3/core/server"
 	"time"
 )
 
@@ -153,7 +153,7 @@ func main() {
 # Example
 [example](https://github.com/gojuukaze/YTask/tree/master/example/v2) 目录下有更多的样例可供参考
 ```bash
-cd example/v3
+cd example/core
 go run server/main.go 
 
 go run send/main.go

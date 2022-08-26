@@ -2,7 +2,7 @@ package main
 
 import (
 	"context"
-	"github.com/gojuukaze/YTask/v3"
+	"github.com/gojuukaze/YTask/v3/core"
 	"github.com/gojuukaze/YTask/v3/drives/redis"
 	"github.com/gojuukaze/YTask/v3/example/server/workers"
 	"os"

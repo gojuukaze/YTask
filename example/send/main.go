@@ -2,9 +2,9 @@ package main
 
 import (
 	"fmt"
-	"github.com/gojuukaze/YTask/v3"
+	ytask "github.com/gojuukaze/YTask/v3/core"
+	"github.com/gojuukaze/YTask/v3/core/server"
 	"github.com/gojuukaze/YTask/v3/drives/redis"
-	"github.com/gojuukaze/YTask/v3/server"
 	"time"
 )
 
