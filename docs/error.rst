@@ -14,8 +14,8 @@ Error
 	  ErrTypeTimeOut         = 5 // broker，backend超时
 	  ErrTypeServerStop      = 6 // 服务已停止
 	  ErrTypeSendMsg    = 7 // 通过broker发送消息失败，目前工作流中发送下一个任务时会用到
-      ErrTypeNilBackend = 8
-      ErrTypeAbortTask = 9
+	  ErrTypeNilBackend = 8
+	  ErrTypeAbortTask = 9
    )
 
 
