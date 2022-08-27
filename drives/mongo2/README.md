@@ -18,7 +18,7 @@ import (
 )
 
 func main() {
-	backend := mongo2.NewMongoBackend("127.0.0.1", "27017", "", "", "test", "test", 2, 20)
+	backend := mongo2.NewMongoBackend("127.0.0.1", "27017", "", "", "test", "test", 200)
 	// ...
 }
 ```
