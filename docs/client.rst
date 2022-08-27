@@ -8,7 +8,7 @@
 
 .. code:: go
 
-   import "github.com/gojuukaze/YTask/v2"
+   import "github.com/gojuukaze/YTask/v3"
 
    ser := ytask.Server.NewServer(
            ytask.Config.Broker(&broker),
