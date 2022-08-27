@@ -40,6 +40,8 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
+	"github.com/gojuukaze/YTask/drives/redis/v3"
+	"github.com/gojuukaze/YTask/v3"
 )
 
 // 定义两个任务，任务参数、返回值支持所有能被序列化为json的类型
