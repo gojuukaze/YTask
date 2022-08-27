@@ -60,6 +60,7 @@ Welcome to YTask's documentation!
    abortTask
    log
    error
+   upgrade
 
 Indices and tables
 ==================

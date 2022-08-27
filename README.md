@@ -1,10 +1,4 @@
-
-
-# v2升级改动
-1.msg json
-2.taskCtl包,以及获取RetryCount方法
-3.队列名
-
+YTask
 -----------
 
 YTask is an asynchronous task queue for handling distributed jobs in golang  
@@ -13,11 +7,18 @@ golang异步任务/队列 框架
 * [中文文档](https://doc.ikaze.cn/YTask) (Chinese document has more detailed instructions. If you know Chinese, read Chinese document)
 * [En Doc](https://github.com/gojuukaze/YTask/wiki)
 * [Github](https://github.com/gojuukaze/YTask)
+* [Brokers And Backends](https://github.com/gojuukaze/YTask/drives)
 
 # install
 ```bash
+# install core
 go get -u github.com/gojuukaze/YTask/v3
+
+#install broker and backend
+
+
 ```
+
 # architecture diagram
 <img src="./architecture_diagram.png" alt="architecture_diagram" width="80%">
 
