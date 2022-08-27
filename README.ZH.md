@@ -7,7 +7,7 @@ golang异步任务/队列 框架
 * [中文文档](https://doc.ikaze.cn/YTask) (中文文档更加全面，优先阅读中文文档)
 * [En Doc](https://github.com/gojuukaze/YTask/wiki)
 * [Github](https://github.com/gojuukaze/YTask)
-* [Brokers And Backends](https://github.com/gojuukaze/YTask/drives)
+* [Brokers And Backends](./drives)
 * [V2 Doc](https://doc.ikaze.cn/YTaskV2) 
 
 # install
