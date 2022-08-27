@@ -41,6 +41,8 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
+	"github.com/gojuukaze/YTask/drives/redis/v3"
+	"github.com/gojuukaze/YTask/v3"
 )
 
 // Define two tasks.
