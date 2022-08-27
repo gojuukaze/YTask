@@ -1,29 +1,9 @@
-# v3开发说明
-* 迁移drives，以便导入时不导入不必要的drive包
-* 级联任务
-* example
-* 测试用的drives
-* 文档
-* 连接池默认值调整
-* active添加调用来源
-* test/ytask_multiServer_2_test.go
-* test/ytask_delayServer_test.go
-* server端broker保持链接
 
-## 发包测试
-* 测试发v3后是否能安装v2
-* drives中go.mod不添加ytask是否能正常运行
 
 # v2升级改动
 1.msg json
 2.taskCtl包,以及获取RetryCount方法
 3.队列名
-
-# YTask
-
-# Warning!!!
-## Brokers and Backends other than redis are unstable in the current version, so it is not recommended to use them. This issue will be fixed in v3.0. 
-## 在目前版本，除redis之外的broker与backend不稳定，不建议使用。这一问题会在v3.0修复
 
 -----------
 

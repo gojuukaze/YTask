@@ -1,12 +1,12 @@
 package test
 
 import (
-	ytask "github.com/gojuukaze/YTask/core"
+	"github.com/gojuukaze/YTask/v3"
 	"github.com/gojuukaze/YTask/v3/consts"
 	"github.com/gojuukaze/YTask/v3/message"
 	"github.com/gojuukaze/YTask/v3/server"
 	"github.com/gojuukaze/YTask/v3/util/yjson"
-	jsoniter "github.com/json-iterator/go"
+	"github.com/json-iterator/go"
 	"strings"
 	"testing"
 )
