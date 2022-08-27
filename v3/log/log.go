@@ -3,8 +3,6 @@ package log
 import (
 	"fmt"
 	"github.com/sirupsen/logrus"
-	"path"
-	"path/filepath"
 	"runtime"
 	"strings"
 )
@@ -50,26 +48,22 @@ func (hook LineNumHook) Levels() []logrus.Level {
 }
 
 func (hook LineNumHook) Fire(entry *logrus.Entry) error {
-	pc := make([]uintptr, 6, 6)
-	cnt := runtime.Callers(6, pc)
-	for i := 0; i < cnt; i++ {
-		fu := runtime.FuncForPC(pc[i] - 1)
-		name := fu.Name()
-		if !strings.Contains(name, "github.com/sirupsen/logrus") {
-			file, line := fu.FileLine(pc[i] - 1)
-			p, f := filepath.Split(file)
-			l := strings.Split(p, "/")
-			i := 0
-			for ; i < len(l); i++ {
-				if l[i] == "YTask" {
-					break
-				}
-			}
-			file = strings.Join(l[i:], "/") + f
-			entry.Data["file"] = file + ":" + fmt.Sprintf("%d", line)
-			entry.Data["func"] = path.Base(name)
-			break
+	pc, file, line, ok := runtime.Caller(7)
+	if ok {
+		i := strings.Index(file, "YTask")
+		if i == -1 {
+			return nil
 		}
+		entry.Data["file"] = fmt.Sprintf("%s:%d", file[i:], line)
+
+		fu := runtime.FuncForPC(pc - 1)
+		name := fu.Name()
+		i = strings.LastIndex(name, "/")
+		if i == -1 {
+			return nil
+		}
+		entry.Data["func"] = name[i+1:]
+
 	}
 	return nil
 }
