@@ -46,7 +46,7 @@ import (
 )
 
 // Define two tasks.
-// Task parameters and return values ​​support all types that can be serialized to json
+// Task parameters and return values support all types that can be serialized to json
 
 func add(a int, b int) int {
 	return a + b
