@@ -40,16 +40,16 @@
 
 你可以使用 ``GetResult()`` 获取最后一个任务的返回值。
 
-也可以则使用  ``GetResult2()`` 获取任务流的运行进度。
+也可以使用  ``GetResult2()`` 获取任务流的运行进度。
 
 .. code:: go
 
 	result, err := client.GetResult2(id, time.Second*2, time.Millisecond*300)
 
-    // 说明任务还未开始
-    if yerrors.IsEqual(err, yerrors.ErrTypeTimeOut) {
-        // ...
-    }
+	// 说明任务还未开始
+	if yerrors.IsEqual(err, yerrors.ErrTypeTimeOut) {
+		// ...
+	}
 
 	// status: waiting , running , success , failure , expired , abort
 	for name, status:= range result.Workflow{

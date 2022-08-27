@@ -39,7 +39,7 @@ Mongo
 
 https://github.com/gojuukaze/YTask/drives/mongo2
 
-如果你是从v2版升级，且希望保留旧数据，则使用 `mongo <https://github.com/gojuukaze/YTask/drives/mongo>`__  ，请否则使用mongo2
+如果你是从v2版升级，且希望保留旧数据，则使用 `mongo <https://github.com/gojuukaze/YTask/drives/mongo>`__  ，否则使用mongo2
 
 ---
 
