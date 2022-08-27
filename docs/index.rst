@@ -14,13 +14,21 @@ Welcome to YTask's documentation!
    (中文文档更加全面，优先阅读中文文档)
 -  `En Doc <https://github.com/gojuukaze/YTask/wiki>`__
 -  `Github <https://github.com/gojuukaze/YTask>`__
+-  `V2 Doc <https://doc.ikaze.cn/YTaskV2>`__
 
 安装
 -----
 
 .. code:: shell
 
-   go get -u github.com/gojuukaze/YTask/v2
+   # 安装核心代码
+   go get -u github.com/gojuukaze/YTask/v3
+
+   # 安装broker, backend
+   go get -u github.com/gojuukaze/YTask/drives/redis/v3
+   go get -u github.com/gojuukaze/YTask/drives/rabbitmq/v3
+   go get -u github.com/gojuukaze/YTask/drives/mongo2/v3
+   go get -u github.com/gojuukaze/YTask/drives/memcache/v3
 
 
 特点
@@ -44,13 +52,16 @@ Welcome to YTask's documentation!
    QuickStart
    server
    client
+   broker
+   backend
    retry
    delay
    expire
-   broker
-   backend
+   workflow
+   abortTask
    log
    error
+   upgrade
 
 Indices and tables
 ==================

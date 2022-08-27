@@ -1,8 +1,3 @@
-module github.com/gojuukaze/YTask
+module github.com/gojuukaze/YTask/v3
 
-go 1.12
-
-require (
-	github.com/gomodule/redigo v2.0.0+incompatible
-	github.com/sirupsen/logrus v1.4.2
-)
+go 1.18

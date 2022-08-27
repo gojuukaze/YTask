@@ -20,8 +20,9 @@
 .. code:: go
 
 
-   func add(ctl *controller.TaskCtl,a, b int){
+   func add(ctl *server.TaskCtl,a, b int){
        ctl.Retry(errors.New("xx"))
+       // 别忘了return，否则会继续执行下去
        return
    }
 

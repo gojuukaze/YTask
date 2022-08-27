@@ -30,7 +30,7 @@ YTask使用logrus打印日志
 .. code:: go 
 
    import (
-   "github.com/gojuukaze/YTask/v2/log"
+   "github.com/gojuukaze/YTask/v3/log"
    "github.com/gojuukaze/go-watch-file")
 
    // write to file

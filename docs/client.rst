@@ -8,7 +8,7 @@
 
 .. code:: go
 
-   import "github.com/gojuukaze/YTask/v2"
+   import "github.com/gojuukaze/YTask/v3"
 
    ser := ytask.Server.NewServer(
            ytask.Config.Broker(&broker),
@@ -45,8 +45,14 @@
 
 获取结果
 ----------
+可通过 ``GetResult()`` ， ``GetResult2()``  获取结果
 
-| 调用\ ``GetResult()``\ 获取任务结果，第2个参数为超时时间，第3个参数为重新获取时间。
+* ``GetResult()`` : 只有任务结束才返回（任务失败、完成都是结束）
+* ``GetResult2()`` : backend中有记录就返回（一般来说任务开始执行就会有），这个通常用于获取任务流进度
+
+---
+
+| \ ``GetResult()``\ ， \ ``GetResult2()``\ 的第2个参数为超时时间，第3个参数为重新获取时间。
 | 获取结果后可调用\ ``GetXX()``\ ，\ ``Get()``\ ，\ ``Gets()``\ 获取任务函数的返回结果。
 
 .. code:: go
@@ -72,6 +78,8 @@
        var b bool
        err:=result.Gets(&a, &b)
    }
+
+
 
 ..
 

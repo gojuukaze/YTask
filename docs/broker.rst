@@ -4,49 +4,48 @@ Broker
 | YTask使用broker与任务队列通信，发送或接收任务。
 | 支持的broker有：
 
-redisBroker
+Redis
 --------------
+
+https://github.com/gojuukaze/YTask/drives/redis
 
 .. code:: go
 
-   import "github.com/gojuukaze/YTask/v2"
+   import "github.com/gojuukaze/YTask/drives/redis/v3"
 
    // 127.0.0.1 : host
    // 6379 : port
    // "" : password
    // 0 : db
-   // 10 : client连接池大小. (server端无需设置)
+   // 10 : client连接池大小. (<=0默认为3)
    //      对于client端, 你需要根据情况自行设置连接池
-   ytask.Broker.NewRedisBroker("127.0.0.1", "6379", "", 0, 10)
+   redis.NewRedisBroker("127.0.0.1", "6379", "", 0, 10)
 
-rabbitMqBroker
+RabbitMq
 -----------------
+https://github.com/gojuukaze/YTask/drives/rabbitmq
 
 .. code:: go
 
-   import "github.com/gojuukaze/YTask/v2"
+   import "github.com/gojuukaze/YTask/drives/rabbitmq/v3"
    // 127.0.0.1 : host
    // 5672 : port
    // guest : username
    // guest : password
 
-   ytask.Broker.NewRabbitMqBroker("127.0.0.1", "5672", "guest", "guest", "")
+   rabbitmq.NewRabbitMqBroker("127.0.0.1", "5672", "guest", "guest", "")
 
-rocketMqBroker
------------------
+RocketMq (不再支持)
+-------------------------------------
 
-不建议在延时任务中使用
+v3 不再支持，具体见：https://github.com/gojuukaze/YTask/drives/rocketmq
 
-.. code:: go
-
-   import "github.com/gojuukaze/YTask/v2"
-
-   ytask.Broker.NewRocketMqBroker([]string{"127.0.0.1:9876"},[]string{"127.0.0.1:10911"})
+.. _custom:
 
 自定义broker
 --------------
 
-你可以自行定义broker。需要注意，因为系统中会调用\ ``SetPoolSize``\ 设置连接池，所以初始化broker时不要建立连接，调用\ ``Activate()``\ 时再建立。
+你可以自定义broker。需要注意，因为系统中会调用\ ``SetPoolSize``\ 设置连接池，所以初始化broker时不要建立连接，调用\ ``Activate()``\ 时再建立。
 
 如果你的broker不支持连接池，那可以不用管Activate,SetPoolSize,GetPoolSize三个方法，直接返回空就行。
 
@@ -69,3 +68,9 @@ rocketMqBroker
        // 用当前broker的配置生成个新的broker
        Clone() BrokerInterface
    }
+
+.. admonition:: 注意
+
+   强烈建议你使用连接池，v3自带了一个连接池在 ``util/pool.go`` 使用样例见 ``test/connPool_test.go``
+
+   如果确定不用连接池，需要在Send，Next时建立链接，用完后销毁。 **（注意不要复用链接，否则会造成多个协程争抢！！）**

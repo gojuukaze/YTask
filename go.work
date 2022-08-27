@@ -1,0 +1,12 @@
+go 1.18
+
+use (
+    ./drives/rabbitmq
+	./drives/memcache
+	./drives/mongo2
+	./drives/mongo
+	./drives/redis
+	./v3
+	./example/server
+	./example/send
+)
