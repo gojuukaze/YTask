@@ -4,7 +4,7 @@ Backend用于保存任务结果
 
 Redis
 --------------
-https://github.com/gojuukaze/YTask/drives/redis
+https://github.com/gojuukaze/YTask/tree/master/drives/redis
 
 .. code:: go
 
@@ -21,7 +21,7 @@ https://github.com/gojuukaze/YTask/drives/redis
 
 MemCache
 ---------------------
-https://github.com/gojuukaze/YTask/drives/memcache
+https://github.com/gojuukaze/YTask/tree/master/drives/memcache
 
 .. code:: go
 
@@ -37,9 +37,9 @@ https://github.com/gojuukaze/YTask/drives/memcache
 Mongo
 --------------
 
-https://github.com/gojuukaze/YTask/drives/mongo2
+https://github.com/gojuukaze/YTask/tree/master/drives/mongo2
 
-如果你是从v2版升级，且希望保留旧数据，则使用 `mongo <https://github.com/gojuukaze/YTask/drives/mongo>`__  ，否则使用mongo2
+如果你是从v2版升级，且希望保留旧数据，则使用 `mongo <https://github.com/gojuukaze/YTask/tree/master/drives/mongo>`__  ，否则使用mongo2
 
 ---
 

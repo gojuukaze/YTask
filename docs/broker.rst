@@ -7,7 +7,7 @@ Broker
 Redis
 --------------
 
-https://github.com/gojuukaze/YTask/drives/redis
+https://github.com/gojuukaze/YTask/tree/master/drives/redis
 
 .. code:: go
 
@@ -23,7 +23,7 @@ https://github.com/gojuukaze/YTask/drives/redis
 
 RabbitMq
 -----------------
-https://github.com/gojuukaze/YTask/drives/rabbitmq
+https://github.com/gojuukaze/YTask/tree/master/drives/rabbitmq
 
 .. code:: go
 
@@ -38,7 +38,7 @@ https://github.com/gojuukaze/YTask/drives/rabbitmq
 RocketMq (不再支持)
 -------------------------------------
 
-v3 不再支持，具体见：https://github.com/gojuukaze/YTask/drives/rocketmq
+v3 不再支持，具体见：https://github.com/gojuukaze/YTask/tree/master/drives/rocketmq
 
 .. _custom:
 

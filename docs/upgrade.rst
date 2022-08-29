@@ -34,3 +34,5 @@
      ser:=ytask.NewServer(...)
 
 * 若你之前使用MongoBackend又不想丢失之前保存的任务结果，则使用 ``mongo`` 包，否则建议使用 ``mongo2`` 包
+
+* v3移除了RocketMq支持，具体说明见：https://github.com/gojuukaze/YTask/tree/master/drives/rocketmq
