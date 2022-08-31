@@ -1,3 +1,3 @@
-module github.com/gojuukaze/YTask/v3
+module github.com/gojuukaze/YTask
 
 go 1.18
