@@ -1,8 +1,9 @@
 # Example
 
 ```bash
-cd example/v2
+cd example/server
+go run main.go 
 
-go run server/main.go 
-go run send/main.go
+cd example/send
+go run main.go
 ```
