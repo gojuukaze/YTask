@@ -1,7 +1,7 @@
 中止任务
 ===========
 
-你可以中止任务以及工作流
+你可以中止任务以及工作流，**注意！！使用中止任务必须配置backend！！！**
 
 中止未运行任务
 ------------------------
@@ -24,14 +24,17 @@
 
 .. code:: go
 
-	func abortWorker(ctl *server.TaskCtl, a int) int {
-        // do ...
+    func sendSMS(ctl *server.TaskCtl, userId, msg string) {
+         
+	phone := getUserPhone(userId)
 
     	if f, _ := ctl.IsAbort(); f {
     		ctl.Abort("手动中止")
-    		// 别忘了return
-    		return 0
+    		// 别忘了return，否则会继续执行下去
+    		return
     	}
 
-    	return a * a
+    	Send(phone, msg)
     }
+    
+``IsAbort()`` 返回两个参数：``isAbort, err`` ，如果从backend获取数据出错 isAbort会设为false ，此时你要根据需求判断是否再次检测。
