@@ -143,6 +143,6 @@ func workflow() {
 		Done()
 	result, _ := client.GetResult(tId, 3*time.Second, 300*time.Millisecond)
 	a, _ := result.GetInt64(0)
-	fmt.Println("(123,44)+(123-44)=", a)
+	fmt.Println("(123+44)+(123-44)=", a)
 
 }
