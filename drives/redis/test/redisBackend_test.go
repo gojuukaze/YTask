@@ -10,7 +10,7 @@ import (
 )
 
 func TestRedisBackend(t *testing.T) {
-	b := redis.NewRedisBackend("127.0.0.1", "6379", "", 0, 1)
+	b := redis.NewRedisBackend([]string{"127.0.0.1:6379"}, "", 0, 1, 0)
 	result := message.NewResult("xx123")
 	result.FuncReturn = nil
 	b.Activate()

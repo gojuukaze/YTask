@@ -8,3 +8,9 @@ docker stop ytask-redis
 docker rm ytask-redis
 
 ```
+
+```shell
+cd drives/redis
+go test -v test/redisBackend_cluster_test.go
+go test -v test/redisBroker_cluster_test.go
+```
