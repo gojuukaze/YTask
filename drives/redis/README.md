@@ -16,9 +16,10 @@ import (
 )
 
 func main() {
-	broker := redis.NewRedisBroker("127.0.0.1", "6379", "", 0, 3)
+	broker := redis.NewRedisBroker([]string{"127.0.0.1:6379"}, "", 0, 3, 0)
 	// ...
 }
+
 ```
 
 
@@ -27,12 +28,9 @@ func main() {
 ```go
 package main
 
-import (
-    "github.com/gojuukaze/YTask/drives/redis/v3"
-)
-
 func main() {
-	backend := redis.NewRedisBackend("127.0.0.1", "6379", "", 0, 10)
+	backend := redis.NewRedisBackend([]string{"127.0.0.1"}, "", 0, 10, 0)
 	// ...
 }
+
 ```

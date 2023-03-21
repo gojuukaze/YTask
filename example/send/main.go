@@ -18,12 +18,12 @@ var client server.Client
 func main() {
 	// poolSize: Maximum number of idle connections in client pool.
 	//           If clientPoolSize<=0, clientPoolSize=10
-	broker := redis.NewRedisBroker("127.0.0.1", "6379", "", 0, 5)
+	broker := redis.NewRedisBroker([]string{"127.0.0.1:6379"}, "", 0, 5, 0)
 	// poolSize: Maximum number of idle connections in the pool. If poolSize<=0 use default value
 	//           default value is 10 at client
 	//           ---------------
 	//           对于client端，如果poolSize<=0，poolSize会设为10
-	backend := redis.NewRedisBackend("127.0.0.1", "6379", "", 0, 5)
+	backend := redis.NewRedisBackend([]string{"127.0.0.1:6379"}, "", 0, 5, 0)
 
 	ser := ytask.Server.NewServer(
 		ytask.Config.Broker(&broker),

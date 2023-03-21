@@ -6,14 +6,14 @@ import (
 	"time"
 )
 
-type Client struct {
+type StandaloneClient struct {
 	redisPool *redis.Client
 }
 
-func NewRedisClient(host string, port string, password string, db int, poolSize int) Client {
-	client := Client{
+func NewRedisClient(host string, password string, db int, poolSize int) StandaloneClient {
+	client := StandaloneClient{
 		redisPool: redis.NewClient(&redis.Options{
-			Addr:        host + ":" + port,
+			Addr:        host,
 			Password:    password,
 			DB:          db,
 			PoolSize:    poolSize,
@@ -31,16 +31,16 @@ func NewRedisClient(host string, port string, password string, db int, poolSize 
 // =======================
 // high api
 // =======================
-func (c *Client) Exists(key string) (bool, error) {
+func (c *StandaloneClient) Exists(key string) (bool, error) {
 	r, err := c.redisPool.Exists(context.Background(), key).Result()
 	return r == 1, err
 }
-func (c *Client) Get(key string) *redis.StringCmd {
+func (c *StandaloneClient) Get(key string) *redis.StringCmd {
 
 	return c.redisPool.Get(context.Background(), key)
 }
 
-func (c *Client) Set(key string, value interface{}, exTime time.Duration) error {
+func (c *StandaloneClient) Set(key string, value interface{}, exTime time.Duration) error {
 
 	if exTime <= 0 {
 		exTime = 0
@@ -49,35 +49,35 @@ func (c *Client) Set(key string, value interface{}, exTime time.Duration) error 
 
 }
 
-func (c *Client) RPush(key string, value interface{}) error {
+func (c *StandaloneClient) RPush(key string, value interface{}) error {
 	return c.redisPool.RPush(context.Background(), key, value).Err()
 }
 
-func (c *Client) LPush(key string, value interface{}) error {
+func (c *StandaloneClient) LPush(key string, value interface{}) error {
 	return c.redisPool.LPush(context.Background(), key, value).Err()
 }
 
-func (c *Client) BLPop(key string, timeout time.Duration) *redis.StringSliceCmd {
+func (c *StandaloneClient) BLPop(key string, timeout time.Duration) *redis.StringSliceCmd {
 
 	return c.redisPool.BLPop(context.Background(), timeout, key)
 }
 
-func (c *Client) Do(args ...interface{}) *redis.Cmd {
+func (c *StandaloneClient) Do(args ...interface{}) *redis.Cmd {
 	var ctx = context.Background()
 
 	return c.redisPool.Do(ctx, args)
 }
 
-func (c *Client) Flush() error {
+func (c *StandaloneClient) Flush() error {
 
 	return c.redisPool.FlushDB(context.Background()).Err()
 }
 
-func (c *Client) Ping() error {
+func (c *StandaloneClient) Ping() error {
 
 	return c.redisPool.Ping(context.Background()).Err()
 }
 
-func (c *Client) Close() {
+func (c *StandaloneClient) Close() {
 	c.redisPool.Close()
 }

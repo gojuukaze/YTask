@@ -10,21 +10,23 @@ import (
 )
 
 type Broker struct {
-	client   *Client
-	host     string
-	port     string
-	password string
-	db       int
-	poolSize int
+	client     Client
+	clientType int // 0 standalone  1 cluster
+	hosts      []string
+	password   string
+	db         int
+	poolSize   int
 }
 
 // NewRedisBroker
-//  - poolSize: Maximum number of idle connections in client pool.
-//              If clientPoolSize<=0, clientPoolSize=10
-func NewRedisBroker(host string, port string, password string, db int, poolSize int) Broker {
+//   - host: redis url. If standalone,hosts[0] is 127.0.0.1:6379.
+//   - poolSize: Maximum number of idle connections in client pool.
+//     If clientPoolSize<=0, clientPoolSize=10
+//   - clientType: redis server version
+//     default value 0 is standalone, value 1 is clustered
+func NewRedisBroker(hosts []string, password string, db int, poolSize int, clientType int) Broker {
 	return Broker{
-		host:     host,
-		port:     port,
+		hosts:    hosts,
 		password: password,
 		db:       db,
 		poolSize: poolSize,
@@ -32,8 +34,16 @@ func NewRedisBroker(host string, port string, password string, db int, poolSize 
 }
 
 func (r *Broker) Activate() {
-	client := NewRedisClient(r.host, r.port, r.password, r.db, r.poolSize)
-	r.client = &client
+	switch r.clientType {
+	case 0:
+		client := NewRedisClient(r.hosts[0], r.password, r.db, r.poolSize)
+		r.client = &client
+	case 1:
+		client := NewRedisClusterClient(r.hosts, r.password, r.poolSize)
+		r.client = &client
+	default:
+		panic("YTask: check clientType!!")
+	}
 }
 
 func (r *Broker) SetPoolSize(n int) {
@@ -80,8 +90,7 @@ func (r *Broker) LSend(queueName string, msg message.Message) error {
 func (r Broker) Clone() brokers.BrokerInterface {
 
 	return &Broker{
-		host:     r.host,
-		port:     r.port,
+		hosts:    r.hosts,
 		password: r.password,
 		db:       r.db,
 		poolSize: r.poolSize,

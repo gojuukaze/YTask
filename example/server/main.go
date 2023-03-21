@@ -14,12 +14,12 @@ func main() {
 	//
 	// PoolSize : server端, 如果brokerPoolSize<=0时默认为3;
 	//              如果需要频繁使用工作流，则可适当调大此项，最大不要超过 并发任务数+1
-	broker := redis.NewRedisBroker("127.0.0.1", "6379", "", 0, 0)
+	broker := redis.NewRedisBroker([]string{"127.0.0.1:6379"}, "", 0, 0, 0)
 	// poolSize: Maximum number of idle connections in the pool. If poolSize<=0 use default value
 	//           default value is min(10, numWorkers) at server
 	//           -------------
 	//           如果poolSize<=0 会使用默认值，对于server端backendPoolSize的默认值是 min(10, numWorkers)
-	backend := redis.NewRedisBackend("127.0.0.1", "6379", "", 0, 0)
+	backend := redis.NewRedisBackend([]string{"127.0.0.1:6379"}, "", 0, 0, 0)
 
 	ser := ytask.Server.NewServer(
 		ytask.Config.Broker(&broker),

@@ -10,32 +10,43 @@ import (
 )
 
 type Backend struct {
-	client   *Client
-	host     string
-	port     string
-	password string
-	db       int
-	poolSize int
+	client     Client
+	clientType int // 0 standalone  1 cluster
+	hosts      []string
+	password   string
+	db         int
+	poolSize   int
 }
 
 // NewRedisBackend
-//  - poolSize: Maximum number of idle connections in the pool. If poolSize<=0 use default value.
-//              default value is min(10, numWorkers) at SERVER
-//              default value is 10 at CLIENT
-//
-func NewRedisBackend(host string, port string, password string, db int, poolSize int) Backend {
+//   - host: redis url. If standalone,hosts[0] is 127.0.0.1:6379.
+//   - poolSize: Maximum number of idle connections in the pool. If poolSize<=0 use default value.
+//     default value is min(10, numWorkers) at SERVER
+//     default value is 10 at CLIENT
+//   - clientType: redis server version
+//     default value 0 is standalone, value 1 is clustered
+func NewRedisBackend(hosts []string, password string, db int, poolSize int, clientType int) Backend {
 	return Backend{
-		host:     host,
-		port:     port,
-		password: password,
-		db:       db,
-		poolSize: poolSize,
+		hosts:      hosts,
+		password:   password,
+		db:         db,
+		poolSize:   poolSize,
+		clientType: clientType,
 	}
 }
 
 func (r *Backend) Activate() {
-	client := NewRedisClient(r.host, r.port, r.password, r.db, r.poolSize)
-	r.client = &client
+	switch r.clientType {
+	case 0:
+		client := NewRedisClient(r.hosts[0], r.password, r.db, r.poolSize)
+		r.client = &client
+	case 1:
+		client := NewRedisClusterClient(r.hosts, r.password, r.poolSize)
+		r.client = &client
+	default:
+		panic("YTask: check clientType!!")
+	}
+
 }
 
 func (r *Backend) SetPoolSize(n int) {
@@ -70,8 +81,7 @@ func (r *Backend) GetResult(key string) (message.Result, error) {
 
 func (r Backend) Clone() backends.BackendInterface {
 	return &Backend{
-		host:     r.host,
-		port:     r.port,
+		hosts:    r.hosts,
 		password: r.password,
 		db:       r.db,
 		poolSize: r.poolSize,

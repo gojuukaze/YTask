@@ -12,7 +12,7 @@ import (
 )
 
 func TestRedisBroker(t *testing.T) {
-	b := redis.NewRedisBroker("127.0.0.1", "6379", "", 0, 1)
+	b := redis.NewRedisBroker([]string{"127.0.0.1:6379"}, "", 0, 1, 0)
 	var broker brokers.BrokerInterface = &b
 	broker.Activate()
 	msg := message.NewMessage(message.NewMsgArgs())
@@ -46,7 +46,7 @@ func TestRedisBroker(t *testing.T) {
 }
 
 func TestRedisBrokerLSend(t *testing.T) {
-	broker := redis.NewRedisBroker("127.0.0.1", "6379", "", 0, 1)
+	broker := redis.NewRedisBroker([]string{"127.0.0.1:6379"}, "", 0, 1, 0)
 	broker.Activate()
 	msg := message.NewMessage(message.NewMsgArgs())
 	msg.Id = "1"
@@ -85,7 +85,7 @@ func TestRedisBrokerLSend(t *testing.T) {
 }
 
 func TestRedisBroker2(t *testing.T) {
-	broker := redis.NewRedisBroker("127.0.0.1", "6379", "", 0, 1)
+	broker := redis.NewRedisBroker([]string{"127.0.0.1:6379"}, "", 0, 1, 0)
 	broker.Activate()
 	msg := message.NewMessage(message.NewMsgArgs())
 	msg.Id = "1"
